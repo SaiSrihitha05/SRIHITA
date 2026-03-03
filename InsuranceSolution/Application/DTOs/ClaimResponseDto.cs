@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
+    public class ClaimNomineeSettlementDto
+    {
+        public string NomineeName { get; set; } = string.Empty;
+        public decimal SharePercentage { get; set; }
+        public decimal SettlementAmount { get; set; }
+    }
+
     public class ClaimResponseDto
     {
         public int Id { get; set; }
@@ -27,5 +31,6 @@ namespace Application.DTOs
         public DateTime? ProcessedDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<DocumentResponseDto> Documents { get; set; } = new();
+        public List<ClaimNomineeSettlementDto> SettlementBreakdown { get; set; } = new();
     }
 }

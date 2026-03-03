@@ -72,6 +72,7 @@ public class AuthService : IAuthService
         };
     }
 
+
     private string GenerateJwtToken(User user)
     {
         var claims = new[]
@@ -105,5 +106,36 @@ public class AuthService : IAuthService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    // No email sending, just validate email exists and return token directly
+    public async Task<string?> CreatePasswordResetTokenAsync(string email)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null) return null;
+
+        string token = Guid.NewGuid().ToString();
+        DateTime expiry = DateTime.UtcNow.AddHours(1);
+
+        await _userRepository.UpdateResetTokenAsync(user.Id, token, expiry);
+        return token; // ← return token directly to frontend
+    }
+    public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
+    {
+        var user = await _userRepository.GetUserByResetTokenAsync(dto.Token);
+
+        // 1. Validate user and token expiry
+        if (user == null || user.ResetTokenExpiry < DateTime.UtcNow)
+            return false;
+
+        // 2. Hash new password and clear token fields
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        user.ResetToken = null;
+        user.ResetTokenExpiry = null;
+
+        // 3. FIX: Use Update (sync) followed by SaveChangesAsync (async)
+        _userRepository.Update(user); // No 'await' here
+        await _userRepository.SaveChangesAsync(); // Persistent to DB
+
+        return true;
     }
 }

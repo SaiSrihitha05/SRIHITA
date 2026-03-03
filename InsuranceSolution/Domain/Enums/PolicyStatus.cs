@@ -8,12 +8,13 @@ namespace Domain.Enums
 {
     public enum PolicyStatus
     {
+        Draft,
         Pending,
         Active,
         Expired,
         Cancelled,
         Rejected,
-        Matured,    
+        Matured,
         Closed
     }
 }

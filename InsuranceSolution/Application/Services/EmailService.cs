@@ -21,7 +21,7 @@ namespace Infrastructure.Services
             _settings = settings.Value;
         }
 
-        public async Task SendEmailAsync(
+        public virtual async Task SendEmailAsync(
             string toEmail, string toName,
             string subject, string htmlBody)
         {
@@ -35,7 +35,8 @@ namespace Infrastructure.Services
 
             using var client = new SmtpClient();
             await client.ConnectAsync(
-                _settings.Host, _settings.Port,
+                _settings.Host,
+                _settings.Port,
                 SecureSocketOptions.StartTls);
             await client.AuthenticateAsync(
                 _settings.SenderEmail, _settings.Password);

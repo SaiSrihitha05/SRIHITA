@@ -146,5 +146,87 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
 
             return File(fileBytes, contentType, fileName);
         }
+        [HttpPost("{id}/cancel")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> CancelPolicy(int id)
+        {
+            var customerId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _policyService.CancelPendingPolicyAsync(id, customerId);
+            return Ok(new { message = "Policy cancelled successfully" });
+        }
+        // Save new draft
+        [HttpPost("draft")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> SaveDraft([FromBody] SaveDraftDto dto)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _policyService.SaveDraftAsync(customerId, dto);
+            return Ok(result);
+        }
+
+        // Update existing draft
+        [HttpPut("draft/{id}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> UpdateDraft(
+            int id, [FromBody] SaveDraftDto dto)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _policyService
+                .UpdateDraftAsync(id, customerId, dto);
+            return Ok(result);
+        }
+
+        // Submit draft as actual policy
+        [HttpPost("draft/{id}/submit")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> SubmitDraft(int id)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            // Reuse same multipart parsing as CreatePolicy
+            var membersJson = Request.Form["members"];
+            var nomineesJson = Request.Form["nominees"];
+            var policyJson = Request.Form["policy"];
+
+            var dto = JsonSerializer.Deserialize<CreatePolicyDto>(policyJson!);
+            var members = JsonSerializer.Deserialize<List<PolicyMemberDto>>(membersJson!);
+            var nominees = JsonSerializer.Deserialize<List<PolicyNomineeDto>>(nomineesJson!);
+
+            var customerDocs = Request.Form.Files
+                .Where(f => f.Name == "CustomerDocuments").ToList();
+            var memberDocs = Request.Form.Files
+                .Where(f => f.Name == "MemberDocuments").ToList();
+
+            var result = await _policyService.SubmitDraftAsync(
+                id, customerId, dto!, members!, nominees!,
+                customerDocs, memberDocs);
+
+            return Ok(result);
+        }
+
+        // Get all drafts
+        [HttpGet("my-drafts")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetMyDrafts()
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _policyService.GetMyDraftsAsync(customerId);
+            return Ok(result);
+        }
+
+        // Delete draft
+        [HttpDelete("draft/{id}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> DeleteDraft(int id)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            await _policyService.DeleteDraftAsync(id, customerId);
+            return NoContent();
+        }
     }
 }

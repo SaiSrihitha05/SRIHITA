@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Interfaces.Repositories;
+using Application.Services;
 using Domain.Enums;
 
 namespace InsuranceAPI.BackgroundServices
@@ -63,11 +64,11 @@ namespace InsuranceAPI.BackgroundServices
                 await notificationService.CreateNotificationAsync(
                     userId: policy.CustomerId,
                     title: "Premium Due Soon",
-                    message: $"Your premium of ₹{policy.TotalPremiumAmount:N2} " +
-                              $"for policy {policy.PolicyNumber} is due on " +
-                              $"{policy.NextDueDate:dd-MMM-yyyy}",
+                    message: $"Your policy {policy.PolicyNumber} premium is due on {policy.NextDueDate:dd MMM yyyy}.",
                     type: NotificationType.PremiumReminder,
-                    policyId: policy.Id);
+                    claimId: null,
+                    policyId: policy.Id,     // ← pass policy id here
+                    paymentId: null);
 
                 // Email reminder
                 await emailService.SendPremiumReminderAsync(

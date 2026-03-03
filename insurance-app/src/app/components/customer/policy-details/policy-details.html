@@ -1,68 +1,85 @@
 <div class="max-w-6xl mx-auto space-y-8 font-lato pb-20" *ngIf="policy">
   <div class="flex justify-between items-center">
-    <button routerLink="/customer-dashboard/my-policies" class="text-[#75013f] font-bold flex items-center gap-2">
+    <button routerLink="/customer-dashboard/my-policies"
+      class="text-[#75013f] dark:text-pink-300 font-bold flex items-center gap-2 transition-colors">
       ← Back to Portfolio
     </button>
     <div class="flex gap-3">
-      <span class="px-4 py-1 bg-[#75013f] text-white rounded-full text-[10px] font-black uppercase tracking-widest">
+      <span
+        class="px-4 py-1 bg-[#75013f] dark:bg-pink-700 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-colors">
         {{ policy.status }}
       </span>
-      <button *ngIf="policy.status === 'Active'"
-              [routerLink]="['/customer-dashboard/file-claim']"
-              [queryParams]="{ policyId: policy.id }"
-              class="px-8 py-3 bg-[#fe3082] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#fe3082]/20 hover:scale-105 transition-all">
+      <button *ngIf="policy.status === 'Active'" [routerLink]="['/customer-dashboard/file-claim']"
+        [queryParams]="{ policyId: policy.id }"
+        class="px-8 py-3 bg-[#fe3082] dark:bg-pink-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-[#fe3082]/20 dark:shadow-pink-900/40 hover:scale-105 transition-all">
         File a New Claim
       </button>
+      <button *ngIf="policy.status === 'Pending'"
+        (click)="onCancelPolicy()"
+        class="px-8 py-3 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-red-800 transition-all">
+  Cancel Application
+</button>
+      
     </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
+
     <div class="lg:col-span-2 space-y-8">
-      <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-gray-100">
-        <h2 class="text-3xl font-black text-[#75013f] mb-2">{{ policy.planName }}</h2>
-        <p class="text-gray-400 font-bold text-xs uppercase tracking-widest mb-8">Policy #{{ policy.policyNumber }}</p>
+      <div
+        class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+        <h2 class="text-3xl font-black text-[#75013f] dark:text-pink-300 mb-2">{{ policy.planName }}</h2>
+        <p class="text-gray-400 dark:text-gray-500 font-bold text-xs uppercase tracking-widest mb-8">Policy #{{
+          policy.policyNumber }}</p>
 
         <div class="grid grid-cols-2 md:grid-cols-3 gap-y-8">
           <div>
-            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Premium Amount</p>
-            <p class="text-lg font-black text-[#fe3082]">₹{{ policy.totalPremiumAmount | number }} <span class="text-xs text-gray-400 font-normal">/{{ policy.premiumFrequency }}</span></p>
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Premium Amount</p>
+            <p class="text-lg font-black text-[#fe3082] dark:text-pink-400">₹{{ policy.totalPremiumAmount | number }}
+              <span class="text-xs text-gray-400 dark:text-gray-500 font-normal">/{{ policy.premiumFrequency }}</span>
+            </p>
           </div>
           <div>
-            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Term Period</p>
-            <p class="text-lg font-black text-gray-700">{{ policy.termYears }} Years</p>
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Term Period</p>
+            <p class="text-lg font-black text-gray-700 dark:text-gray-200">{{ policy.termYears }} Years</p>
           </div>
           <div>
-            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Agent</p>
-            <p class="text-lg font-black text-gray-700">{{ policy.agentName || 'Direct' }}</p>
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Agent</p>
+            <p class="text-lg font-black text-gray-700 dark:text-gray-200">{{ policy.agentName || 'Direct' }}</p>
           </div>
           <div>
-            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Start Date</p>
-            <p class="text-sm font-bold text-gray-700">{{ policy.startDate | date:'longDate' }}</p>
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Start Date</p>
+            <p class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ policy.startDate | date:'longDate' }}</p>
           </div>
           <div>
-            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">End Date</p>
-            <p class="text-sm font-bold text-gray-700">{{ policy.endDate | date:'longDate' }}</p>
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">End Date</p>
+            <p class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ policy.endDate | date:'longDate' }}</p>
           </div>
           <div>
-            <p class="text-[10px] font-black text-gray-300 uppercase mb-1">Next Due Date</p>
-            <p class="text-sm font-bold text-orange-600">{{ policy.nextDueDate | date:'longDate' }}</p>
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Next Due Date</p>
+            <p class="text-sm font-bold text-orange-600 dark:text-orange-400">{{ policy.nextDueDate | date:'longDate' }}
+            </p>
           </div>
         </div>
       </div>
 
       <div class="space-y-4">
-        <h3 class="text-xl font-black text-[#75013f] px-4">Insured Members</h3>
+        <h3 class="text-xl font-black text-[#75013f] dark:text-pink-300 px-4">Insured Members</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div *ngFor="let member of policy.members" class="bg-white rounded-[2rem] p-6 border border-gray-100 shadow-sm">
+          <div *ngFor="let member of policy.members"
+            class="bg-white dark:bg-gray-800 rounded-[2rem] p-6 border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
             <div class="flex justify-between items-start mb-4">
-              <h4 class="font-black text-gray-800">{{ member.memberName }}</h4>
-              <span class="px-3 py-1 bg-gray-50 text-gray-400 rounded-lg text-[9px] font-black uppercase">{{ member.relationshipToCustomer }}</span>
+              <h4 class="font-black text-gray-800 dark:text-gray-100">{{ member.memberName }}</h4>
+              <span
+                class="px-3 py-1 bg-gray-50 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-lg text-[9px] font-black uppercase transition-colors">{{
+                member.relationshipToCustomer }}</span>
             </div>
             <div class="space-y-2 text-xs">
-              <p><span class="text-gray-400">DOB:</span> {{ member.dateOfBirth | date }} ({{ member.gender }})</p>
-              <p><span class="text-gray-400">Occupation:</span> {{ member.occupation }}</p>
-              <p class="font-bold text-[#75013f]">Coverage: ₹{{ member.coverageAmount | number }}</p>
+              <p><span class="text-gray-400 dark:text-gray-500">DOB:</span> <span class="dark:text-gray-300">{{
+                  member.dateOfBirth | date }} ({{ member.gender }})</span></p>
+              <p><span class="text-gray-400 dark:text-gray-500">Occupation:</span> <span class="dark:text-gray-300">{{
+                  member.occupation }}</span></p>
+              <p class="font-bold text-[#75013f] dark:text-pink-400">Coverage: ₹{{ member.coverageAmount | number }}</p>
             </div>
           </div>
         </div>
@@ -70,47 +87,53 @@
     </div>
 
     <div class="space-y-8">
-      <div class="bg-[#f5f2ef] rounded-[2.5rem] p-8">
-        <h3 class="text-lg font-black text-[#75013f] mb-6">Nominees</h3>
+      <div class="bg-[#f5f2ef] dark:bg-gray-800/80 rounded-[2.5rem] p-8 transition-colors duration-300">
+        <h3 class="text-lg font-black text-[#75013f] dark:text-pink-300 mb-6">Nominees</h3>
         <div class="space-y-6">
-          <div *ngFor="let nominee of policy.nominees" class="border-b border-gray-200 pb-4 last:border-0">
-            <p class="font-black text-gray-800">{{ nominee.nomineeName }}</p>
-            <p class="text-[10px] text-gray-500 uppercase font-bold">{{ nominee.relationshipToPolicyHolder }} • {{ nominee.sharePercentage }}% Share</p>
-            <p class="text-xs text-gray-400 mt-1">{{ nominee.contactNumber }}</p>
+          <div *ngFor="let nominee of policy.nominees"
+            class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0 transition-colors">
+            <p class="font-black text-gray-800 dark:text-gray-100">{{ nominee.nomineeName }}</p>
+            <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold">{{
+              nominee.relationshipToPolicyHolder }} • {{ nominee.sharePercentage }}% Share</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ nominee.contactNumber }}</p>
           </div>
         </div>
       </div>
 
-<div class="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm">
-  <h3 class="text-lg font-black text-[#75013f] mb-6">e-Documents</h3>
-  
-  <div class="space-y-4" *ngIf="policy.documents?.length > 0; else noDocs">
-    <div *ngFor="let doc of policy.documents" 
-         (click)="downloadDocument(doc.id, doc.fileName)"
-         class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-[#75013f]/5 group transition-all cursor-pointer border border-transparent hover:border-[#75013f]/10">
-      
-      <div class="flex items-center gap-4">
-        <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm text-lg">
-          📄
-        </div>
-        <div>
-          <p class="text-[10px] font-black text-[#75013f] uppercase tracking-widest">{{ doc.documentCategory }}</p>
-          <p class="text-[9px] text-gray-400 font-medium">{{ doc.uploadedAt | date:'dd MMM yyyy' }}</p>
-        </div>
-      </div>
+      <div
+        class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
+        <h3 class="text-lg font-black text-[#75013f] dark:text-pink-300 mb-6">e-Documents</h3>
 
-      <div class="w-8 h-8 rounded-full flex items-center justify-center text-[#fe3082] group-hover:bg-[#fe3082] group-hover:text-white transition-all">
-        <span class="font-black">↓</span>
-      </div>
-    </div>
-  </div>
+        <div class="space-y-4" *ngIf="policy.documents?.length > 0; else noDocs">
+          <div *ngFor="let doc of policy.documents" (click)="downloadDocument(doc.id, doc.fileName)"
+            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 group transition-all cursor-pointer border border-transparent hover:border-[#75013f]/10 dark:hover:border-pink-500/10">
 
-  <ng-template #noDocs>
-    <div class="py-6 text-center">
-      <p class="text-xs text-gray-400 italic">No digital documents found.</p>
-    </div>
-  </ng-template>
-</div>
+            <div class="flex items-center gap-4">
+              <div
+                class="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm text-lg transition-colors">
+                📄
+              </div>
+              <div>
+                <p class="text-[10px] font-black text-[#75013f] dark:text-pink-300 uppercase tracking-widest">{{
+                  doc.documentCategory }}</p>
+                <p class="text-[9px] text-gray-400 dark:text-gray-500 font-medium">{{ doc.uploadedAt | date:'dd MMM
+                  yyyy' }}</p>
+              </div>
+            </div>
+
+            <div
+              class="w-8 h-8 rounded-full flex items-center justify-center text-[#fe3082] group-hover:bg-[#fe3082] group-hover:text-white transition-all">
+              <span class="font-black">↓</span>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noDocs>
+          <div class="py-6 text-center">
+            <p class="text-xs text-gray-400 italic">No digital documents found.</p>
+          </div>
+        </ng-template>
+      </div>
 
     </div>
 

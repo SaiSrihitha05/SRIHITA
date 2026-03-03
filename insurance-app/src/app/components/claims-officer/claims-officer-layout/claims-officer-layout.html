@@ -1,8 +1,11 @@
-<div class="flex min-h-screen bg-[#f5f2ef] font-lato">
-  <app-claims-officer-side-bar 
-    class="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] z-40 bg-white shadow-sm">
+<!-- Claims Officer Portal Master Layout -->
+<div class="flex min-h-screen bg-[#f5f2ef] dark:bg-gray-900 font-lato transition-colors duration-300">
+  <!-- Specialized Sidebar for Claims Verification -->
+  <app-claims-officer-side-bar
+    class="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] z-40 bg-white dark:bg-gray-800 shadow-sm border-r dark:border-gray-700 transition-all">
   </app-claims-officer-side-bar>
 
+  <!-- Main Processing Area -->
   <main class="flex-1 ml-64 pt-16 transition-all duration-300">
     <div class="p-8">
       <router-outlet></router-outlet>

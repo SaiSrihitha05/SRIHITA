@@ -25,5 +25,24 @@ namespace Application.Services
         Task AssignAgentAsync(int id, AssignAgentDto dto);                    // Admin
         Task<(byte[] fileBytes, string fileName, string contentType)>
     DownloadDocumentAsync(int documentId, int userId, string role);
+        Task CancelPendingPolicyAsync(int policyId, int customerId);
+        Task<PolicyResponseDto> SaveDraftAsync(
+    int customerId, SaveDraftDto dto);
+
+        Task<PolicyResponseDto> UpdateDraftAsync(
+            int policyId, int customerId, SaveDraftDto dto);
+
+        Task<PolicyResponseDto> SubmitDraftAsync(
+            int policyId,
+            int customerId,
+            CreatePolicyDto dto,
+            List<PolicyMemberDto> members,
+            List<PolicyNomineeDto> nominees,
+            List<IFormFile> customerDocuments,
+            List<IFormFile> memberDocuments);
+
+        Task<IEnumerable<PolicyResponseDto>> GetMyDraftsAsync(int customerId);
+
+        Task DeleteDraftAsync(int policyId, int customerId);
     }
 }

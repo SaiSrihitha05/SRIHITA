@@ -381,7 +381,7 @@ namespace Application.Services
                 RejectedPolicies = policiesList
                     .Count(p => p.Status == PolicyStatus.Rejected),
                 TotalCommissionEarned = totalCommission,
-                CurrentCommissionRate = commissionRate,    
+                CurrentCommissionRate = commissionRate,
                 IsBonusRateApplied = isBonusApplied,
                 MonthlyPoliciesSold = monthlyPolicies,
                 PoliciesByPlanType = byPlanType,

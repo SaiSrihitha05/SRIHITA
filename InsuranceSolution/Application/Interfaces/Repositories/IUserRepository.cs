@@ -19,6 +19,8 @@ namespace Application.Interfaces.Repositories
         Task<IEnumerable<User>> GetAllAsync();
         Task<IEnumerable<User>> GetByRoleAsync(UserRole role);
         void Update(User user);
-        void Delete(User user);
+        void Delete(User user); 
+        Task UpdateResetTokenAsync(int userId, string token, DateTime expiry);
+        Task<User?> GetUserByResetTokenAsync(string token);
     }
 }

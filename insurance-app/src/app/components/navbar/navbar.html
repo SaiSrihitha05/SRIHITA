@@ -1,65 +1,94 @@
-<nav
-  [class]="isScrolled 
-    ? 'fixed top-0 left-0 right-0 z-50 bg-[#f5f2ef] shadow-md transition-all duration-300' 
-    : 'fixed top-0 left-0 right-0 z-50 bg-[#f5f2ef] transition-all duration-300'">
-  
+<nav class="fixed top-0 left-0 right-0 z-50 bg-[#f5f2ef] dark:bg-gray-800 transition-all duration-300"
+  [class.shadow-md]="isScrolled">
+
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
 
-      <div class="flex items-center">
-        <img src="horizontal_logo.png" alt="The Hartford" class="h-8 w-auto"/>
+      <div class="flex items-center gap-4">
+        <a routerLink="/" class="hover:opacity-80 transition-opacity">
+          <img src="horizontal_logo.png" alt="The Hartford" class="h-8 w-auto" />
+        </a>
+        <app-theme-toggle />
       </div>
-      @if(!isLoggedIn){    
+      @if(!isLoggedIn){
       <div class="hidden md:flex items-center gap-8">
-        <a href="#about" class="text-[#75013f] hover:text-[#fe3082] font-medium transition-colors">About</a>
-        <a href="#why-us" class="text-[#75013f] hover:text-[#fe3082] font-medium transition-colors">Why Us</a>
-        <a href="#contact" class="text-[#75013f] hover:text-[#fe3082] font-medium transition-colors">Contact Us</a>
+        <a href="#about"
+          class="text-[#75013f] dark:text-pink-300 hover:text-[#fe3082] font-medium transition-colors">About</a>
+        <a href="#why-us"
+          class="text-[#75013f] dark:text-pink-300 hover:text-[#fe3082] font-medium transition-colors">Why Us</a>
+        <a href="#contact"
+          class="text-[#75013f] dark:text-pink-300 hover:text-[#fe3082] font-medium transition-colors">Contact Us</a>
       </div>
 
-      <div class="hidden md:flex items-center gap-3" >
-        <a routerLink="/login" class="px-4 py-2 text-[#75013f] border border-[#75013f] rounded-lg font-medium hover:bg-[#75013f] hover:text-white transition-all">
+      <div class="hidden md:flex items-center gap-3">
+        <a routerLink="/login"
+          class="px-4 py-2 text-[#75013f] border border-[#75013f] rounded-lg font-medium hover:bg-[#75013f] hover:text-white transition-all">
           Login
         </a>
-        <a routerLink="/register" class="px-4 py-2 bg-[#fe3082] text-white rounded-lg font-medium hover:bg-[#75013f] transition-all">
+        <a routerLink="/register"
+          class="px-4 py-2 bg-[#fe3082] text-white rounded-lg font-medium hover:bg-[#75013f] transition-all">
           Register
         </a>
       </div>
-    }@else {
-      <div class="flex items-center gap-4">
-  <button routerLink="/customer-dashboard/notifications" class="relative p-2 text-gray-600 hover:text-[#75013f] transition-all">
-    <span class="text-2xl">🔔</span>
-    
-    <span *ngIf="unreadCount > 0" 
-          class="absolute top-0 right-0 min-w-[20px] h-5 px-1 bg-[#fe3082] text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
-      {{ unreadCount > 9 ? '9+' : unreadCount }}
-    </span>
-  </button>
-      <div class="px-4 py-2 bg-[#fe3082] text-white rounded-lg font-medium hover:bg-[#75013f] transition-all" *ngIf="isLoggedIn">
-        <button (click)="logout()">Logout</button>
-      </div>
-</div>
+      }@else {
+      <div class="flex items-center gap-4 ml-auto">
+        <!-- User Name: Displayed next to the circle -->
+        <div class="hidden sm:flex flex-col items-end mr-2">
+          <span class="text-xs font-bold text-[#75013f] dark:text-pink-300">{{ userName }}</span>
+          <span class="text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-wider uppercase">{{ userRole
+            }}</span>
+        </div>
 
-    }
+        <!-- Notifications: Visible to Customers Only -->
+        <button *ngIf="userRole === 'Customer'" routerLink="/customer-dashboard/notifications"
+          class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#75013f] dark:hover:text-pink-300 transition-all focus:outline-none"
+          title="Notifications">
+          <span class="text-2xl">🔔</span>
+          <span *ngIf="unreadCount > 0"
+            class="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 bg-[#fe3082] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-[#f5f2ef] dark:border-gray-800">
+            {{ unreadCount > 9 ? '9+' : unreadCount }}
+          </span>
+        </button>
+
+        <!-- Profile Initial -->
+        <a [routerLink]="profileLink"
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[#75013f] to-[#fe3082] text-white font-bold text-lg shadow-md hover:scale-105 active:scale-95 transition-all focus:outline-none"
+          title="My Profile">
+          {{ userInitial }}
+        </a>
+
+        <!-- Logout Button -->
+        <button (click)="logout()"
+          class="px-4 py-2 bg-[#75013f] text-white rounded-lg font-bold text-sm hover:bg-[#5a0130] transition-all shadow-sm active:scale-95">
+          Logout
+        </button>
+      </div>
+      }
 
       <button (click)="toggleMobileMenu()" class="md:hidden p-2 text-[#75013f]">
         <svg *ngIf="!isMobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
         <svg *ngIf="isMobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
 
-    <div *ngIf="isMobileMenuOpen" class="md:hidden bg-[#f5f2ef] border-t border-[#75013f]/20 py-4 space-y-3">
-      <a href="#about" (click)="toggleMobileMenu()" class="block px-4 py-2 text-[#75013f] font-medium">About</a>
-      <a href="#why-us" (click)="toggleMobileMenu()" class="block px-4 py-2 text-[#75013f] font-medium">Why Us</a>
-      <a href="#contact" (click)="toggleMobileMenu()" class="block px-4 py-2 text-[#75013f] font-medium">Contact Us</a>
+    <div *ngIf="isMobileMenuOpen"
+      class="md:hidden bg-[#f5f2ef] dark:bg-gray-800 border-t border-[#75013f]/20 py-4 space-y-3">
+      <a href="#about" (click)="toggleMobileMenu()"
+        class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">About</a>
+      <a href="#why-us" (click)="toggleMobileMenu()"
+        class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">Why Us</a>
+      <a href="#contact" (click)="toggleMobileMenu()"
+        class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">Contact Us</a>
       <div class="flex gap-3 px-4 pt-2">
-        <a routerLink="/login" class="flex-1 text-center px-4 py-2 text-[#75013f] border border-[#75013f] rounded-lg">Login</a>
+        <a routerLink="/login"
+          class="flex-1 text-center px-4 py-2 text-[#75013f] dark:text-pink-300 border border-[#75013f] rounded-lg">Login</a>
         <a routerLink="/register" class="flex-1 text-center px-4 py-2 bg-[#fe3082] text-white rounded-lg">Register</a>
       </div>
     </div>
   </div>
-  
+
 </nav>

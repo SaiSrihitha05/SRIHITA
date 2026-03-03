@@ -1,37 +1,26 @@
-<aside class="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
-  <div class="p-6 border-b border-gray-50">
-    <p class="text-[10px] font-bold text-[#75013f] uppercase tracking-widest">Customer Portal</p>
-    <p class="text-xs text-gray-400">Manage your protection</p>
+<aside
+  class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-colors duration-300">
+  <div class="p-6 border-b border-gray-50 dark:border-gray-700">
+    <p class="text-[10px] font-bold text-[#75013f] dark:text-pink-300 uppercase tracking-widest">Customer Portal</p>
+    <p class="text-xs text-gray-400 dark:text-gray-500">Manage your protection</p>
   </div>
 
   <div class="flex-1 py-6 px-4">
     <nav class="space-y-2">
-      <a *ngFor="let link of navLinks"
-         [routerLink]="link.path"
-         routerLinkActive="bg-[#75013f] text-white"
-         [routerLinkActiveOptions]="{exact: true}"
-         class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all group hover:bg-[#75013f]/10">
-        
+      <a *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive="bg-[#75013f] text-white"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all group hover:bg-[#75013f]/10 dark:hover:bg-gray-700">
+
         <span class="text-xl group-hover:scale-110 transition-transform">
           {{ link.icon }}
         </span>
-        
-        <span class="font-lato font-bold text-gray-700 group-hover:text-[#75013f] block">
+
+        <span
+          class="font-lato font-bold text-gray-700 dark:text-gray-200 group-hover:text-[#75013f] dark:group-hover:text-pink-300 block">
           {{ link.label }}
         </span>
       </a>
     </nav>
   </div>
 
-  <div class="p-4 border-t border-gray-100">
-    <div class="bg-[#f5f2ef] p-4 rounded-2xl">
-      <div class="flex items-center gap-2 mb-2">
-        <span class="w-2 h-2 rounded-full bg-green-500"></span>
-        <p class="text-[10px] font-bold text-gray-600 uppercase">System Status: Online</p>
-      </div>
-      <p class="text-[9px] text-gray-400 leading-relaxed">
-        Need assistance? Contact our 24/7 support line for claim emergencies.
-      </p>
-    </div>
-  </div>
 </aside>

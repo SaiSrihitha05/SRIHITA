@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
@@ -10,7 +10,8 @@ import { HttpClient } from '@angular/common/http';
 })
 export class Dashboard implements OnInit {
   private http = inject(HttpClient);
-  
+  private cdr = inject(ChangeDetectorRef);
+
   stats: any = null;
   loading = true;
 
@@ -23,10 +24,12 @@ export class Dashboard implements OnInit {
       next: (data) => {
         this.stats = data;
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching dashboard stats', err);
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }

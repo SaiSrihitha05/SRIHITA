@@ -1,114 +1,182 @@
-<section class="min-h-screen bg-[#f5f2ef] flex items-center pt-16">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div class="space-y-4">
-
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#75013f] leading-tight">
-          Protect What <span class="text-[#fe3082]"> Matters </span> Most
-        </h1>
-        <p class="text-gray-600 text-lg leading-relaxed">
-          The Hartford provides comprehensive insurance solutions tailored to secure your family's future. 
-          We've got you covered every step of the way.
-        </p>
-        <div class="flex flex-wrap gap-4">
-
-          <a href="#about" class="px-8 py-3 bg-[#75013f] text-white rounded-lg font-semibold hover:bg-[#fe3082] transition-all shadow-lg">
-            Learn More
-          </a>
+  <section class="min-h-screen bg-[#f5f2ef] dark:bg-gray-900 pt-16 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div class="space-y-6">
+          <div class="inline-block px-4 py-1.5 bg-[#fe3082]/10 dark:bg-pink-500/10 rounded-full">
+            <span class="text-[#fe3082] dark:text-pink-400 text-xs font-black uppercase tracking-widest">Trust Built Over
+              200 Years</span>
+          </div>
+          <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-[#75013f] dark:text-pink-300 leading-[1.1]">
+            Life Insurance <br />
+            <span class="text-[#fe3082] dark:text-pink-400">Simplified.</span>
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 text-xl leading-relaxed max-w-xl">
+            The Hartford brings you comprehensive life insurance solutions designed to safeguard your family's future and
+            provide lasting peace of mind.
+          </p>
+          <div class="flex flex-wrap gap-4 pt-4">
+            <a href="#about"
+              class="px-10 py-4 bg-[#75013f] text-white rounded-2xl font-bold hover:bg-[#fe3082] transition-all shadow-xl shadow-[#75013f]/20 hover:-translate-y-1">
+              Explore Plans
+            </a>
+            <a href="#contact"
+              class="px-10 py-4 border-2 border-[#75013f] text-[#75013f] dark:text-pink-300 dark:border-pink-300 rounded-2xl font-bold hover:bg-[#75013f] hover:text-white transition-all">
+              Talk to an Expert
+            </a>
+          </div>
+        </div>
+        <div class="flex justify-center relative">
+          <!-- Decorative blob for visual depth -->
+          <div class="absolute inset-0 bg-gradient-to-tr from-[#fe3082]/20 to-transparent blur-3xl rounded-full"></div>
+          <img src="Screenshot_2026-01-08_165409-removebg-preview.png"
+            class="relative z-10 max-w-full h-auto drop-shadow-2xl" alt="Hartford Shield">
         </div>
       </div>
-      <div class="flex justify-center">
-        <img src="Screenshot_2026-01-08_165409-removebg-preview.png" class="max-w-full h-auto" alt="Hartford Shield">
+
+      <!-- Quick Stats Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-24">
+        <div *ngFor="let stat of stats"
+          class="text-center p-8 bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 hover:scale-105 transition-all duration-300">
+          <p class="text-4xl font-black text-[#75013f] dark:text-pink-300 mb-2">{{ stat.value }}</p>
+          <p class="text-gray-400 dark:text-gray-500 text-xs font-black uppercase tracking-widest">{{ stat.label }}</p>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
-      <div *ngFor="let stat of stats" class="text-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
-        <p class="text-3xl font-bold text-[#75013f]">{{ stat.value }}</p>
-        <p class="text-gray-500 mt-1">{{ stat.label }}</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="about" class="py-20 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      <div class="relative">
-        <div class="bg-[#75013f] rounded-3xl p-8 text-white space-y-6">
-          <h3 class="text-2xl font-bold">Our Mission</h3>
-          <p class="text-white/80 leading-relaxed">To provide families with accessible, affordable coverage that gives them confidence to live life fully.</p>
-          <div class="space-y-4">
-            <p>✓ Licensed in all 50 states</p>
-            <p>✓ A+ Financial Strength Rating</p>
-            <p>✓ Award winning customer service</p>
+  <!-- 
+    About & Mission Section:
+    Highlights the core values of The Hartford and our legacy in Life Insurance.
+  -->
+  <section id="about" class="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div class="relative">
+          <div
+            class="bg-gradient-to-br from-[#75013f] to-[#fe3082] rounded-[3rem] p-10 md:p-14 text-white space-y-8 shadow-2xl shadow-[#75013f]/30">
+            <h3 class="text-3xl font-black">Our Life Promise</h3>
+            <p class="text-white/80 text-lg leading-relaxed font-medium">
+              We provide families with affordable, comprehensive life insurance coverage that grants the confidence to
+              live fully today, knowing tomorrow is secured.
+            </p>
+            <div class="space-y-4 pt-4">
+              <div class="flex items-center gap-4">
+                <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">✓</span>
+                <p class="font-bold">A+ Financial Strength Rating</p>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">✓</span>
+                <p class="font-bold">Transparent Policy Terms</p>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">✓</span>
+                <p class="font-bold">Quick Maturity Settlements</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="space-y-8">
+          <h2 class="text-4xl sm:text-5xl font-black text-[#75013f] dark:text-pink-300 leading-tight">Securing Your <br />
+            Family's Legacy</h2>
+          <p class="text-gray-600 dark:text-gray-400 text-lg">
+            Founded in 1810, we believe a life insurance policy is more than just a contract—it's a lifelong partnership
+            and a promise to stand by your side.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div
+              class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20">
+              <p class="text-3xl font-black text-[#75013f] dark:text-pink-300">₹12,000Cr+</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mt-1">Total Sum Assured</p>
+            </div>
+            <div
+              class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20">
+              <p class="text-3xl font-black text-[#75013f] dark:text-pink-300">98%</p>
+              <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mt-1">First-Try Approval</p>
+            </div>
           </div>
         </div>
       </div>
-      <div class="space-y-6">
-        <h2 class="text-3xl sm:text-4xl font-bold text-[#75013f]">More Than Just Insurance</h2>
-        <p class="text-gray-600">Founded in 1810, we believe insurance is a promise to stand by you when life takes unexpected turns.</p>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 bg-[#f5f2ef] rounded-xl text-center">
-            <p class="text-2xl font-bold text-[#75013f]">₹500Cr+</p>
-            <p class="text-gray-500 text-sm">Claims Settled</p>
+    </div>
+  </section>
+
+  <!-- 
+    The Hartford Difference:
+    Showcases unique selling points of our life insurance products in a clean grid.
+  -->
+  <section id="why-us" class="py-24 bg-[#f5f2ef] dark:bg-gray-900/50 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-20 space-y-4">
+        <h2 class="text-4xl sm:text-5xl font-black text-[#75013f] dark:text-pink-300">The Hartford Advantage</h2>
+        <p class="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-xs">Why thousands trust us
+          with their life's insurance</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div *ngFor="let card of whyUsCards"
+          class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-xl shadow-gray-200/50 dark:shadow-none border border-transparent hover:border-[#fe3082]/30 transition-all duration-300 hover:-translate-y-2 group">
+          <h3
+            class="text-2xl font-black text-[#75013f] dark:text-pink-300 mb-4 group-hover:text-[#fe3082] transition-colors">
+            {{ card.title }}</h3>
+          <p class="text-gray-500 dark:text-gray-400 leading-relaxed">{{ card.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 
+    Contact Section:
+    Enables potential customers to reach out for personalized life insurance advice.
+  -->
+  <section id="contact" class="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-20">
+        <h2 class="text-4xl sm:text-5xl font-black text-[#75013f] dark:text-pink-300">Expert Consultation</h2>
+        <p class="text-gray-500 dark:text-gray-400 mt-4 font-medium">Ready to secure your future? Our life insurance
+          experts are here to help.</p>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div class="space-y-8">
+          <div
+            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all">
+            <h4 class="font-black text-xs uppercase tracking-[0.2em] text-[#fe3082] mb-2">Corporate Headquarters</h4>
+            <p class="text-xl font-bold text-[#75013f] dark:text-pink-100">One Hartford Plaza, <br />Hartford, CT 06155
+            </p>
           </div>
-          <div class="p-4 bg-[#f5f2ef] rounded-xl text-center">
-            <p class="text-2xl font-bold text-[#75013f]">48hrs</p>
-            <p class="text-gray-500 text-sm">Avg Processing</p>
+          <div
+            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all">
+            <h4 class="font-black text-xs uppercase tracking-[0.2em] text-[#fe3082] mb-2">Dedicated Support Line</h4>
+            <p class="text-xl font-bold text-[#75013f] dark:text-pink-100">1-860-547-5000</p>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section id="why-us" class="py-20 bg-[#f5f2ef]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl sm:text-4xl font-bold text-[#75013f]">The Hartford Difference</h2>
-    </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div *ngFor="let card of whyUsCards" class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all">
-        <h3 class="text-xl font-bold text-[#75013f] mb-2">{{ card.title }}</h3>
-        <p class="text-gray-500">{{ card.description }}</p>
-      </div>
-    </div>
-  </div>
-</section>
+        <div
+          class="bg-[#f5f2ef] dark:bg-gray-800 rounded-[3rem] p-10 md:p-14 shadow-2xl shadow-gray-200/50 dark:shadow-none transition-colors">
+          <div *ngIf="isSubmitted" class="text-center py-12 space-y-4">
+            <div
+              class="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl mx-auto shadow-lg shadow-green-500/30">
+              ✓</div>
+            <h3 class="text-2xl font-black text-[#75013f] dark:text-pink-300">Inquiry Received!</h3>
+            <p class="text-gray-500 dark:text-gray-400">An advisor will contact you within 24 hours.</p>
+            <button (click)="isSubmitted = false"
+              class="text-[#fe3082] font-black uppercase text-xs tracking-widest hover:underline pt-4">Start New
+              Inquiry</button>
+          </div>
 
-<section id="contact" class="py-20 bg-white">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl sm:text-4xl font-bold text-[#75013f]">Contact Us</h2>
-    </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-      <div class="space-y-6">
-        <div class="p-5 bg-[#f5f2ef] rounded-2xl">
-          <h4 class="font-semibold text-[#75013f]">Visit Us</h4>
-          <p class="text-gray-500">One Hartford Plaza, Hartford, CT 06155</p>
-        </div>
-        <div class="p-5 bg-[#f5f2ef] rounded-2xl">
-          <h4 class="font-semibold text-[#75013f]">Call Us</h4>
-          <p class="text-gray-500">1-860-547-5000</p>
+          <form *ngIf="!isSubmitted" (ngSubmit)="onSubmit()" class="space-y-6">
+            <div class="space-y-4">
+              <input [(ngModel)]="name" name="name" placeholder="Your Full Name" required
+                class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm">
+              <input [(ngModel)]="email" name="email" type="email" placeholder="Email Address" required
+                class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm">
+              <textarea [(ngModel)]="message" name="message" rows="4"
+                placeholder="How can we help you secure your legacy?" required
+                class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm resize-none"></textarea>
+            </div>
+            <button type="submit" [disabled]="isSubmitting"
+              class="w-full py-5 bg-[#75013f] dark:bg-pink-700 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-xl shadow-[#75013f]/20 disabled:opacity-50">
+              {{ isSubmitting ? 'Submitting...' : 'Request a Callback' }}
+            </button>
+          </form>
         </div>
       </div>
-
-      <div class="bg-[#f5f2ef] rounded-2xl p-8">
-        <div *ngIf="isSubmitted" class="text-center py-8">
-          <h3 class="text-xl font-bold text-[#75013f]">Message Sent!</h3>
-          <button (click)="isSubmitted = false" class="mt-4 text-[#fe3082] font-semibold">Send Another</button>
-        </div>
-
-        <form *ngIf="!isSubmitted" (ngSubmit)="onSubmit()" class="space-y-4">
-          <input [(ngModel)]="name" name="name" placeholder="Full Name" required class="w-full px-4 py-3 rounded-xl border bg-white focus:border-[#75013f] outline-none">
-          <input [(ngModel)]="email" name="email" type="email" placeholder="Email" required class="w-full px-4 py-3 rounded-xl border bg-white focus:border-[#75013f] outline-none">
-          <textarea [(ngModel)]="message" name="message" rows="4" placeholder="Your Message" required class="w-full px-4 py-3 rounded-xl border bg-white focus:border-[#75013f] outline-none"></textarea>
-          <button type="submit" [disabled]="isSubmitting" class="w-full py-3 bg-[#75013f] text-white rounded-xl font-semibold hover:bg-[#fe3082] transition-all">
-            {{ isSubmitting ? 'Sending...' : 'Send Message' }}
-          </button>
-        </form>
-      </div>
     </div>
-  </div>
-</section>
+  </section>

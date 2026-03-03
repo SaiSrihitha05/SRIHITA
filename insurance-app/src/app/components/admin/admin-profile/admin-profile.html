@@ -1,12 +1,16 @@
+<!-- Personal Profile and Account Management for Administrators -->
 <div class="p-8 font-lato max-w-4xl mx-auto">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-[#75013f]">My Profile</h1>
-    <p class="text-gray-500">Manage your administrative account settings</p>
+  <div class="mb-8 transition-colors">
+    <h1 class="text-3xl font-bold text-[#75013f] dark:text-pink-300">My Profile</h1>
+    <p class="text-gray-500 dark:text-gray-400">Manage your administrative account settings</p>
   </div>
 
-  <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="h-32 bg-[#75013f] relative">
-      <div class="absolute -bottom-12 left-8 w-24 h-24 bg-[#fe3082] rounded-2xl border-4 border-white flex items-center justify-center text-white text-3xl font-bold">
+  <div
+    class="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300">
+    <!-- Header Banner with Avatar -->
+    <div class="h-32 bg-[#75013f] dark:bg-gray-900 relative">
+      <div
+        class="absolute -bottom-12 left-8 w-24 h-24 bg-[#fe3082] dark:bg-pink-600 rounded-2xl border-4 border-white dark:border-gray-800 flex items-center justify-center text-white text-3xl font-bold shadow-xl transition-colors">
         {{ profile.name?.charAt(0) }}
       </div>
     </div>
@@ -14,47 +18,48 @@
     <div class="pt-16 p-8">
       <div class="flex justify-between items-center mb-8">
         <div>
-          <h2 class="text-2xl font-bold text-gray-800">{{ profile.name }}</h2>
-          <p class="text-sm text-[#75013f] font-bold uppercase tracking-widest">Administrator</p>
+          <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 transition-colors">{{ profile.name }}</h2>
+          <p class="text-sm text-[#75013f] dark:text-pink-400 font-bold uppercase tracking-widest">Administrator</p>
         </div>
-        <button (click)="isEditing = !isEditing" 
-                class="px-6 py-2 rounded-xl border-2 border-[#75013f] text-[#75013f] font-bold hover:bg-[#75013f] hover:text-white transition-all">
+        <button (click)="isEditing = !isEditing"
+          class="px-6 py-2 rounded-xl border-2 border-[#75013f] dark:border-pink-500 text-[#75013f] dark:text-pink-400 font-bold hover:bg-[#75013f] dark:hover:bg-pink-600 hover:text-white transition-all shadow-md active:scale-95">
           {{ isEditing ? 'Cancel' : 'Edit Profile' }}
         </button>
       </div>
 
-<form (ngSubmit)="onUpdate()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div class="space-y-1">
-    <label class="text-xs font-bold text-[#75013f] uppercase mb-1">Full Name</label>
-    <input name="name" [(ngModel)]="profile.name" [disabled]="!isEditing"
-           class="form-input-custom disabled:bg-gray-100 disabled:cursor-not-allowed">
-  </div>
+      <form (ngSubmit)="onUpdate()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">Full Name</label>
+          <input name="name" [(ngModel)]="profile.name" [disabled]="!isEditing"
+            class="form-input-custom dark:bg-gray-900 border dark:border-gray-700 dark:text-gray-100 disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed transition-all">
+        </div>
 
-  <div class="space-y-1">
-    <label class="text-xs font-bold text-[#75013f] uppercase mb-1">Phone Number</label>
-    <input name="phone" [(ngModel)]="profile.phone" [disabled]="!isEditing"
-           class="form-input-custom disabled:bg-gray-100 disabled:cursor-not-allowed">
-  </div>
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">Phone Number</label>
+          <input name="phone" [(ngModel)]="profile.phone" [disabled]="!isEditing"
+            class="form-input-custom dark:bg-gray-900 border dark:border-gray-700 dark:text-gray-100 disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed transition-all">
+        </div>
 
-  <div class="md:col-span-2 space-y-1">
-    <label class="text-xs font-bold text-gray-400 uppercase mb-1 flex items-center gap-1">
-      Email Address <span class="text-[10px] normal-case font-normal">(Cannot be changed)</span>
-    </label>
-    <div class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-100 bg-gray-50 text-gray-400">
-      <span class="text-sm">🔒</span>
-      <span class="text-sm font-medium">{{ profile.email }}</span>
-    </div>
-  </div>
+        <div class="md:col-span-2 space-y-1">
+          <label class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase mb-1 flex items-center gap-1">
+            Email Address <span class="text-[10px] normal-case font-normal">(Cannot be changed)</span>
+          </label>
+          <div
+            class="flex items-center gap-3 w-full p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/80 text-gray-400 dark:text-gray-500 transition-colors">
+            <span class="text-sm">🔒</span>
+            <span class="text-sm font-medium">{{ profile.email }}</span>
+          </div>
+        </div>
 
-  <input type="hidden" name="isActive" [(ngModel)]="profile.isActive">
+        <input type="hidden" name="isActive" [(ngModel)]="profile.isActive">
 
-  <div class="md:col-span-2 pt-4" *ngIf="isEditing">
-    <button type="submit" 
-            class="w-full py-4 bg-[#75013f] text-white rounded-2xl font-bold hover:bg-[#fe3082] transition-all shadow-lg shadow-[#75013f]/20">
-      Apply Changes
-    </button>
-  </div>
-</form>
+        <div class="md:col-span-2 pt-4" *ngIf="isEditing">
+          <button type="submit"
+            class="w-full py-4 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-bold hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-lg shadow-[#75013f]/20 active:scale-95">
+            Apply Changes
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

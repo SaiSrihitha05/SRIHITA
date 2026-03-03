@@ -20,7 +20,7 @@ namespace Application.DTOs
         [Required]
         public ClaimType ClaimType { get; set; }
 
-        // For death claims
+        // For death claims (Optional now as they are fetched from policy)
         public string? DeathCertificateNumber { get; set; }
         public string? NomineeName { get; set; }
         public string? NomineeContact { get; set; }

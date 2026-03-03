@@ -11,5 +11,7 @@ namespace Application.Services
     {
         Task<AuthResponseDto> LoginAsync(LoginDto dto);
         Task<string> RegisterAsync(RegisterDto dto);
+        Task<string?> CreatePasswordResetTokenAsync(string email);
+        Task<bool> ResetPasswordAsync(ResetPasswordDto dto);
     }
 }

@@ -1,44 +1,67 @@
-<section class="min-h-screen bg-[#f5f2ef] flex items-center justify-center px-4 py-12">
-  <div class="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8">
+<section
+  class="min-h-screen bg-[#f5f2ef] dark:bg-gray-900 flex items-center justify-center px-7 py-12 transition-colors duration-300">
+  <div class="max-w-lg w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-colors duration-300 mt-12">
     <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-[#75013f]">Join The Hartford</h2>
-      <p class="text-gray-500 mt-2">Start protecting what matters most today</p>
+      <h2 class="text-3xl font-bold text-[#75013f] dark:text-pink-300">Join The Hartford</h2>
+      <p class="text-gray-500 dark:text-gray-400 mt-2">Start protecting what matters most today</p>
     </div>
 
-    <form (ngSubmit)="onRegister()" class="space-y-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-red-600 dark:text-red-400">
+      {{ errorMessage }}
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-        <label class="block text-[#75013f] font-semibold mb-1">Full Name</label>
-        <input type="text" name="name" [(ngModel)]="name" placeholder="John Doe" 
-                class="w-full px-4 py-3 rounded-xl border border-gray-200">
+          <label class="block text-[#75013f] dark:text-pink-200 font-semibold mb-1">Full Name</label>
+          <input type="text" formControlName="name" placeholder="John Doe"
+            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-pink-500 outline-none transition-all" [class.border-red-500]="submitted && name?.invalid">
+          <div *ngIf="submitted && name?.invalid" class="text-red-500 text-sm mt-1">
+            <div *ngIf="name?.errors?.['required']">Full name is required</div>
+            <div *ngIf="name?.errors?.['minlength']">Name must be at least 2 characters</div>
+          </div>
         </div>
         <div>
-        <label class="block text-[#75013f] font-semibold mb-1">Phone</label>
-        <input type="tel" name="phone" [(ngModel)]="phone" placeholder="+91..." 
-                class="w-full px-4 py-3 rounded-xl border border-gray-200">
+          <label class="block text-[#75013f] dark:text-pink-200 font-semibold mb-1">Phone</label>
+          <input type="tel" formControlName="phone" placeholder="+91..."
+            class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-pink-500 outline-none transition-all" [class.border-red-500]="submitted && phone?.invalid">
+          <div *ngIf="submitted && phone?.invalid" class="text-red-500 text-sm mt-1">
+            <div *ngIf="phone?.errors?.['required']">Phone is required</div>
+            <div *ngIf="phone?.errors?.['pattern']">Invalid phone format</div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div>
-        <label class="block text-[#75013f] font-semibold mb-1">Email</label>
-        <input type="email" name="email" [(ngModel)]="email" placeholder="email@example.com" 
-            class="w-full px-4 py-3 rounded-xl border border-gray-200">
-    </div>
+      <div>
+        <label class="block text-[#75013f] dark:text-pink-200 font-semibold mb-1">Email</label>
+        <input type="email" formControlName="email" placeholder="email@example.com"
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-pink-500 outline-none transition-all" [class.border-red-500]="submitted && email?.invalid">
+        <div *ngIf="submitted && email?.invalid" class="text-red-500 text-sm mt-1">
+          <div *ngIf="email?.errors?.['required']">Email is required</div>
+          <div *ngIf="email?.errors?.['email']">Invalid email format</div>
+        </div>
+      </div>
 
-    <div>
-        <label class="block text-[#75013f] font-semibold mb-1">Password</label>
-        <input type="password" name="password" [(ngModel)]="password" placeholder="••••••••" 
-            class="w-full px-4 py-3 rounded-xl border border-gray-200">
-    </div>
+      <div>
+        <label class="block text-[#75013f] dark:text-pink-200 font-semibold mb-1">Password</label>
+        <input type="password" formControlName="password" placeholder="••••••••"
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-pink-500 outline-none transition-all" [class.border-red-500]="submitted && password?.invalid">
+        <div *ngIf="submitted && password?.invalid" class="text-red-500 text-sm mt-1">
+          <div *ngIf="password?.errors?.['required']">Password is required</div>
+          <div *ngIf="password?.errors?.['minlength']">Password must be at least 6 characters</div>
+        </div>
+      </div>
 
-    <button type="submit" class="w-full py-3 bg-[#75013f] text-white rounded-xl font-bold hover:bg-[#fe3082]">
+      <button type="submit" [disabled]="submitted && registerForm.invalid"
+        class="w-full py-3 bg-[#75013f] dark:bg-pink-700 text-white rounded-xl font-bold hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed">
         Create Account
-    </button>
+      </button>
     </form>
 
-    <p class="text-center mt-6 text-gray-600">
-      Already a member? 
-      <a routerLink="/login" class="text-[#fe3082] font-bold hover:underline">Log In</a>
+    <p class="text-center mt-6 text-gray-600 dark:text-gray-400">
+      Already a member?
+      <a routerLink="/login" class="text-[#fe3082] dark:text-pink-400 font-bold hover:underline">Log In</a>
     </p>
   </div>
 </section>

@@ -18,12 +18,18 @@ export class ClaimsOfficerClaims implements OnInit {
   selectedClaim: any = null;
   showProcessModal = false;
 
-  // Only these two are valid for ClaimsOfficer
-  statusOptions = ['Settled', 'Rejected'];
+  // All statuses from enum for full officer flexibility
+  statusOptions = [
+    { label: 'Submit', value: 'Submitted' },
+    { label: 'Reviewing', value: 'UnderReview' },
+    { label: 'Approve', value: 'Approved' },
+    { label: 'Reject', value: 'Rejected' },
+    { label: 'Settle', value: 'Settled' }
+  ];
 
   // Process form data
   processForm = {
-    status: 'Approved',
+    status: 'Settled',
     remarks: '',
     settlementAmount: null as number | null
   };
@@ -65,53 +71,55 @@ export class ClaimsOfficerClaims implements OnInit {
     this.cdr.detectChanges();
   }
 
-submitProcess() {
-  if (!this.processForm.remarks.trim()) {
-    alert('Remarks are required');
-    return;
-  }
-
-  // Settlement amount only required when Approved
-  if (this.processForm.status === 'Approved' &&
-      (!this.processForm.settlementAmount ||
-       this.processForm.settlementAmount <= 0)) {
-    alert('Settlement amount is required when approving a claim');
-    return;
-  }
-
-  const dto: any = {
-    status: this.processForm.status,
-    remarks: this.processForm.remarks
-  };
-
-  if (this.processForm.status === 'Approved') {
-    dto.settlementAmount = this.processForm.settlementAmount;
-  }
-
-  this.claimService.processClaim(this.selectedClaim.id, dto).subscribe({
-    next: () => {
-      alert(`Claim ${this.processForm.status} successfully!`);
-      this.closeModal();
-      this.loadMyClaims();
-    },
-    error: (err) => {
-      alert(err.error?.detail || 'Error processing claim');
+  submitProcess() {
+    if (!this.processForm.remarks.trim()) {
+      alert('Remarks are required');
+      return;
     }
-  });
-}
+
+    // Settlement amount required when Approved or Settled
+    const isSettlementNeeded = this.processForm.status === 'Approved' || this.processForm.status === 'Settled';
+    if (isSettlementNeeded &&
+      (!this.processForm.settlementAmount ||
+        this.processForm.settlementAmount <= 0)) {
+      alert('Settlement amount is required when approving or settling a claim');
+      return;
+    }
+
+    const dto: any = {
+      status: this.processForm.status,
+      remarks: this.processForm.remarks
+    };
+
+    if (isSettlementNeeded) {
+      dto.settlementAmount = this.processForm.settlementAmount;
+    }
+
+    this.claimService.processClaim(this.selectedClaim.id, dto).subscribe({
+      next: () => {
+        alert(`Claim status updated to ${this.processForm.status} successfully!`);
+        this.closeModal();
+        this.loadMyClaims();
+      },
+      error: (err) => {
+        alert(err.error?.detail || 'Error updating claim status');
+      }
+    });
+  }
 
   getStatusBadgeClass(status: string): string {
     switch (status) {
-      case 'Submitted':   return 'bg-blue-500';
+      case 'Submitted': return 'bg-blue-500';
       case 'UnderReview': return 'bg-amber-500';
-      case 'Settled':     return 'bg-green-500';
-      case 'Rejected':    return 'bg-red-500';
-      default:            return 'bg-gray-500';
+      case 'Approved': return 'bg-green-400';
+      case 'Settled': return 'bg-green-600';
+      case 'Rejected': return 'bg-red-500';
+      default: return 'bg-gray-500';
     }
   }
 
   canProcess(claim: any): boolean {
-    // Only UnderReview claims can be processed
-    return claim.status === 'UnderReview';
+    // Disable processing for final states: Settled or Rejected
+    return claim.status !== 'Settled' && claim.status !== 'Rejected';
   }
 }

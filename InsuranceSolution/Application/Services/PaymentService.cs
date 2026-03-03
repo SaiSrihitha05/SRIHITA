@@ -76,7 +76,7 @@ namespace Application.Services
             var payment = new Payment
             {
                 PolicyAssignmentId = dto.PolicyAssignmentId,
-                Amount = policy.TotalPremiumAmount,
+                Amount = totalAmount,
                 InstallmentsPaid = totalInstallments,
                 PaymentDate = DateTime.UtcNow,
                 PaymentMethod = dto.PaymentMethod,
@@ -108,16 +108,39 @@ namespace Application.Services
                            $"{policy.PolicyNumber}. Invoice: {payment.InvoiceNumber}",
                 type: NotificationType.PaymentConfirmation,
                 policyId: policy.Id,
+                claimId: null,
                 paymentId: payment.Id);
 
             // Send email confirmation
-            await _emailService.SendPaymentConfirmationAsync(
-                customer!.Email,
-                customer.Name,
-                policy.PolicyNumber,
-                payment.InvoiceNumber,
-                totalAmount,
-                payment.PaymentDate);
+            try
+            {
+                // Fire and forget the email so the UI isn't blocked by network lag
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _emailService.SendPaymentConfirmationAsync(
+                            customer!.Email,
+                            customer.Name,
+                            policy.PolicyNumber,
+                            payment.InvoiceNumber,
+                            totalAmount,
+                            payment.PaymentDate);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log background failure without crashing the main thread
+                        Console.WriteLine($"Background Email Failed: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Main thread catch-all for local logging
+                Console.WriteLine($"SMTP Connection Error: {ex.Message}");
+            }
+
+            // Ensure the DTO returns immediately regardless of email status
             return MapToDto(payment, policy.PolicyNumber, policy.NextDueDate);
         }
         // PaymentService.cs — private helper
@@ -148,7 +171,7 @@ namespace Application.Services
                 .GetByCustomerIdAsync(customerId);
 
             return payments.Select(p =>
-                MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty, 
+                MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty,
                 p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
         }
 
@@ -166,7 +189,7 @@ namespace Application.Services
             var payments = await _paymentRepository.GetAllAsync();
             return payments.Select(p =>
                 MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty
-                ,p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
+                , p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
         }
 
         public async Task<byte[]> GenerateInvoicePdfAsync(
@@ -191,111 +214,111 @@ namespace Application.Services
 
 
 
-private static byte[] GeneratePdfBytes(Payment payment)
-    {
-        var document = QuestPDF.Fluent.Document.Create(container =>
+        private static byte[] GeneratePdfBytes(Payment payment)
         {
-            container.Page(page =>
+            var document = QuestPDF.Fluent.Document.Create(container =>
             {
-                page.Size(PageSizes.A4);
-                page.Margin(2, Unit.Centimetre);
-                page.DefaultTextStyle(x => x.FontSize(12));
-
-                // Header
-                page.Header().Column(col =>
+                container.Page(page =>
                 {
-                    col.Item().AlignCenter().Text("INSURANCE PREMIUM INVOICE")
-                        .FontSize(20).Bold();
-                    col.Item().AlignCenter().Text("Hartford Insurance Co.")
-                        .FontSize(14);
-                    col.Item().PaddingTop(5).LineHorizontal(1);
-                });
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.DefaultTextStyle(x => x.FontSize(12));
 
-                // Content
-                page.Content().PaddingVertical(1, Unit.Centimetre).Column(col =>
-                {
-                    // Invoice Details
-                    col.Item().Background(Colors.Grey.Lighten3)
-                        .Padding(10).Text("Invoice Details").Bold().FontSize(14);
-
-                    col.Item().PaddingTop(10).Table(table =>
+                    // Header
+                    page.Header().Column(col =>
                     {
-                        table.ColumnsDefinition(cols =>
-                        {
-                            cols.RelativeColumn();
-                            cols.RelativeColumn();
-                        });
-
-                        AddRow(table, "Invoice Number",
-                            payment.InvoiceNumber);
-                        AddRow(table, "Transaction Reference",
-                            payment.TransactionReference);
-                        AddRow(table, "Payment Date",
-                            payment.PaymentDate.ToString("dd-MMM-yyyy HH:mm"));
-                        AddRow(table, "Payment Method",
-                            payment.PaymentMethod);
-                        AddRow(table, "Status",
-                            payment.Status.ToString());
+                        col.Item().AlignCenter().Text("INSURANCE PREMIUM INVOICE")
+                            .FontSize(20).Bold();
+                        col.Item().AlignCenter().Text("Hartford Insurance Co.")
+                            .FontSize(14);
+                        col.Item().PaddingTop(5).LineHorizontal(1);
                     });
 
-                    col.Item().PaddingTop(20).Background(Colors.Grey.Lighten3)
-                        .Padding(10).Text("Policy Details").Bold().FontSize(14);
-
-                    col.Item().PaddingTop(10).Table(table =>
+                    // Content
+                    page.Content().PaddingVertical(1, Unit.Centimetre).Column(col =>
                     {
-                        table.ColumnsDefinition(cols =>
+                        // Invoice Details
+                        col.Item().Background(Colors.Grey.Lighten3)
+                            .Padding(10).Text("Invoice Details").Bold().FontSize(14);
+
+                        col.Item().PaddingTop(10).Table(table =>
                         {
-                            cols.RelativeColumn();
-                            cols.RelativeColumn();
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn();
+                                cols.RelativeColumn();
+                            });
+
+                            AddRow(table, "Invoice Number",
+                                payment.InvoiceNumber);
+                            AddRow(table, "Transaction Reference",
+                                payment.TransactionReference);
+                            AddRow(table, "Payment Date",
+                                payment.PaymentDate.ToString("dd-MMM-yyyy HH:mm"));
+                            AddRow(table, "Payment Method",
+                                payment.PaymentMethod);
+                            AddRow(table, "Status",
+                                payment.Status.ToString());
                         });
 
-                        AddRow(table, "Policy Number",
-                            payment.PolicyAssignment?.PolicyNumber ?? "-");
-                        AddRow(table, "Premium Frequency",
-                            payment.PolicyAssignment?.PremiumFrequency.ToString() ?? "-");
-                        AddRow(table, "Next Due Date",
-                            payment.PolicyAssignment?.NextDueDate
-                                .ToString("dd-MMM-yyyy") ?? "-");
+                        col.Item().PaddingTop(20).Background(Colors.Grey.Lighten3)
+                            .Padding(10).Text("Policy Details").Bold().FontSize(14);
+
+                        col.Item().PaddingTop(10).Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn();
+                                cols.RelativeColumn();
+                            });
+
+                            AddRow(table, "Policy Number",
+                                payment.PolicyAssignment?.PolicyNumber ?? "-");
+                            AddRow(table, "Premium Frequency",
+                                payment.PolicyAssignment?.PremiumFrequency.ToString() ?? "-");
+                            AddRow(table, "Next Due Date",
+                                payment.PolicyAssignment?.NextDueDate
+                                    .ToString("dd-MMM-yyyy") ?? "-");
+                        });
+
+                        // Amount Box
+                        col.Item().PaddingTop(30)
+                            .Border(1)
+                            .Background(Colors.Blue.Lighten4)
+                            .Padding(15)
+                            .Row(row =>
+                            {
+                                row.RelativeItem().Text("Amount Paid")
+                                    .FontSize(16).Bold();
+                                row.RelativeItem().AlignRight()
+                                    .Text($"Rs.{payment.Amount:N2}")
+                                    .FontSize(16).Bold();
+                            });
                     });
 
-                    // Amount Box
-                    col.Item().PaddingTop(30)
-                        .Border(1)
-                        .Background(Colors.Blue.Lighten4)
-                        .Padding(15)
-                        .Row(row =>
-                        {
-                            row.RelativeItem().Text("Amount Paid")
-                                .FontSize(16).Bold();
-                            row.RelativeItem().AlignRight()
-                                .Text($"Rs.{payment.Amount:N2}")
-                                .FontSize(16).Bold();
-                        });
-                });
-
-                // Footer
-                page.Footer().AlignCenter().Column(col =>
-                {
-                    col.Item().LineHorizontal(1);
-                    col.Item().PaddingTop(5).AlignCenter()
-                        .Text("Thank you for your payment!")
-                        .FontSize(12).Italic();
-                    col.Item().AlignCenter()
-                        .Text($"Generated on {DateTime.UtcNow:dd-MMM-yyyy HH:mm} UTC")
-                        .FontSize(10).FontColor(Colors.Grey.Medium);
+                    // Footer
+                    page.Footer().AlignCenter().Column(col =>
+                    {
+                        col.Item().LineHorizontal(1);
+                        col.Item().PaddingTop(5).AlignCenter()
+                            .Text("Thank you for your payment!")
+                            .FontSize(12).Italic();
+                        col.Item().AlignCenter()
+                            .Text($"Generated on {DateTime.UtcNow:dd-MMM-yyyy HH:mm} UTC")
+                            .FontSize(10).FontColor(Colors.Grey.Medium);
+                    });
                 });
             });
-        });
 
-        return document.GeneratePdf();
-    }
+            return document.GeneratePdf();
+        }
 
-    // Helper to add table rows
-    private static void AddRow(TableDescriptor table, string label, string value)
-    {
-        table.Cell().Padding(5).Text(label).Bold();
-        table.Cell().Padding(5).Text(value);
-    }
+        // Helper to add table rows
+        private static void AddRow(TableDescriptor table, string label, string value)
+        {
+            table.Cell().Padding(5).Text(label).Bold();
+            table.Cell().Padding(5).Text(value);
+        }
 
         private static PaymentResponseDto MapToDto(
             Payment payment, string policyNumber, DateTime nextDueDate) => new()

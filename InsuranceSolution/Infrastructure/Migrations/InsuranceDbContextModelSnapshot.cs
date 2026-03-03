@@ -479,6 +479,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ResetTokenExpiry")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -494,11 +500,11 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 3, 2, 9, 8, 51, 669, DateTimeKind.Utc).AddTicks(3229),
+                            CreatedAt = new DateTime(2026, 3, 3, 11, 32, 50, 315, DateTimeKind.Utc).AddTicks(1560),
                             Email = "admin@insurance.com",
                             IsActive = true,
                             Name = "System Admin",
-                            PasswordHash = "$2a$11$/KBgUtjGlHtpDi5.PhuYOONDWt0PLLDV2oVmHl6bw/KzSmo67D7gO",
+                            PasswordHash = "$2a$11$N4oi0dpXYtn5B/s33QrSROH.uFXQp67F9Q6f1m00b9u.k5QnexDa2",
                             Phone = "9999999999",
                             Role = "Admin"
                         });

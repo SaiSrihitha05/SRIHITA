@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PolicyService } from '../../../services/policy-service';
 import { HttpClient } from '@angular/common/http';
@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 export class AdminPolicies implements OnInit {
   private policyService = inject(PolicyService);
   private http = inject(HttpClient);
+  private cdr = inject(ChangeDetectorRef);
 
   policies: any[] = [];
   agents: any[] = [];
@@ -24,12 +25,15 @@ export class AdminPolicies implements OnInit {
   loadData() {
     // Parallel load policies and agent list
     this.policyService.getAllPolicies().subscribe(data => {
-      this.policies = data;
+      // Filter out Draft policies as they are not yet submitted/ready for admin oversight
+      this.policies = data.filter(p => p.status !== 'Draft');
       this.loading = false;
+      this.cdr.detectChanges();
     });
 
     this.http.get<any[]>('https://localhost:7027/api/Users/agents').subscribe(data => {
       this.agents = data;
+      this.cdr.detectChanges();
     });
   }
 
@@ -40,6 +44,7 @@ export class AdminPolicies implements OnInit {
         next: () => {
           alert('Agent assigned successfully!');
           this.loadData(); // Refresh list
+          this.cdr.detectChanges();
         }
       });
     }

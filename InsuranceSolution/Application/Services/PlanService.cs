@@ -32,7 +32,7 @@ namespace Application.Services
             return plans.Select(MapToDto);
         }
 
-        public async Task<PlanResponseDto> GetPlanByIdAsync(int id,string role)
+        public async Task<PlanResponseDto> GetPlanByIdAsync(int id, string role)
         {
             var plan = await _planRepository.GetByIdAsync(id);
             if (plan == null)

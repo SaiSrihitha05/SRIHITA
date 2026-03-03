@@ -100,7 +100,7 @@ namespace InsuranceAPI
             {
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Title = "Hospital API",
+                    Title = "Insurance API",
                     Version = "v1"
                 });
 

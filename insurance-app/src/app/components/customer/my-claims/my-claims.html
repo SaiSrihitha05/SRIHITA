@@ -3,8 +3,8 @@
   <!-- Header -->
   <div class="flex justify-between items-center">
     <div>
-      <h1 class="text-3xl font-black text-[#75013f]">My Claims</h1>
-      <p class="text-gray-400 text-sm mt-1">Track all your filed insurance claims</p>
+      <h1 class="text-3xl font-black text-[#75013f] dark:text-pink-300">My Claims</h1>
+      <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Track all your filed insurance claims</p>
     </div>
 
   </div>
@@ -15,28 +15,26 @@
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && claims.length === 0"
-       class="py-20 text-center bg-white rounded-[3rem]
-              border border-gray-100 shadow-sm">
+  <div *ngIf="!loading && claims.length === 0" class="py-20 text-center bg-white dark:bg-gray-800
+              border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300 rounded-[3rem]">
     <p class="text-5xl mb-4">📋</p>
-    <p class="text-gray-500 font-bold text-lg">No claims filed yet</p>
-    <p class="text-gray-400 text-sm mt-1">
+    <p class="text-gray-500 dark:text-gray-400 font-bold text-lg">No claims filed yet</p>
+    <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">
       File a claim from any of your active policies
     </p>
-    <button routerLink="/customer-dashboard/my-policies"
-            class="mt-6 px-8 py-3 bg-[#75013f] text-white rounded-xl
+    <button routerLink="/customer-dashboard/my-policies" class="mt-6 px-8 py-3 bg-[#75013f] dark:bg-pink-700 text-white rounded-xl
                    font-bold text-xs uppercase tracking-widest
-                   hover:bg-[#3b001f] transition-all">
+                   hover:bg-[#3b001f] dark:hover:bg-pink-600 transition-all">
       View My Policies
     </button>
   </div>
 
   <!-- Claims Table -->
   <div *ngIf="!loading && claims.length > 0"
-       class="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden">
+    class="bg-white dark:bg-gray-800 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
     <table class="w-full text-left">
-      <thead class="bg-gray-50 text-[10px] font-black uppercase
-                    text-gray-400 border-b">
+      <thead class="bg-gray-50 dark:bg-gray-900/50 text-[10px] font-black uppercase
+                    text-gray-400 dark:text-gray-500 border-b dark:border-gray-700 transition-colors">
         <tr>
           <th class="px-8 py-5">Claim ID & Date</th>
           <th class="px-8 py-5">Policy</th>
@@ -47,54 +45,81 @@
           <th class="px-8 py-5 text-right">Settlement</th>
         </tr>
       </thead>
-      <tbody class="divide-y divide-gray-50">
-        <tr *ngFor="let claim of claims"
-            class="hover:bg-gray-50 transition-all">
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-700 transition-colors">
+        <ng-container *ngFor="let claim of claims">
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all">
+            <td class="px-8 py-6">
+              <p class="font-bold text-gray-700 dark:text-gray-200">#{{claim.id}}</p>
+              <p class="text-[9px] text-gray-400 dark:text-gray-500">
+                {{claim.filedDate | date:'dd MMM yyyy'}}
+              </p>
+            </td>
 
-          <td class="px-8 py-6">
-            <p class="font-bold text-gray-700">#{{claim.id}}</p>
-            <p class="text-[9px] text-gray-400">
-              {{claim.filedDate | date:'dd MMM yyyy'}}
-            </p>
-          </td>
+            <td class="px-8 py-6 font-medium text-sm dark:text-gray-300">
+              {{claim.policyNumber}}
+            </td>
 
-          <td class="px-8 py-6 font-medium text-sm">
-            {{claim.policyNumber}}
-          </td>
+            <td class="px-8 py-6 text-sm text-gray-600 dark:text-gray-400 text-truncate max-w-[150px]"
+              [title]="claim.nomineeName">
+              {{claim.policyMemberName}}
+            </td>
 
-          <td class="px-8 py-6 text-sm text-gray-600">
-            {{claim.policyMemberName}}
-          </td>
+            <td class="px-8 py-6">
+              <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg dark:text-gray-300
+                           text-[10px] font-bold uppercase transition-colors">
+                {{claim.claimType}}
+              </span>
+            </td>
 
-          <td class="px-8 py-6">
-            <span class="px-3 py-1 bg-gray-100 rounded-lg
-                         text-[10px] font-bold uppercase">
-              {{claim.claimType}}
-            </span>
-          </td>
+            <td class="px-8 py-6">
+              <span [ngClass]="getStatusBadgeClass(claim.status)" class="px-4 py-1 rounded-full text-[9px]
+                           font-black text-white uppercase shadow-sm transition-all">
+                {{claim.status}}
+              </span>
+            </td>
 
-          <td class="px-8 py-6">
-            <span [ngClass]="getStatusBadgeClass(claim.status)"
-                  class="px-4 py-1 rounded-full text-[9px]
-                         font-black text-white uppercase shadow-sm">
-              {{claim.status}}
-            </span>
-          </td>
+            <td class="px-8 py-6 text-right font-black text-[#75013f] dark:text-pink-400">
+              ₹{{claim.claimAmount | number}}
+            </td>
 
-          <td class="px-8 py-6 text-right font-black text-[#75013f]">
-            ₹{{claim.claimAmount | number}}
-          </td>
+            <td class="px-8 py-6 text-right font-bold text-green-600 dark:text-green-400">
+              <span *ngIf="claim.settlementAmount">
+                ₹{{claim.settlementAmount | number}}
+              </span>
+              <span *ngIf="!claim.settlementAmount" class="text-gray-300 dark:text-gray-600">
+                —
+              </span>
+            </td>
+          </tr>
 
-          <td class="px-8 py-6 text-right font-bold text-green-600">
-            <span *ngIf="claim.settlementAmount">
-              ₹{{claim.settlementAmount | number}}
-            </span>
-            <span *ngIf="!claim.settlementAmount" class="text-gray-300">
-              —
-            </span>
-          </td>
+          <!-- Settlement Breakdown Row (Only if Settled and has breakdown) -->
+          <tr *ngIf="claim.status === 'Settled' && claim.settlementBreakdown?.length > 0">
+            <td colspan="7" class="px-8 py-0">
+              <div
+                class="bg-green-50/50 dark:bg-green-900/10 border-x border-b border-green-100 dark:border-green-900/30 rounded-b-3xl mb-4 p-6 animate-in slide-in-from-top duration-300">
+                <div class="flex items-center gap-2 mb-4">
+                  <span class="text-sm">💰</span>
+                  <p class="text-[10px] font-black text-green-800 dark:text-green-300 uppercase tracking-widest">Nominee
+                    Settlement Distribution</p>
+                </div>
 
-        </tr>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div *ngFor="let s of claim.settlementBreakdown"
+                    class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-green-100 dark:border-green-800 shadow-sm">
+                    <div class="flex justify-between items-start">
+                      <p class="text-xs font-black text-gray-700 dark:text-gray-200">{{s.nomineeName}}</p>
+                      <span
+                        class="text-[9px] font-bold text-green-600 bg-green-50 dark:bg-green-900/40 px-2 py-0.5 rounded-full">{{s.sharePercentage}}%</span>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Approved Payout</p>
+                    <p class="text-lg font-black text-[#75013f] dark:text-pink-400 mt-0.5">₹{{s.settlementAmount |
+                      number}}</p>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
       </tbody>
     </table>
   </div>

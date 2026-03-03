@@ -40,9 +40,31 @@ export class PolicyService {
   getMyPolicies(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/my-policies`);
   }
-downloadFile(fileId: number): Observable<Blob> {
-  return this.http.get(`${this.baseUrl}/download-document/${fileId}`, 
-    { responseType: 'blob' });
+  downloadFile(fileId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/download-document/${fileId}`, 
+      { responseType: 'blob' });
+  }
+  cancelPolicy(policyId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${policyId}/cancel`, {});
+  }
+  saveDraft(dto: any): Observable<any> {
+  return this.http.post(`${this.baseUrl}/draft`, dto);
+}
+
+updateDraft(id: number, dto: any): Observable<any> {
+  return this.http.put(`${this.baseUrl}/draft/${id}`, dto);
+}
+
+getMyDrafts(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/my-drafts`);
+}
+
+deleteDraft(id: number): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/draft/${id}`);
+}
+
+submitDraft(id: number, fd: FormData): Observable<any> {
+  return this.http.post(`${this.baseUrl}/draft/${id}/submit`, fd);
 }
   
 }

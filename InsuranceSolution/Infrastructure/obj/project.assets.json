@@ -4214,11 +4214,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Infrastructure\\Infrastructure.csproj",
+      "projectUniqueName": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\Infrastructure.csproj",
       "projectName": "Infrastructure",
-      "projectPath": "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Infrastructure\\Infrastructure.csproj",
+      "projectPath": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\Infrastructure.csproj",
       "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Infrastructure\\obj\\",
+      "outputPath": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -4239,11 +4239,11 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Application\\Application.csproj": {
-              "projectPath": "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Application\\Application.csproj"
+            "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Application.csproj": {
+              "projectPath": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Application.csproj"
             },
-            "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Domain\\Domain.csproj": {
-              "projectPath": "D:\\angularpractice\\HartfordAssignments\\InsuranceSolution\\Domain\\Domain.csproj"
+            "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Domain.csproj": {
+              "projectPath": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Domain.csproj"
             }
           }
         }

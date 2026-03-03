@@ -24,7 +24,7 @@ namespace Application.Services
         public async Task CreateNotificationAsync(
             int userId, string title, string message,
             NotificationType type,
-            int? policyId = null, int? claimId = null, int? paymentId = null)
+            int? policyId, int? claimId, int? paymentId)
         {
             var notification = new Notification
             {

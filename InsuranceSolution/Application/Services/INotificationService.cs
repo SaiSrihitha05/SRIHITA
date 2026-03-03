@@ -12,7 +12,7 @@ namespace Application.Interfaces
     {
         Task CreateNotificationAsync(int userId, string title,
             string message, NotificationType type,
-            int? policyId = null, int? claimId = null, int? paymentId = null);
+            int? policyId, int? claimId, int? paymentId);
 
         Task<IEnumerable<NotificationResponseDto>> GetMyNotificationsAsync(int userId);
         Task MarkAsReadAsync(int notificationId, int userId);

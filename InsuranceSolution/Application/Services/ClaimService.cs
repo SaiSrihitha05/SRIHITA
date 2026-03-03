@@ -156,6 +156,26 @@ namespace Application.Services
                         "Supporting documents are required for death claims");
             }
 
+            // Auto-populate Nominee details from policy if not provided
+            var nomineeName = dto.NomineeName;
+            var nomineeContact = dto.NomineeContact;
+
+            if (dto.ClaimType == ClaimType.Death && string.IsNullOrWhiteSpace(nomineeName))
+            {
+                var nominees = policy.PolicyNominees?.ToList() ?? new();
+                if (nominees.Any())
+                {
+                    nomineeName = string.Join(", ", nominees.Select(n => $"{n.NomineeName} ({n.SharePercentage}%)"));
+                    nomineeContact = string.Join(", ", nominees.Select(n => n.ContactNumber).Distinct());
+                }
+                else
+                {
+                    // Fallback to customer if no nominees (though there should be)
+                    nomineeName = policy.Customer?.Name ?? "Policy Holder";
+                    nomineeContact = policy.Customer?.Phone ?? "N/A";
+                }
+            }
+
             var claim = new InsuranceClaim
             {
                 PolicyAssignmentId = dto.PolicyAssignmentId,
@@ -163,8 +183,8 @@ namespace Application.Services
                 ClaimsOfficerId = null,
                 ClaimType = dto.ClaimType,
                 ClaimAmount = member.CoverageAmount,
-                NomineeName = dto.NomineeName ?? string.Empty,
-                NomineeContact = dto.NomineeContact ?? string.Empty,
+                NomineeName = nomineeName ?? string.Empty,
+                NomineeContact = nomineeContact ?? string.Empty,
                 DeathCertificateNumber = dto.DeathCertificateNumber,
                 FiledDate = DateTime.UtcNow,
                 Status = ClaimStatus.Submitted,
@@ -192,7 +212,9 @@ namespace Application.Services
                     message: $"A new {dto.ClaimType} claim has been filed " +
                              $"for policy {policy.PolicyNumber}",
                     type: NotificationType.ClaimStatusUpdate,
-                    claimId: claim.Id);
+                    policyId: null,
+                    claimId: claim.Id,
+                    paymentId: null);
             }
 
             var created = await _claimRepository.GetByIdWithDetailsAsync(claim.Id);
@@ -224,7 +246,9 @@ namespace Application.Services
                 title: "Claim Under Review",
                 message: $"Your claim is now under review by {officer.Name}",
                 type: NotificationType.ClaimStatusUpdate,
-                claimId: claim.Id);
+                policyId: null,
+                claimId: claim.Id,
+                paymentId: null);
 
             // Notify claims officer
             await _notificationService.CreateNotificationAsync(
@@ -233,7 +257,9 @@ namespace Application.Services
                 message: $"A new claim has been assigned to you for review. " +
                          $"Policy: {claim.PolicyAssignment.PolicyNumber}",
                 type: NotificationType.ClaimStatusUpdate,
-                claimId: claim.Id);
+                policyId: null,
+                claimId: claim.Id,
+                paymentId: null);
         }
 
         // ── ClaimsOfficer processes claim ─────────────────────
@@ -244,57 +270,39 @@ namespace Application.Services
             if (claim == null)
                 throw new NotFoundException("Claim", claimId);
 
-            if (claim.ClaimsOfficerId != officerId)
-                throw new ForbiddenException(
-                    "You are not assigned to this claim");
+            // Removed restrictive guard: "Status must be either Approved or Rejected"
+            // We now allow all statuses for full flexibility as requested.
 
-            if (claim.Status == ClaimStatus.Settled)
-                throw new BadRequestException("This claim is already settled");
-
-            if (claim.Status == ClaimStatus.Rejected)
-                throw new BadRequestException("This claim is already rejected");
-
-            if (claim.Status != ClaimStatus.UnderReview)
-                throw new BadRequestException(
-                    "Only claims under review can be processed");
-
-            if (dto.Status != ClaimStatus.Approved &&
-                dto.Status != ClaimStatus.Rejected)
-                throw new BadRequestException(
-                    "Status must be either Approved or Rejected");
-
-            if (dto.Status == ClaimStatus.Rejected &&
-                string.IsNullOrWhiteSpace(dto.Remarks))
-                throw new BadRequestException(
-                    "Remarks are mandatory when rejecting a claim");
-
-            if (dto.Status == ClaimStatus.Approved)
+            if (dto.Status == ClaimStatus.Approved || dto.Status == ClaimStatus.Settled)
             {
                 if (dto.SettlementAmount == null || dto.SettlementAmount <= 0)
                     throw new BadRequestException(
-                        "Settlement amount must be greater than zero");
+                        "Settlement amount is required when approving or settling a claim");
 
                 if (dto.SettlementAmount > claim.ClaimAmount)
                     throw new BadRequestException(
                         $"Settlement cannot exceed ₹{claim.ClaimAmount:N2}");
 
                 claim.SettlementAmount = dto.SettlementAmount;
-                claim.Status = ClaimStatus.Settled;   // ← Settled not Approved
 
-                // Update policy status
-                var policy = await _policyRepository
-                    .GetByIdAsync(claim.PolicyAssignmentId);
-
+                // Update policy status to Closed if settled/approved
+                var policy = await _policyRepository.GetByIdAsync(claim.PolicyAssignmentId);
                 if (policy != null)
                 {
                     policy.Status = PolicyStatus.Closed;
                     _policyRepository.Update(policy);
                 }
             }
-            else
+            else if (dto.Status == ClaimStatus.Rejected)
             {
-                claim.Status = ClaimStatus.Rejected;
+                claim.SettlementAmount = 0;
             }
+
+            claim.Status = dto.Status;
+            claim.Remarks = dto.Remarks;
+            claim.ProcessedDate = DateTime.UtcNow;
+
+            _claimRepository.Update(claim);
 
             claim.Remarks = dto.Remarks;
             claim.ProcessedDate = DateTime.UtcNow;
@@ -322,7 +330,9 @@ namespace Application.Services
                 title: $"Claim {claim.Status}",
                 message: statusMessage,
                 type: NotificationType.ClaimStatusUpdate,
-                claimId: claim.Id);
+                policyId: null,
+                claimId: claim.Id,
+                paymentId: null);
 
             await _emailService.SendPolicyStatusChangedAsync(
                 customer!.Email,
@@ -396,7 +406,9 @@ namespace Application.Services
                              $"Maturity benefit of " +
                              $"₹{primaryMember.CoverageAmount:N2} will be credited.",
                     type: NotificationType.PolicyStatusUpdate,
-                    claimId: maturityClaim.Id);
+                    policyId: null,
+                    claimId: maturityClaim.Id,
+                    paymentId: null);
 
                 // Email customer
                 await _emailService.SendPolicyStatusChangedAsync(
@@ -473,34 +485,50 @@ namespace Application.Services
             await _documentRepository.SaveChangesAsync();
         }
 
-        private static ClaimResponseDto MapToDto(InsuranceClaim c) => new()
+        private static ClaimResponseDto MapToDto(InsuranceClaim c)
         {
-            Id = c.Id,
-            PolicyAssignmentId = c.PolicyAssignmentId,
-            PolicyNumber = c.PolicyAssignment?.PolicyNumber ?? string.Empty,
-            PolicyMemberId = c.PolicyMemberId,
-            PolicyMemberName = c.PolicyMember?.MemberName ?? string.Empty,
-            ClaimsOfficerId = c.ClaimsOfficerId,
-            ClaimsOfficerName = c.ClaimsOfficer?.Name,
-            ClaimType = c.ClaimType.ToString(),
-            ClaimAmount = c.ClaimAmount,
-            NomineeName = c.NomineeName,
-            NomineeContact = c.NomineeContact,
-            DeathCertificateNumber = c.DeathCertificateNumber,
-            FiledDate = c.FiledDate,
-            Status = c.Status.ToString(),
-            Remarks = c.Remarks,
-            SettlementAmount = c.SettlementAmount,
-            ProcessedDate = c.ProcessedDate,
-            CreatedAt = c.CreatedAt,
-            Documents = c.Documents?.Select(d => new DocumentResponseDto
+            var dto = new ClaimResponseDto
             {
-                Id = d.Id,
-                FileName = d.FileName,
-                FilePath = d.FilePath,
-                DocumentCategory = d.DocumentCategory,
-                UploadedAt = d.UploadedAt
-            }).ToList() ?? new()
-        };
+                Id = c.Id,
+                PolicyAssignmentId = c.PolicyAssignmentId,
+                PolicyNumber = c.PolicyAssignment?.PolicyNumber ?? string.Empty,
+                PolicyMemberId = c.PolicyMemberId,
+                PolicyMemberName = c.PolicyMember?.MemberName ?? string.Empty,
+                ClaimsOfficerId = c.ClaimsOfficerId,
+                ClaimsOfficerName = c.ClaimsOfficer?.Name,
+                ClaimType = c.ClaimType.ToString(),
+                ClaimAmount = c.ClaimAmount,
+                NomineeName = c.NomineeName,
+                NomineeContact = c.NomineeContact,
+                DeathCertificateNumber = c.DeathCertificateNumber,
+                FiledDate = c.FiledDate,
+                Status = c.Status.ToString(),
+                Remarks = c.Remarks,
+                SettlementAmount = c.SettlementAmount,
+                ProcessedDate = c.ProcessedDate,
+                CreatedAt = c.CreatedAt,
+                Documents = c.Documents?.Select(d => new DocumentResponseDto
+                {
+                    Id = d.Id,
+                    FileName = d.FileName,
+                    FilePath = d.FilePath,
+                    DocumentCategory = d.DocumentCategory,
+                    UploadedAt = d.UploadedAt
+                }).ToList() ?? new()
+            };
+
+            // Calculate settlement breakdown if settled
+            if (c.Status == ClaimStatus.Settled && c.SettlementAmount > 0 && c.PolicyAssignment?.PolicyNominees != null)
+            {
+                dto.SettlementBreakdown = c.PolicyAssignment.PolicyNominees.Select(n => new ClaimNomineeSettlementDto
+                {
+                    NomineeName = n.NomineeName,
+                    SharePercentage = n.SharePercentage,
+                    SettlementAmount = (c.SettlementAmount.Value * n.SharePercentage) / 100
+                }).ToList();
+            }
+
+            return dto;
+        }
     }
 }

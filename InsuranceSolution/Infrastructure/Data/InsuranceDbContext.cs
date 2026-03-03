@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data
 {
-    public class InsuranceDbContext:DbContext
+    public class InsuranceDbContext : DbContext
     {
-        public InsuranceDbContext(DbContextOptions<InsuranceDbContext> options):base(options)
+        public InsuranceDbContext(DbContextOptions<InsuranceDbContext> options) : base(options)
         {
         }
         public DbSet<InsuranceClaim> Claims { get; set; }
@@ -102,12 +102,12 @@ namespace Infrastructure.Data
 
             builder.Entity<PolicyMember>()
                 .HasOne(pm => pm.PolicyAssignment)
-                .WithMany(p => p.PolicyMembers)                
+                .WithMany(p => p.PolicyMembers)
                 .HasForeignKey(pm => pm.PolicyAssignmentId);
 
             builder.Entity<PolicyNominee>()
                 .HasOne(pn => pn.PolicyAssignment)
-                .WithMany(p => p.PolicyNominees)               
+                .WithMany(p => p.PolicyNominees)
                 .HasForeignKey(pn => pn.PolicyAssignmentId);
 
             builder.Entity<InsuranceClaim>()
@@ -196,5 +196,5 @@ namespace Infrastructure.Data
                 .Property(p => p.CommissionRate)
                 .HasColumnType("decimal(5,2)");
         }
-        }
+    }
 }

@@ -253,7 +253,9 @@ namespace Application.Services
                 title: "Policy Status Updated",
                 message: $"Your policy {policy.PolicyNumber} status changed to {dto.Status}",
                 type: NotificationType.PolicyStatusUpdate,
-                policyId: policy.Id);
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: null);
 
             // Send email
             await _emailService.SendPolicyStatusChangedAsync(
@@ -485,7 +487,7 @@ namespace Application.Services
             PlanId = p.PlanId,
             PlanName = p.Plan?.PlanName ?? string.Empty,
             StartDate = p.StartDate,
-            TermYears = p.TermYears,   
+            TermYears = p.TermYears,
             EndDate = p.EndDate,
             Status = p.Status.ToString(),
             TotalPremiumAmount = p.TotalPremiumAmount,
@@ -523,5 +525,366 @@ namespace Application.Services
                 UploadedAt = d.UploadedAt
             }).ToList() ?? new()
         };
+        public async Task CancelPendingPolicyAsync(int policyId, int customerId)
+        {
+            var policy = await _policyRepository.GetByIdAsync(policyId);
+
+            if (policy == null)
+                throw new NotFoundException("Policy", policyId);
+
+            if (policy.CustomerId != customerId)
+                throw new ForbiddenException("You can only cancel your own policies");
+
+            // Strict validation: Only Pending policies can be cancelled by the user
+            if (policy.Status != PolicyStatus.Pending)
+                throw new BadRequestException($"Cannot cancel policy with status: {policy.Status}");
+
+            policy.Status = PolicyStatus.Cancelled; // Or create a 'Cancelled' status in your Enum
+
+            _policyRepository.Update(policy);
+            await _policyRepository.SaveChangesAsync();
+        }
+        public async Task<PolicyResponseDto> SaveDraftAsync(
+    int customerId, SaveDraftDto dto)
+        {
+            // Validate plan if provided
+            Plan? plan = null;
+            if (dto.PlanId.HasValue)
+            {
+                plan = await _planRepository.GetByIdAsync(dto.PlanId.Value);
+                if (plan == null)
+                    throw new NotFoundException("Plan", dto.PlanId.Value);
+
+                if (!plan.IsActive)
+                    throw new BadRequestException("Selected plan is not active");
+            }
+
+            // Build draft policy — all validations are skipped
+            var draft = new PolicyAssignment
+            {
+                PolicyNumber = await _policyRepository
+                                      .GeneratePolicyNumberAsync(),
+                CustomerId = customerId,
+                AgentId = null,
+                PlanId = dto.PlanId ?? 0,
+                StartDate = dto.StartDate ?? DateTime.UtcNow.AddDays(1),
+                TermYears = dto.TermYears ?? 0,
+                EndDate = dto.StartDate.HasValue && dto.TermYears.HasValue
+                                      ? dto.StartDate.Value
+                                            .AddYears(dto.TermYears.Value)
+                                      : DateTime.UtcNow.AddYears(1),
+                Status = PolicyStatus.Draft,
+                TotalPremiumAmount = 0,          // calculated on submit
+                PremiumFrequency = dto.PremiumFrequency
+                                         ?? PremiumFrequency.Monthly,
+                NextDueDate = dto.StartDate ?? DateTime.UtcNow.AddDays(1),
+                CreatedAt = DateTime.UtcNow,
+
+                // Save partial members if provided
+                PolicyMembers = dto.Members?.Select(m => new PolicyMember
+                {
+                    MemberName = m.MemberName,
+                    RelationshipToCustomer = m.RelationshipToCustomer,
+                    DateOfBirth = m.DateOfBirth,
+                    Gender = m.Gender,
+                    CoverageAmount = m.CoverageAmount,
+                    IsSmoker = m.IsSmoker,
+                    HasPreExistingDiseases = m.HasPreExistingDiseases,
+                    DiseaseDescription = m.DiseaseDescription,
+                    Occupation = m.Occupation,
+                    IsPrimaryInsured = m.IsPrimaryInsured,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList() ?? new(),
+
+                // Save partial nominees if provided
+                PolicyNominees = dto.Nominees?.Select(n => new PolicyNominee
+                {
+                    NomineeName = n.NomineeName,
+                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
+                    ContactNumber = n.ContactNumber,
+                    SharePercentage = n.SharePercentage,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList() ?? new()
+            };
+
+            await _policyRepository.AddAsync(draft);
+            await _policyRepository.SaveChangesAsync();
+
+            var created = await _policyRepository
+                .GetByIdWithDetailsAsync(draft.Id);
+            return MapToDto(created!);
+        }
+
+        public async Task<PolicyResponseDto> UpdateDraftAsync(
+            int policyId, int customerId, SaveDraftDto dto)
+        {
+            var draft = await _policyRepository
+                .GetByIdWithDetailsAsync(policyId);
+
+            if (draft == null)
+                throw new NotFoundException("Draft", policyId);
+
+            if (draft.CustomerId != customerId)
+                throw new ForbiddenException(
+                    "You can only update your own drafts");
+
+            if (draft.Status != PolicyStatus.Draft)
+                throw new BadRequestException(
+                    "Only draft policies can be updated this way");
+
+            // Update fields if provided
+            if (dto.PlanId.HasValue)
+            {
+                var plan = await _planRepository.GetByIdAsync(dto.PlanId.Value);
+                if (plan == null)
+                    throw new NotFoundException("Plan", dto.PlanId.Value);
+                draft.PlanId = dto.PlanId.Value;
+            }
+
+            if (dto.StartDate.HasValue)
+            {
+                draft.StartDate = dto.StartDate.Value;
+                draft.NextDueDate = dto.StartDate.Value;
+            }
+
+            if (dto.TermYears.HasValue)
+                draft.TermYears = dto.TermYears.Value;
+
+            if (dto.PremiumFrequency.HasValue)
+                draft.PremiumFrequency = dto.PremiumFrequency.Value;
+
+            // Recalculate EndDate if both StartDate and TermYears available
+            if (draft.StartDate != default && draft.TermYears > 0)
+                draft.EndDate = draft.StartDate.AddYears(draft.TermYears);
+
+            // Update members — replace all
+            if (dto.Members != null)
+            {
+                draft.PolicyMembers = dto.Members.Select(m => new PolicyMember
+                {
+                    MemberName = m.MemberName,
+                    RelationshipToCustomer = m.RelationshipToCustomer,
+                    DateOfBirth = m.DateOfBirth,
+                    Gender = m.Gender,
+                    CoverageAmount = m.CoverageAmount,
+                    IsSmoker = m.IsSmoker,
+                    HasPreExistingDiseases = m.HasPreExistingDiseases,
+                    DiseaseDescription = m.DiseaseDescription,
+                    Occupation = m.Occupation,
+                    IsPrimaryInsured = m.IsPrimaryInsured,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList();
+            }
+
+            // Update nominees — replace all
+            if (dto.Nominees != null)
+            {
+                draft.PolicyNominees = dto.Nominees.Select(n => new PolicyNominee
+                {
+                    NomineeName = n.NomineeName,
+                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
+                    ContactNumber = n.ContactNumber,
+                    SharePercentage = n.SharePercentage,
+                    CreatedAt = DateTime.UtcNow
+                }).ToList();
+            }
+
+            _policyRepository.Update(draft);
+            await _policyRepository.SaveChangesAsync();
+
+            var updated = await _policyRepository
+                .GetByIdWithDetailsAsync(draft.Id);
+            return MapToDto(updated!);
+        }
+
+        public async Task<PolicyResponseDto> SubmitDraftAsync(
+            int policyId,
+            int customerId,
+            CreatePolicyDto dto,
+            List<PolicyMemberDto> members,
+            List<PolicyNomineeDto> nominees,
+            List<IFormFile> customerDocuments,
+            List<IFormFile> memberDocuments)
+        {
+            var draft = await _policyRepository
+                .GetByIdWithDetailsAsync(policyId);
+
+            if (draft == null)
+                throw new NotFoundException("Draft", policyId);
+
+            if (draft.CustomerId != customerId)
+                throw new ForbiddenException(
+                    "You can only submit your own drafts");
+
+            if (draft.Status != PolicyStatus.Draft)
+                throw new BadRequestException(
+                    "Only draft policies can be submitted");
+
+            // Run all full validations same as CreatePolicyAsync
+            var plan = await _planRepository.GetByIdAsync(dto.PlanId);
+            if (plan == null)
+                throw new NotFoundException("Plan", dto.PlanId);
+
+            if (!plan.IsActive)
+                throw new BadRequestException("Selected plan is not active");
+
+            if (dto.StartDate.Date <= DateTime.Today)
+                throw new BadRequestException(
+                    "Policy start date must be a future date");
+
+            if (dto.StartDate.Date > DateTime.UtcNow.Date.AddYears(1))
+                throw new BadRequestException(
+                    "Start date cannot be more than 1 year in the future");
+
+            if (dto.TermYears < plan.MinTermYears ||
+                dto.TermYears > plan.MaxTermYears)
+                throw new BadRequestException(
+                    $"Term years must be between {plan.MinTermYears} " +
+                    $"and {plan.MaxTermYears}");
+
+            if (members.Count > plan.MaxPolicyMembersAllowed)
+                throw new BadRequestException(
+                    $"Max {plan.MaxPolicyMembersAllowed} members allowed");
+
+            var primaryCount = members.Count(m => m.IsPrimaryInsured);
+            if (primaryCount != 1)
+                throw new BadRequestException(
+                    "Exactly one primary insured required");
+
+            foreach (var member in members)
+            {
+                var age = CalculateAge(member.DateOfBirth);
+                if (age < plan.MinAge || age > plan.MaxAge)
+                    throw new BadRequestException(
+                        $"Member '{member.MemberName}' age {age} is outside " +
+                        $"plan range ({plan.MinAge}-{plan.MaxAge})");
+
+                if (member.CoverageAmount < plan.MinCoverageAmount ||
+                    member.CoverageAmount > plan.MaxCoverageAmount)
+                    throw new BadRequestException(
+                        $"Member '{member.MemberName}' coverage outside " +
+                        $"plan range");
+            }
+
+            var totalShare = nominees.Sum(n => n.SharePercentage);
+            if (totalShare != 100)
+                throw new BadRequestException(
+                    $"Nominee shares must total 100. Current: {totalShare}");
+
+            if (nominees.Count < plan.MinNominees)
+                throw new BadRequestException(
+                    $"Minimum {plan.MinNominees} nominee(s) required");
+
+            if (nominees.Count > plan.MaxNominees)
+                throw new BadRequestException(
+                    $"Maximum {plan.MaxNominees} nominee(s) allowed");
+
+            // Calculate premium
+            var totalPremium = members.Sum(m =>
+                CalculatePremium(
+                    plan.BaseRate,
+                    m.CoverageAmount,
+                    dto.TermYears,
+                    m.DateOfBirth,
+                    m.IsSmoker,
+                    m.Gender,
+                    dto.PremiumFrequency));
+
+            // Update draft → Pending
+            draft.PlanId = dto.PlanId;
+            draft.StartDate = dto.StartDate;
+            draft.TermYears = dto.TermYears;
+            draft.EndDate = dto.StartDate.AddYears(dto.TermYears);
+            draft.PremiumFrequency = dto.PremiumFrequency;
+            draft.TotalPremiumAmount = totalPremium;
+            draft.NextDueDate = dto.StartDate;
+            draft.Status = PolicyStatus.Pending;
+            draft.AgentId = null;
+
+            // Replace members and nominees
+            draft.PolicyMembers = members.Select(m => new PolicyMember
+            {
+                MemberName = m.MemberName,
+                RelationshipToCustomer = m.RelationshipToCustomer,
+                DateOfBirth = m.DateOfBirth,
+                Gender = m.Gender,
+                CoverageAmount = m.CoverageAmount,
+                IsSmoker = m.IsSmoker,
+                HasPreExistingDiseases = m.HasPreExistingDiseases,
+                DiseaseDescription = m.DiseaseDescription,
+                Occupation = m.Occupation,
+                IsPrimaryInsured = m.IsPrimaryInsured,
+                CreatedAt = DateTime.UtcNow
+            }).ToList();
+
+            draft.PolicyNominees = nominees.Select(n => new PolicyNominee
+            {
+                NomineeName = n.NomineeName,
+                RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
+                ContactNumber = n.ContactNumber,
+                SharePercentage = n.SharePercentage,
+                CreatedAt = DateTime.UtcNow
+            }).ToList();
+
+            _policyRepository.Update(draft);
+            await _policyRepository.SaveChangesAsync();
+
+            // Save documents
+            await SaveCustomerDocumentsAsync(
+                customerDocuments, draft.Id, customerId);
+
+            if (memberDocuments != null && memberDocuments.Any())
+            {
+                var nonPrimaryMembers = draft.PolicyMembers
+                    .Where(m => !m.IsPrimaryInsured).ToList();
+                await SaveMemberDocumentsAsync(
+                    memberDocuments, draft.Id, nonPrimaryMembers, customerId);
+            }
+
+            // Notify customer
+            await _notificationService.CreateNotificationAsync(
+                userId: customerId,
+                title: "Policy Submitted",
+                message: $"Your policy {draft.PolicyNumber} has been " +
+                          $"submitted for review.",
+                type: NotificationType.PolicyStatusUpdate,
+                policyId: draft.Id,
+                claimId: null,
+                paymentId: null);
+
+            var updated = await _policyRepository
+                .GetByIdWithDetailsAsync(draft.Id);
+            return MapToDto(updated!);
+        }
+
+        public async Task<IEnumerable<PolicyResponseDto>> GetMyDraftsAsync(
+            int customerId)
+        {
+            var policies = await _policyRepository
+                .GetByCustomerIdAsync(customerId);
+
+            return policies
+                .Where(p => p.Status == PolicyStatus.Draft)
+                .Select(MapToDto);
+        }
+
+        public async Task DeleteDraftAsync(int policyId, int customerId)
+        {
+            var draft = await _policyRepository.GetByIdAsync(policyId);
+
+            if (draft == null)
+                throw new NotFoundException("Draft", policyId);
+
+            if (draft.CustomerId != customerId)
+                throw new ForbiddenException(
+                    "You can only delete your own drafts");
+
+            if (draft.Status != PolicyStatus.Draft)
+                throw new BadRequestException(
+                    "Only draft policies can be deleted");
+
+            _policyRepository.Delete(draft);
+            await _policyRepository.SaveChangesAsync();
+        }
     }
 }

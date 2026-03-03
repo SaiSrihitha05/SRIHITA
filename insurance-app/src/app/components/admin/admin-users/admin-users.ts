@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserService } from '../../../services/user-service';
@@ -11,6 +11,7 @@ import { UserService } from '../../../services/user-service';
 })
 export class AdminUsers implements OnInit {
   private userService = inject(UserService);
+  private cdr = inject(ChangeDetectorRef);
 
   activeTab: 'Customer' | 'Agent' | 'ClaimsOfficer' = 'Customer';
   users: any[] = [];
@@ -33,23 +34,25 @@ export class AdminUsers implements OnInit {
     this.users = []; // Clear old data immediately to avoid flickering
 
     const request = tab === 'Customer' ? this.userService.getCustomers() :
-                    tab === 'Agent' ? this.userService.getAgents() : 
-                    this.userService.getClaimsOfficers();
-    
+      tab === 'Agent' ? this.userService.getAgents() :
+        this.userService.getClaimsOfficers();
+
     request.subscribe({
       next: (data) => {
         this.users = data;
         this.loading = false; // Stop loading only when data arrives
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error loading users', err);
         this.loading = false; // Stop loading even on error
+        this.cdr.detectChanges();
       }
     });
   }
   onSubmit() {
-    const action = this.activeTab === 'Agent' 
-      ? this.userService.createAgent(this.newUser) 
+    const action = this.activeTab === 'Agent'
+      ? this.userService.createAgent(this.newUser)
       : this.userService.createClaimsOfficer(this.newUser);
 
     action.subscribe({
@@ -58,6 +61,7 @@ export class AdminUsers implements OnInit {
         this.showModal = false;
         this.switchTab(this.activeTab);
         this.newUser = { name: '', email: '', password: '', phone: '' };
+        this.cdr.detectChanges();
       },
       error: (err) => alert('Error creating user: ' + err.error?.title || 'Check fields')
     });
@@ -65,7 +69,10 @@ export class AdminUsers implements OnInit {
 
   deleteUser(id: number) {
     if (confirm('Delete this user account?')) {
-      this.userService.deleteUser(id).subscribe(() => this.switchTab(this.activeTab));
+      this.userService.deleteUser(id).subscribe(() => {
+        this.switchTab(this.activeTab);
+        this.cdr.detectChanges();
+      });
     }
   }
 }

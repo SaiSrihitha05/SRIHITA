@@ -69,8 +69,6 @@ submitPayment() {
       this.newPaymentId = res.id;
       this.paymentSuccess = true;
 
-      // 3. MANDATORY: Trigger Change Detection manually
-      this.cdr.detectChanges(); 
 
       // 4. Scroll to top so they see the success message
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -81,8 +79,6 @@ submitPayment() {
       const errorMessage = err.error?.message || err.error || "Payment failed";
       alert(`Transaction Error: ${errorMessage}`);
       
-      // Trigger detection here too so the spinner stops
-      this.cdr.detectChanges(); 
     }
   });
 }

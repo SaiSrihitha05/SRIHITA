@@ -45,5 +45,18 @@ namespace Infrastructure.Repositories
 
         public void Delete(User user) =>
             _context.Users.Remove(user);
+        public async Task UpdateResetTokenAsync(
+    int userId, string token, DateTime expiry)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return;
+            user.ResetToken = token;
+            user.ResetTokenExpiry = expiry;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetUserByResetTokenAsync(string token)
+            => await _context.Users
+                .FirstOrDefaultAsync(u => u.ResetToken == token);
     }
 }

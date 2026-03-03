@@ -22,5 +22,6 @@ namespace Application.Interfaces.Repositories
         Task AddAsync(PolicyAssignment policy);
         void Update(PolicyAssignment policy);
         Task SaveChangesAsync();
+        void Delete(PolicyAssignment policy);
     }
 }

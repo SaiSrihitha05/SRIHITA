@@ -59,9 +59,9 @@ namespace Infrastructure.Repositories
             await _context.PolicyAssignments
                 .Include(p => p.Customer)
                 .Include(p => p.Plan)
-                .Include(p=>p.PolicyMembers)
-                .Include(p=>p.PolicyNominees)
-                .Include(p=>p.Documents)
+                .Include(p => p.PolicyMembers)
+                .Include(p => p.PolicyNominees)
+                .Include(p => p.Documents)
                 .Where(p => p.AgentId == agentId)
                 .ToListAsync();
 
@@ -106,5 +106,7 @@ namespace Infrastructure.Repositories
                 .Where(p => p.Status == PolicyStatus.Active &&
                             p.EndDate.Date <= DateTime.UtcNow.Date)
                 .ToListAsync();
+        public void Delete(PolicyAssignment policy)
+    => _context.PolicyAssignments.Remove(policy);
     }
 }

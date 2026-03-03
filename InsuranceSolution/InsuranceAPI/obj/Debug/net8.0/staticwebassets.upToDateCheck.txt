@@ -2,6 +2,12 @@ wwwroot\uploads\claims\1\ClaimDoc_1_d7c2c21c-885b-47a0-8624-66be8aa4ca8c.jpg
 wwwroot\uploads\claims\2\ClaimDoc_2_4d9d65e2-a425-4ac4-a03e-4d3ae68fe5f0.jpg
 wwwroot\uploads\claims\3\ClaimDoc_3_a8812ad4-31b4-4372-8149-ea8fd3288dd9.jpg
 wwwroot\uploads\claims\4\ClaimDoc_4_6b98f3fa-67dc-416a-bc99-cf8357fe6a94.png
+wwwroot\uploads\claims\5\ClaimDoc_5_0b682916-2bea-4ce4-a8dd-372f94121301.png
+wwwroot\uploads\policies\15\customer\IdentityProof_15_9fd3f62f-d661-42a2-b0b6-3f6bcb4fd406.png
+wwwroot\uploads\policies\15\customer\IncomeProof_15_28880775-042b-470e-8f15-61c84261464f.png
+wwwroot\uploads\policies\15\members\21\IdentityProof_21_9d1deb8f-f71b-433a-81dc-4210ac05554e.png
+wwwroot\uploads\policies\16\customer\IdentityProof_16_87a80abb-fb59-49b4-a439-22f245a78a20.png
+wwwroot\uploads\policies\16\customer\IncomeProof_16_1a44df5c-9fc2-4456-8111-5491e9e47ddb.png
 wwwroot\uploads\policies\3\customer\IdentityProof_3_4901376b-8685-4694-8dbd-06bd89440844.jpg
 wwwroot\uploads\policies\3\customer\IncomeProof_3_5caa60f1-4973-47bf-afd8-c7362c0e467b.jpg
 wwwroot\uploads\policies\4\customer\IdentityProof_4_453252f3-e534-4e7a-a5ac-aa4d91c68242.jpg

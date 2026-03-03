@@ -1,97 +1,125 @@
 <div class="space-y-8 font-lato" *ngIf="stats">
-  <div class="flex justify-between items-end">
+  <!-- Performance Summary Header -->
+  <div class="flex justify-between items-end transition-colors">
     <div>
-      <h1 class="text-3xl font-bold text-[#75013f]">Agent Performance</h1>
-      <p class="text-gray-500">Real-time tracking of your assigned portfolio</p>
+      <h1 class="text-3xl font-bold text-[#75013f] dark:text-pink-300">Agent Performance</h1>
+      <p class="text-gray-500 dark:text-gray-400">Real-time tracking of your assigned portfolio</p>
     </div>
-    <div class="text-right">
-      <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Base Comm. Rate</span>
-      <p class="text-xl font-bold text-[#fe3082]">{{ stats.currentCommissionRate }}%</p>
-    </div>
+
   </div>
 
+  <!-- Key Metrics Row -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-[#75013f]">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-[#75013f]">
       <p class="text-xs font-bold text-gray-400 uppercase">Total Commission</p>
-      <p class="text-2xl font-bold text-[#75013f]">₹{{ stats.totalCommissionEarned | number:'1.2-2' }}</p>
-      <p class="text-[10px] mt-1" [class]="stats.isBonusRateApplied ? 'text-green-600' : 'text-gray-400'">
+      <p class="text-2xl font-bold text-[#75013f] dark:text-pink-300">₹{{ stats.totalCommissionEarned | number:'1.2-2'
+        }}</p>
+      <p class="text-[10px] mt-1" [class]="stats.isBonusRateApplied ? 'text-green-600 font-bold' : 'text-gray-400'">
         {{ stats.isBonusRateApplied ? '✓ Bonus Rate Applied' : 'Standard Rate' }}
       </p>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-[#fe3082]">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-[#fe3082]">
       <p class="text-xs font-bold text-gray-400 uppercase">Assigned Policies</p>
-      <p class="text-2xl font-bold text-gray-800">{{ stats.totalAssignedPolicies }}</p>
-      <p class="text-[10px] text-gray-400 mt-1">{{ stats.activePolicies }} Active | {{ stats.pendingPolicies }} Pending</p>
+      <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.totalAssignedPolicies }}</p>
+      <p class="text-[10px] text-gray-400 mt-1">{{ stats.activePolicies }} Active | {{ stats.pendingPolicies }} Pending
+      </p>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-blue-500">
-      <p class="text-xs font-bold text-gray-400 uppercase">Total Customers</p>
-      <p class="text-2xl font-bold text-gray-800">{{ stats.assignedCustomers }}</p>
-      <p class="text-[10px] text-gray-400 mt-1">Directly assigned to you</p>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-blue-500">
+      <p class="text-xs font-bold text-gray-400 uppercase">Assigned Customers</p>
+      <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.assignedCustomers }}</p>
+      <p class="text-[10px] text-gray-400 mt-1">Direct portfolio size</p>
     </div>
 
-    <div class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-orange-400">
-      <p class="text-xs font-bold text-gray-400 uppercase">Feb Sales</p>
-      <p class="text-2xl font-bold text-gray-800">{{ stats.monthlyPoliciesSold[0]?.policiesSold || 0 }}</p>
-      <p class="text-[10px] text-orange-600 font-bold mt-1">New this month</p>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-orange-400">
+      <p class="text-xs font-bold text-gray-400 uppercase">Recent Sales</p>
+      <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.monthlyPoliciesSold[0]?.policiesSold || 0
+        }}</p>
+      <p class="text-[10px] text-orange-600 font-bold mt-1">Policies sold this month</p>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="p-4 border-b border-gray-100 bg-gray-50/50">
-        <h3 class="font-bold text-[#75013f]">Recent Assigned Policies</h3>
+  <!-- Visual Analytics Row 1: Trends -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-6">Commission Earnings Trend</h3>
+      <div class="h-[300px]">
+        <canvas baseChart [data]="earningsTrendData" [options]="earningsTrendOptions" [type]="'line'"></canvas>
       </div>
-      <table class="w-full text-left text-sm">
-        <thead class="text-gray-400 uppercase text-[10px] border-b">
-          <tr>
-            <th class="px-6 py-3">Policy No</th>
-            <th class="px-6 py-3">Customer</th>
-            <th class="px-6 py-3">Premium</th>
-            <th class="px-6 py-3">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let policy of stats.recentAssignedPolicies" class="border-b last:border-0 hover:bg-gray-50">
-            <td class="px-6 py-4 font-mono font-bold text-[#75013f]">{{ policy.policyNumber }}</td>
-            <td class="px-6 py-4">{{ policy.customerName }}</td>
-            <td class="px-6 py-4">₹{{ policy.totalPremiumAmount | number }}</td>
-            <td class="px-6 py-4">
-              <span [class]="policy.status === 'Active' ? 'text-green-600' : 'text-gray-400'" class="font-bold text-[10px] uppercase">
-                {{ policy.status }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
-    <div class="space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h3 class="font-bold text-[#75013f] mb-4">Plan Distribution</h3>
-        <div class="space-y-4">
-          <div *ngFor="let plan of stats.policiesByPlanType" class="flex items-center justify-between">
-            <span class="text-sm font-medium text-gray-600">{{ plan.planType }}</span>
-            <div class="flex items-center gap-3">
-              <div class="w-24 bg-gray-100 h-1.5 rounded-full overflow-hidden">
-                <div class="bg-[#fe3082] h-full" [style.width.%]="(plan.count / stats.totalAssignedPolicies) * 100"></div>
-              </div>
-              <span class="text-xs font-bold text-gray-800">{{ plan.count }}</span>
-            </div>
-          </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-6">Monthly Sales Volume</h3>
+      <div class="h-[300px]">
+        <canvas baseChart [data]="salesVolumeData" [options]="salesVolumeOptions" [type]="'bar'"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Visual Analytics Row 2: Distribution & Recent Activity -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Plan Mix -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-6 text-center">Plan Distribution for Assigned Policies</h3>
+      <div class="h-[250px] flex items-center justify-center">
+        <canvas baseChart [data]="planMixData" [options]="{responsive: true, plugins: {legend: {position: 'bottom'}}}"
+          [type]="'pie'"></canvas>
+      </div>
+    </div>
+
+    <!-- Portfolio Health -->
+    <div
+      class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-6">Portfolio Health</h3>
+      <div class="h-[250px] relative flex items-center justify-center">
+        <canvas baseChart [data]="healthData"
+          [options]="{responsive: true, cutout: '70%', plugins: {legend: {display: false}}}"
+          [type]="'doughnut'"></canvas>
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">{{ stats.activePolicies }}</p>
+          <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Active Policies</p>
         </div>
       </div>
-
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-        <h3 class="font-bold text-[#75013f] mb-4">Monthly Commission</h3>
-        <div *ngFor="let month of stats.monthlyCommission" class="flex justify-between items-center p-3 bg-[#f5f2ef] rounded-xl border border-[#75013f]/5">
-          <div>
-            <p class="text-xs font-bold text-gray-800">{{ month.monthName }}</p>
-            <p class="text-[10px] text-gray-400">{{ month.policiesSold }} Policies Sold</p>
-          </div>
-          <p class="font-bold text-[#75013f]">₹{{ month.commissionEarned | number }}</p>
+      <div class="mt-6 flex justify-around text-xs font-bold">
+        <div class="text-green-500">
+          <p class="text-lg">{{ stats.activePolicies }}</p>
+          <p class="uppercase text-[9px]">Active</p>
         </div>
+        <div class="text-orange-500">
+          <p class="text-lg">{{ stats.pendingPolicies }}</p>
+          <p class="uppercase text-[9px]">Pending</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Policies -->
+    <div
+      class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div
+        class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center">
+        <h3 class="font-bold text-[#75013f] dark:text-pink-300">Latest Assignments</h3>
+        <span class="text-[9px] bg-[#75013f]/10 text-[#75013f] px-2 py-0.5 rounded-full font-bold">Last {{
+          stats.recentAssignedPolicies.length }}</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+            <tr *ngFor="let policy of stats.recentAssignedPolicies"
+              class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-all">
+              <td class="px-4 py-3">
+                <p class="font-bold text-gray-800 dark:text-gray-100">{{ policy.policyNumber }}</p>
+                <p class="text-[10px] text-gray-400">{{ policy.customerName }}</p>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <span [class]="policy.status === 'Active' ? 'text-green-600' : 'text-orange-400'"
+                  class="font-bold uppercase text-[9px]">
+                  {{ policy.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
