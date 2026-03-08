@@ -194,10 +194,13 @@ namespace Application.Services
                 var agentPolicies = allPolicies
                     .Where(p => p.AgentId == agent.Id).ToList();
 
-                var totalPremium = agentPolicies.Sum(p => p.TotalPremiumAmount);
+                var paidPolicies = agentPolicies
+                    .Where(p => p.CommissionStatus == CommissionStatus.Paid).ToList();
+
+                var totalPremium = paidPolicies.Sum(p => p.TotalPremiumAmount);
 
                 // Commission = sum of (premium * plan commission rate)
-                var commission = agentPolicies.Sum(p =>
+                var commission = paidPolicies.Sum(p =>
                     p.TotalPremiumAmount * (p.Plan?.CommissionRate ?? 0) / 100);
 
                 return new AgentPerformanceDto
@@ -304,9 +307,12 @@ namespace Application.Services
             var myPolicies = await _policyRepository.GetByAgentIdAsync(agentId);
             var policiesList = myPolicies.ToList();
 
+            var paidPolicies = policiesList
+                .Where(p => p.CommissionStatus == CommissionStatus.Paid).ToList();
+
             // Commission with threshold logic
             // e.g. if sold > 10 policies → 1.5x commission rate
-            var baseCommission = policiesList.Sum(p =>
+            var baseCommission = paidPolicies.Sum(p =>
                 p.TotalPremiumAmount * (p.Plan?.CommissionRate ?? 0) / 100);
 
             var threshold = 10;
@@ -324,7 +330,9 @@ namespace Application.Services
                     MonthName = new DateTime(g.Key.Year, g.Key.Month, 1)
                                          .ToString("MMM yyyy"),
                     PoliciesSold = g.Count(),
-                    CommissionEarned = Math.Round(g.Sum(p =>
+                    CommissionEarned = Math.Round(g
+                        .Where(p => p.CommissionStatus == CommissionStatus.Paid)
+                        .Sum(p =>
                         p.TotalPremiumAmount *
                         (p.Plan?.CommissionRate ?? 0) / 100 * bonusMultiplier), 2)
                 })
@@ -354,7 +362,9 @@ namespace Application.Services
                     var monthPoliciesCount = g.Count();
                     var isBonus = monthPoliciesCount > threshold;
                     var multiplier = isBonus ? 1.5m : 1.0m;
-                    var earned = Math.Round(g.Sum(p =>
+                    var earned = Math.Round(g
+                        .Where(p => p.CommissionStatus == CommissionStatus.Paid)
+                        .Sum(p =>
                         p.TotalPremiumAmount *
                         (p.Plan?.CommissionRate ?? 0) / 100) * multiplier, 2);
 
@@ -471,6 +481,7 @@ namespace Application.Services
             EndDate = p.EndDate,
             TermYears = p.TermYears,
             Status = p.Status.ToString(),
+            CommissionStatus = p.CommissionStatus.ToString(),
             TotalPremiumAmount = p.TotalPremiumAmount,
             PremiumFrequency = p.PremiumFrequency.ToString(),
             NextDueDate = p.NextDueDate,

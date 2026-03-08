@@ -1,268 +1,485 @@
 using Application.DTOs;
 using Application.Exceptions;
-using Application.Interfaces.Repositories;
 using Application.Services;
-using Application.Tests.Common;
 using Domain.Entities;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Application.Tests.Services
 {
-    public class PlanServiceTests : ApplicationTestBase
+    public class PlanServiceTests
     {
-        private readonly PlanService _planService;
-        private readonly IPlanRepository _planRepository;
+        private (InsuranceDbContext db, PlanService service) BuildTestContextAndService()
+        {
+            var dbOptions = new DbContextOptionsBuilder<InsuranceDbContext>()
+                .UseInMemoryDatabase($"PlanServiceTestDb_{Guid.NewGuid()}")
+                .Options;
 
-        public PlanServiceTests()
-        {
-            _planRepository = new PlanRepository(Context);
-            _planService = new PlanService(_planRepository);
+            var dbContext = new InsuranceDbContext(dbOptions);
+            var planRepo = new PlanRepository(dbContext);
+            var service = new PlanService(planRepo);
+
+            return (dbContext, service);
         }
 
-        #region GetAllPlansAsync Tests (5)
-        [Fact] public async Task GetAllPlansAsync_NoPlans_ReturnsEmpty() => Assert.Empty(await _planService.GetAllPlansAsync());
-        [Fact]
-        public async Task GetAllPlansAsync_WithPlans_ReturnsAll()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "P1" }); await _planRepository.SaveChangesAsync();
-            Assert.Single(await _planService.GetAllPlansAsync());
-        }
-        [Fact]
-        public async Task GetAllPlansAsync_CountIsCorrect()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "P1" });
-            await _planRepository.AddAsync(new Plan { PlanName = "P2" }); await _planRepository.SaveChangesAsync();
-            Assert.Equal(2, (await _planService.GetAllPlansAsync()).Count());
-        }
-        [Fact]
-        public async Task GetAllPlansAsync_InactiveIncluded()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "P1", IsActive = false }); await _planRepository.SaveChangesAsync();
-            Assert.Single(await _planService.GetAllPlansAsync());
-        }
-        [Fact]
-        public async Task GetAllPlansAsync_MappingCorrect()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "Gold" }); await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetAllPlansAsync();
-            Assert.Equal("Gold", res.First().PlanName);
-        }
-        #endregion
+        // --- 1. GetAllPlansAsync (5 Tests) ---
 
-        #region GetActivePlansAsync Tests (5)
-        [Fact] public async Task GetActivePlansAsync_NoPlans_ReturnsEmpty() => Assert.Empty(await _planService.GetActivePlansAsync());
         [Fact]
-        public async Task GetActivePlansAsync_WithActive_ReturnsOnlyActive()
+        public async Task GetAllPlansAsync_ShouldReturnAllPlans_WhenDataExists()
         {
-            await _planRepository.AddAsync(new Plan { PlanName = "A", IsActive = true });
-            await _planRepository.AddAsync(new Plan { PlanName = "I", IsActive = false });
-            await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetActivePlansAsync();
-            Assert.Single(res);
-            Assert.True(res.First().IsActive);
-        }
-        [Fact]
-        public async Task GetActivePlansAsync_MultipleActive_ReturnsAll()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "A1", IsActive = true });
-            await _planRepository.AddAsync(new Plan { PlanName = "A2", IsActive = true });
-            await _planRepository.SaveChangesAsync();
-            Assert.Equal(2, (await _planService.GetActivePlansAsync()).Count());
-        }
-        [Fact]
-        public async Task GetActivePlansAsync_MappingCheck()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "Act", IsActive = true });
-            await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetActivePlansAsync();
-            Assert.Equal("Act", res.First().PlanName);
-        }
-        [Fact] public async Task GetActivePlansAsync_ResultTypeCorrect() => Assert.IsAssignableFrom<IEnumerable<PlanResponseDto>>(await _planService.GetActivePlansAsync());
-        #endregion
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "Plan1", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "Plan2", IsActive = false });
+            await db.SaveChangesAsync();
 
-        #region GetPlanByIdAsync Tests (5)
-        [Fact]
-        public async Task GetPlanByIdAsync_ValidId_ReturnsPlan()
-        {
-            var p = new Plan { PlanName = "P" };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetPlanByIdAsync(p.Id, "Admin");
-            Assert.Equal(p.Id, res.Id);
-        }
-        [Fact] public async Task GetPlanByIdAsync_NotFound_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _planService.GetPlanByIdAsync(999, "Admin"));
-        [Fact]
-        public async Task GetPlanByIdAsync_CustomerAccessingInactive_ThrowsNotFound()
-        {
-            var p = new Plan { PlanName = "I", IsActive = false };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            await Assert.ThrowsAsync<NotFoundException>(() => _planService.GetPlanByIdAsync(p.Id, "Customer"));
-        }
-        [Fact]
-        public async Task GetPlanByIdAsync_AdminAccessingInactive_ReturnsPlan()
-        {
-            var p = new Plan { PlanName = "I", IsActive = false };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetPlanByIdAsync(p.Id, "Admin");
-            Assert.False(res.IsActive);
-        }
-        [Fact] public async Task GetPlanByIdAsync_ZeroId_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _planService.GetPlanByIdAsync(0, "Admin"));
-        #endregion
+            var plans = await service.GetAllPlansAsync();
 
-        #region CreatePlanAsync Tests (5)
-        [Fact]
-        public async Task CreatePlanAsync_ValidDto_ReturnsResponse()
-        {
-            var dto = new CreatePlanDto { PlanName = "New", MinAge = 18, MaxAge = 60, MinCoverageAmount = 1, MaxCoverageAmount = 10, MinTermYears = 1, MaxTermYears = 10 };
-            var res = await _planService.CreatePlanAsync(dto);
-            Assert.Equal("New", res.PlanName);
-            Assert.True(res.IsActive);
+            Assert.Equal(2, plans.Count());
         }
-        [Fact]
-        public async Task CreatePlanAsync_DuplicateName_ThrowsConflict()
-        {
-            await _planRepository.AddAsync(new Plan { PlanName = "Dup" }); await _planRepository.SaveChangesAsync();
-            var dto = new CreatePlanDto { PlanName = "Dup" };
-            await Assert.ThrowsAsync<ConflictException>(() => _planService.CreatePlanAsync(dto));
-        }
-        [Fact]
-        public async Task CreatePlanAsync_InvalidAgeRange_ThrowsBadRequest()
-        {
-            var dto = new CreatePlanDto { PlanName = "A", MinAge = 60, MaxAge = 18 };
-            await Assert.ThrowsAsync<BadRequestException>(() => _planService.CreatePlanAsync(dto));
-        }
-        [Fact]
-        public async Task CreatePlanAsync_InvalidCoverageRange_ThrowsBadRequest()
-        {
-            var dto = new CreatePlanDto { PlanName = "C", MinCoverageAmount = 100, MaxCoverageAmount = 50 };
-            await Assert.ThrowsAsync<BadRequestException>(() => _planService.CreatePlanAsync(dto));
-        }
-        [Fact]
-        public async Task CreatePlanAsync_InvalidTermRange_ThrowsBadRequest()
-        {
-            var dto = new CreatePlanDto { PlanName = "T", MinTermYears = 10, MaxTermYears = 5 };
-            await Assert.ThrowsAsync<BadRequestException>(() => _planService.CreatePlanAsync(dto));
-        }
-        #endregion
 
-        #region UpdatePlanAsync Tests (5)
         [Fact]
-        public async Task UpdatePlanAsync_ValidDto_UpdatesPlan()
+        public async Task GetAllPlansAsync_ShouldReturnEmptyList_WhenNoDataExists()
         {
-            var p = new Plan { PlanName = "Old", MinAge = 10, MaxAge = 20, MinCoverageAmount = 1, MaxCoverageAmount = 2, MinTermYears = 1, MaxTermYears = 2 };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
+            var (_, service) = BuildTestContextAndService();
 
-            var dto = new UpdatePlanDto { PlanName = "New", MinAge = 18, MaxAge = 60, MinCoverageAmount = 100, MaxCoverageAmount = 200, MinTermYears = 5, MaxTermYears = 10, IsActive = true };
-            var res = await _planService.UpdatePlanAsync(p.Id, dto);
-            Assert.Equal("New", res.PlanName);
-        }
-        [Fact] public async Task UpdatePlanAsync_NotFound_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _planService.UpdatePlanAsync(999, new UpdatePlanDto()));
-        [Fact]
-        public async Task UpdatePlanAsync_InvalidAgeRange_ThrowsBadRequest()
-        {
-            var p = new Plan { PlanName = "P" }; await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            var dto = new UpdatePlanDto { MinAge = 50, MaxAge = 20 };
-            await Assert.ThrowsAsync<BadRequestException>(() => _planService.UpdatePlanAsync(p.Id, dto));
-        }
-        [Fact]
-        public async Task UpdatePlanAsync_TogglingActiveStatus_Works()
-        {
-            var p = new Plan { PlanName = "P", IsActive = true, MinAge = 1, MaxAge = 2, MinCoverageAmount = 1, MaxCoverageAmount = 2, MinTermYears = 1, MaxTermYears = 2 };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            var dto = new UpdatePlanDto { PlanName = "P", IsActive = false, MinAge = 1, MaxAge = 2, MinCoverageAmount = 1, MaxCoverageAmount = 2, MinTermYears = 1, MaxTermYears = 2 };
-            var res = await _planService.UpdatePlanAsync(p.Id, dto);
-            Assert.False(res.IsActive);
-        }
-        [Fact]
-        public async Task UpdatePlanAsync_SameName_Success()
-        {
-            var p = new Plan { PlanName = "P", MinAge = 1, MaxAge = 10, MinCoverageAmount = 1, MaxCoverageAmount = 10, MinTermYears = 1, MaxTermYears = 10 };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            var dto = new UpdatePlanDto { PlanName = "P", MinAge = 1, MaxAge = 10, MinCoverageAmount = 1, MaxCoverageAmount = 10, MinTermYears = 1, MaxTermYears = 10 };
-            var res = await _planService.UpdatePlanAsync(p.Id, dto);
-            Assert.Equal("P", res.PlanName);
-        }
-        #endregion
+            var plans = await service.GetAllPlansAsync();
 
-        #region DeletePlanAsync Tests (5)
-        [Fact]
-        public async Task DeletePlanAsync_ValidId_DeactivatesPlan()
-        {
-            var p = new Plan { PlanName = "P", IsActive = true };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            await _planService.DeletePlanAsync(p.Id);
-            var updated = await _planRepository.GetByIdAsync(p.Id);
-            Assert.False(updated!.IsActive);
+            Assert.Empty(plans);
         }
-        [Fact] public async Task DeletePlanAsync_NotFound_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _planService.DeletePlanAsync(999));
-        [Fact]
-        public async Task DeletePlanAsync_AlreadyInactive_RemainsInactive()
-        {
-            var p = new Plan { PlanName = "P", IsActive = false };
-            await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            await _planService.DeletePlanAsync(p.Id);
-            Assert.False((await _planRepository.GetByIdAsync(p.Id))!.IsActive);
-        }
-        [Fact] public async Task DeletePlanAsync_ZeroId_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _planService.DeletePlanAsync(0));
-        [Fact]
-        public async Task DeletePlanAsync_SavesChanges()
-        {
-            var p = new Plan { PlanName = "P" }; await _planRepository.AddAsync(p); await _planRepository.SaveChangesAsync();
-            await _planService.DeletePlanAsync(p.Id);
-            // Ensure it's persisted in DB
-            var contextP = await Context.Plans.FindAsync(p.Id);
-            Assert.False(contextP!.IsActive);
-        }
-        #endregion
 
-        #region GetFilteredPlansAsync Tests (5)
         [Fact]
-        public async Task GetFilteredPlansAsync_CustomerRole_ExcludesInactive()
+        public async Task GetAllPlansAsync_ShouldMapEntityToDtoCorrectly()
         {
-            await _planRepository.AddAsync(new Plan { PlanName = "A", IsActive = true });
-            await _planRepository.AddAsync(new Plan { PlanName = "I", IsActive = false });
-            await _planRepository.SaveChangesAsync();
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "MapTest", PlanType = "TypeA", Description = "Desc", IsActive = true, CommissionRate = 12 };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
 
-            var res = await _planService.GetFilteredPlansAsync(new PlanFilterDto(), "Customer");
-            Assert.Single(res);
-            Assert.Equal("A", res.First().PlanName);
+            var plans = await service.GetAllPlansAsync();
+
+            var dto = plans.First();
+            Assert.Equal("MapTest", dto.PlanName);
+            Assert.Equal("TypeA", dto.PlanType);
+            Assert.Equal("Desc", dto.Description);
+            Assert.True(dto.IsActive);
+            Assert.Equal(12, dto.CommissionRate);
         }
+
         [Fact]
-        public async Task GetFilteredPlansAsync_NoMatches_ThrowsNotFound()
+        public async Task GetAllPlansAsync_ShouldReturnExactNumberOfSeededPlans()
         {
-            await Assert.ThrowsAsync<NotFoundException>(() => _planService.GetFilteredPlansAsync(new PlanFilterDto(), "Admin"));
+            var (db, service) = BuildTestContextAndService();
+            for (int i = 0; i < 5; i++) db.Plans.Add(new Plan { PlanName = $"Plan{i}" });
+            await db.SaveChangesAsync();
+
+            var plans = await service.GetAllPlansAsync();
+
+            Assert.Equal(5, plans.Count());
         }
+
         [Fact]
-        public async Task GetFilteredPlansAsync_AdminRole_IncludesInactive()
+        public async Task GetAllPlansAsync_ShouldHandleLargeSetsOfPlansCorrectly()
         {
-            await _planRepository.AddAsync(new Plan { PlanName = "I", IsActive = false });
-            await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetFilteredPlansAsync(new PlanFilterDto(), "Admin");
-            Assert.Single(res);
+            var (db, service) = BuildTestContextAndService();
+            for (int i = 0; i < 100; i++) db.Plans.Add(new Plan { PlanName = $"Plan{i}" });
+            await db.SaveChangesAsync();
+
+            var plans = await service.GetAllPlansAsync();
+
+            Assert.Equal(100, plans.Count());
         }
+
+        // --- 2. GetActivePlansAsync (5 Tests) ---
+
         [Fact]
-        public async Task GetFilteredPlansAsync_FilterByType_Works()
+        public async Task GetActivePlansAsync_ShouldReturnOnlyActivePlans_WhenMixedDataExists()
         {
-            await _planRepository.AddAsync(new Plan { PlanName = "Life", PlanType = "Life", IsActive = true });
-            await _planRepository.AddAsync(new Plan { PlanName = "Health", PlanType = "Health", IsActive = true });
-            await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetFilteredPlansAsync(new PlanFilterDto { PlanType = "Life" }, "Admin");
-            Assert.Single(res);
-            Assert.Equal("Life", res.First().PlanType);
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "Plan1", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "Plan2", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "Plan3", IsActive = false });
+            await db.SaveChangesAsync();
+
+            var plans = await service.GetActivePlansAsync();
+
+            Assert.Equal(2, plans.Count());
+            Assert.All(plans, p => Assert.True(p.IsActive));
         }
+
         [Fact]
-        public async Task GetFilteredPlansAsync_MultipleFilters_Works()
+        public async Task GetActivePlansAsync_ShouldReturnEmptyList_WhenOnlyInactivePlansExist()
         {
-            await _planRepository.AddAsync(new Plan { PlanName = "Gold", PlanType = "Life", IsActive = true, BaseRate = 100 });
-            await _planRepository.SaveChangesAsync();
-            var res = await _planService.GetFilteredPlansAsync(new PlanFilterDto { PlanType = "Life", MinPrice = 50, MaxPrice = 150 }, "Admin");
-            Assert.Single(res);
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "Plan1", IsActive = false });
+            db.Plans.Add(new Plan { PlanName = "Plan2", IsActive = false });
+            await db.SaveChangesAsync();
+
+            var plans = await service.GetActivePlansAsync();
+
+            Assert.Empty(plans);
         }
-        #endregion
+
+        [Fact]
+        public async Task GetActivePlansAsync_ShouldMapEntityToDtoCorrectly()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "ActivePlan", IsActive = true, Description = "Active" });
+            await db.SaveChangesAsync();
+
+            var plans = await service.GetActivePlansAsync();
+
+            var dto = plans.First();
+            Assert.Equal("ActivePlan", dto.PlanName);
+            Assert.True(dto.IsActive);
+        }
+
+        [Fact]
+        public async Task GetActivePlansAsync_ShouldReturnEmptyList_WhenNoDataExists()
+        {
+            var (_, service) = BuildTestContextAndService();
+
+            var plans = await service.GetActivePlansAsync();
+
+            Assert.Empty(plans);
+        }
+
+        [Fact]
+        public async Task GetActivePlansAsync_ShouldReturnAllPlans_WhenAllAreActive()
+        {
+            var (db, service) = BuildTestContextAndService();
+            for (int i = 0; i < 5; i++) db.Plans.Add(new Plan { PlanName = $"P{i}", IsActive = true });
+            await db.SaveChangesAsync();
+
+            var plans = await service.GetActivePlansAsync();
+
+            Assert.Equal(5, plans.Count());
+        }
+
+        // --- 3. GetPlanByIdAsync (5 Tests) ---
+
+        [Fact]
+        public async Task GetPlanByIdAsync_ShouldReturnPlan_WhenExistsAndRequestedByAdmin()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "AdminPlan", IsActive = false };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var result = await service.GetPlanByIdAsync(plan.Id, "Admin");
+
+            Assert.NotNull(result);
+            Assert.Equal("AdminPlan", result.PlanName);
+        }
+
+        [Fact]
+        public async Task GetPlanByIdAsync_ShouldThrowNotFoundException_WhenPlanDoesNotExist()
+        {
+            var (_, service) = BuildTestContextAndService();
+
+            await Assert.ThrowsAsync<NotFoundException>(() => service.GetPlanByIdAsync(999, "Customer"));
+        }
+
+        [Fact]
+        public async Task GetPlanByIdAsync_ShouldThrowNotFoundException_WhenPlanIsInactiveAndRequestedByCustomer()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "InactivePlan", IsActive = false };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            await Assert.ThrowsAsync<NotFoundException>(() => service.GetPlanByIdAsync(plan.Id, "Customer"));
+        }
+
+        [Fact]
+        public async Task GetPlanByIdAsync_ShouldReturnPlan_WhenPlanIsActiveAndRequestedByCustomer()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "ActivePlan", IsActive = true };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var result = await service.GetPlanByIdAsync(plan.Id, "Customer");
+
+            Assert.NotNull(result);
+            Assert.Equal("ActivePlan", result.PlanName);
+        }
+
+        [Fact]
+        public async Task GetPlanByIdAsync_ShouldReturnInactivePlan_WhenRequestedByAgent()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "AgentPlan", IsActive = false };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var result = await service.GetPlanByIdAsync(plan.Id, "Agent"); // Agent can view
+
+            Assert.NotNull(result);
+            Assert.Equal("AgentPlan", result.PlanName);
+            Assert.False(result.IsActive);
+        }
+
+        // --- 4. CreatePlanAsync (5 Tests) ---
+
+        [Fact]
+        public async Task CreatePlanAsync_ShouldCreateAndReturnPlan_WhenDataIsValid()
+        {
+            var (_, service) = BuildTestContextAndService();
+            var dto = new CreatePlanDto { PlanName = "NewPlan", MinAge = 18, MaxAge = 65, MinCoverageAmount = 1000, MaxCoverageAmount = 5000, MinTermYears = 1, MaxTermYears = 5 };
+
+            var result = await service.CreatePlanAsync(dto);
+
+            Assert.NotNull(result);
+            Assert.Equal("NewPlan", result.PlanName);
+            Assert.True(result.IsActive);
+        }
+
+        [Fact]
+        public async Task CreatePlanAsync_ShouldThrowConflictException_WhenPlanNameAlreadyExists()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "ExistingPlan" });
+            await db.SaveChangesAsync();
+
+            var dto = new CreatePlanDto { PlanName = "ExistingPlan", MinAge = 18, MaxAge = 65, MinCoverageAmount = 1000, MaxCoverageAmount = 5000, MinTermYears = 1, MaxTermYears = 5 };
+
+            await Assert.ThrowsAsync<ConflictException>(() => service.CreatePlanAsync(dto));
+        }
+
+        [Fact]
+        public async Task CreatePlanAsync_ShouldThrowBadRequestException_WhenMinAgeIsGreaterThanOrEqualToMaxAge()
+        {
+            var (_, service) = BuildTestContextAndService();
+            var dto = new CreatePlanDto { PlanName = "InvalidAge", MinAge = 65, MaxAge = 18 };
+
+            var ex = await Assert.ThrowsAsync<BadRequestException>(() => service.CreatePlanAsync(dto));
+            Assert.Contains("MinAge", ex.Message);
+        }
+
+        [Fact]
+        public async Task CreatePlanAsync_ShouldThrowBadRequestException_WhenMinCoverageIsGreaterThanOrEqualToMaxCoverage()
+        {
+            var (_, service) = BuildTestContextAndService();
+            var dto = new CreatePlanDto { PlanName = "InvalidCov", MinAge = 18, MaxAge = 65, MinCoverageAmount = 5000, MaxCoverageAmount = 1000 };
+
+            var ex = await Assert.ThrowsAsync<BadRequestException>(() => service.CreatePlanAsync(dto));
+            Assert.Contains("MinCoverageAmount", ex.Message);
+        }
+
+        [Fact]
+        public async Task CreatePlanAsync_ShouldThrowBadRequestException_WhenMinTermIsGreaterThanOrEqualToMaxTerm()
+        {
+            var (_, service) = BuildTestContextAndService();
+            var dto = new CreatePlanDto { PlanName = "InvalidTerm", MinAge = 18, MaxAge = 65, MinCoverageAmount = 1000, MaxCoverageAmount = 5000, MinTermYears = 5, MaxTermYears = 1 };
+
+            var ex = await Assert.ThrowsAsync<BadRequestException>(() => service.CreatePlanAsync(dto));
+            Assert.Contains("MinTermYears", ex.Message);
+        }
+
+        // --- 5. UpdatePlanAsync (5 Tests) ---
+
+        [Fact]
+        public async Task UpdatePlanAsync_ShouldUpdateAndReturnPlan_WhenDataIsValid()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "OldPlan", IsActive = true };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var dto = new UpdatePlanDto { PlanName = "UpdatedPlan", MinAge = 18, MaxAge = 65, MinCoverageAmount = 1000, MaxCoverageAmount = 5000, MinTermYears = 1, MaxTermYears = 5, IsActive = true };
+
+            var result = await service.UpdatePlanAsync(plan.Id, dto);
+
+            Assert.Equal("UpdatedPlan", result.PlanName);
+            var updatedDbPlan = await db.Plans.FindAsync(plan.Id);
+            Assert.Equal("UpdatedPlan", updatedDbPlan!.PlanName);
+        }
+
+        [Fact]
+        public async Task UpdatePlanAsync_ShouldThrowNotFoundException_WhenPlanDoesNotExist()
+        {
+            var (_, service) = BuildTestContextAndService();
+            var dto = new UpdatePlanDto { PlanName = "Update", MinAge = 18, MaxAge = 65, MinCoverageAmount = 1000, MaxCoverageAmount = 5000, MinTermYears = 1, MaxTermYears = 5 };
+
+            await Assert.ThrowsAsync<NotFoundException>(() => service.UpdatePlanAsync(999, dto));
+        }
+
+        [Fact]
+        public async Task UpdatePlanAsync_ShouldThrowBadRequestException_WhenMinAgeIsGreaterThanOrEqualToMaxAgeInUpdate()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "OldPlan" };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var dto = new UpdatePlanDto { MinAge = 65, MaxAge = 18 };
+
+            await Assert.ThrowsAsync<BadRequestException>(() => service.UpdatePlanAsync(plan.Id, dto));
+        }
+
+        [Fact]
+        public async Task UpdatePlanAsync_ShouldThrowBadRequestException_WhenMinCoverageIsGreaterThanOrEqualToMaxCoverageInUpdate()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "OldPlan" };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var dto = new UpdatePlanDto { MinAge = 18, MaxAge = 65, MinCoverageAmount = 5000, MaxCoverageAmount = 1000 };
+
+            await Assert.ThrowsAsync<BadRequestException>(() => service.UpdatePlanAsync(plan.Id, dto));
+        }
+
+        [Fact]
+        public async Task UpdatePlanAsync_ShouldThrowBadRequestException_WhenMinTermIsGreaterThanOrEqualToMaxTermInUpdate()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "OldPlan" };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var dto = new UpdatePlanDto { MinAge = 18, MaxAge = 65, MinCoverageAmount = 1000, MaxCoverageAmount = 5000, MinTermYears = 5, MaxTermYears = 1 };
+
+            await Assert.ThrowsAsync<BadRequestException>(() => service.UpdatePlanAsync(plan.Id, dto));
+        }
+
+        // --- 6. DeletePlanAsync (5 Tests) ---
+
+        [Fact]
+        public async Task DeletePlanAsync_ShouldSoftDeletePlan_WhenPlanExists()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "ToDelete", IsActive = true };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            await service.DeletePlanAsync(plan.Id);
+
+            var deletedPlan = await db.Plans.FindAsync(plan.Id);
+            Assert.False(deletedPlan!.IsActive);
+        }
+
+        [Fact]
+        public async Task DeletePlanAsync_ShouldThrowNotFoundException_WhenPlanDoesNotExist()
+        {
+            var (_, service) = BuildTestContextAndService();
+
+            await Assert.ThrowsAsync<NotFoundException>(() => service.DeletePlanAsync(999));
+        }
+
+        [Fact]
+        public async Task DeletePlanAsync_ShouldNotAffectOtherPlans_WhenOneIsDeleted()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var p1 = new Plan { PlanName = "P1", IsActive = true };
+            var p2 = new Plan { PlanName = "P2", IsActive = true };
+            db.Plans.AddRange(p1, p2);
+            await db.SaveChangesAsync();
+
+            await service.DeletePlanAsync(p1.Id);
+
+            var checkP2 = await db.Plans.FindAsync(p2.Id);
+            Assert.True(checkP2!.IsActive);
+        }
+
+        [Fact]
+        public async Task DeletePlanAsync_ShouldRemainInactiveWithoutError_WhenCalledOnAlreadyInactivePlan()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var plan = new Plan { PlanName = "AlreadyDead", IsActive = false };
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
+
+            var ex = await Record.ExceptionAsync(() => service.DeletePlanAsync(plan.Id));
+
+            Assert.Null(ex);
+            var dbPlan = await db.Plans.FindAsync(plan.Id);
+            Assert.False(dbPlan!.IsActive);
+        }
+
+        [Fact]
+        public async Task DeletePlanAsync_ShouldThrowNotFoundException_ForNegativeInvalidIds()
+        {
+            var (_, service) = BuildTestContextAndService();
+
+            await Assert.ThrowsAsync<NotFoundException>(() => service.DeletePlanAsync(-1));
+        }
+
+        // --- 7. GetFilteredPlansAsync (5 Tests) ---
+
+        [Fact]
+        public async Task GetFilteredPlansAsync_ShouldReturnMatchingPlans_ForAdmin()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA", IsActive = false });
+            db.Plans.Add(new Plan { PlanName = "PlanB", PlanType = "TypeA", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "PlanC", PlanType = "TypeB", IsActive = true });
+            await db.SaveChangesAsync();
+
+            var filter = new PlanFilterDto { PlanType = "TypeA" };
+            var plans = await service.GetFilteredPlansAsync(filter, "Admin");
+
+            Assert.Equal(2, plans.Count());
+        }
+
+        [Fact]
+        public async Task GetFilteredPlansAsync_ShouldReturnOnlyActiveMatchingPlans_ForCustomer()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA", IsActive = false });
+            db.Plans.Add(new Plan { PlanName = "PlanB", PlanType = "TypeA", IsActive = true });
+            await db.SaveChangesAsync();
+
+            var filter = new PlanFilterDto { PlanType = "TypeA" };
+            var plans = await service.GetFilteredPlansAsync(filter, "Customer");
+
+            Assert.Single(plans);
+            Assert.Equal("PlanB", plans.First().PlanName);
+        }
+
+        [Fact]
+        public async Task GetFilteredPlansAsync_ShouldThrowNotFoundException_WhenNoPlansMatchForAdmin()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA" });
+            await db.SaveChangesAsync();
+
+            var filter = new PlanFilterDto { PlanType = "RandomType" };
+
+            await Assert.ThrowsAsync<NotFoundException>(() => service.GetFilteredPlansAsync(filter, "Admin"));
+        }
+
+        [Fact]
+        public async Task GetFilteredPlansAsync_ShouldThrowNotFoundException_WhenPlansMatchButAreInactiveForCustomer()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA", IsActive = false });
+            await db.SaveChangesAsync();
+
+            var filter = new PlanFilterDto { PlanType = "TypeA" };
+
+            // Throws because only inactive plans exist for this filter, and customer needs active ones
+            await Assert.ThrowsAsync<NotFoundException>(() => service.GetFilteredPlansAsync(filter, "Customer"));
+        }
+
+        [Fact]
+        public async Task GetFilteredPlansAsync_ShouldReturnAllActivePlans_WhenFilterIsEmptyForCustomer()
+        {
+            var (db, service) = BuildTestContextAndService();
+            db.Plans.Add(new Plan { PlanName = "P1", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "P2", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "P3", IsActive = false });
+            await db.SaveChangesAsync();
+
+            var filter = new PlanFilterDto(); // Empty filter
+            var plans = await service.GetFilteredPlansAsync(filter, "Customer");
+
+            Assert.Equal(2, plans.Count());
+        }
     }
 }

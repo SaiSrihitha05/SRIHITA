@@ -4,7 +4,6 @@ import { RouterLink, RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { NotificationService } from '../../services/notification-service';
-
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 @Component({
@@ -19,7 +18,7 @@ export class Navbar implements OnInit {
   private router = inject(Router);
   private notifyService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
-  unreadCount = 0;
+  unreadCount = this.notifyService.unreadCount;
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
@@ -29,7 +28,10 @@ export class Navbar implements OnInit {
   ngOnInit() {
     // Check initial scroll position
     this.onWindowScroll();
-    this.refreshNotifications();
+
+    if (this.isLoggedIn && this.userRole === 'Customer') {
+      this.notifyService.getUnreadCount().subscribe();
+    }
   }
 
   toggleMobileMenu() {
@@ -70,15 +72,4 @@ export class Navbar implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  refreshNotifications() {
-    if (this.userRole !== 'Customer') return;
-
-    this.notifyService.getMyNotifications().subscribe({
-      next: (data) => {
-        this.unreadCount = data.filter(n => !n.isRead).length;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Could not fetch notification count', err)
-    });
-  }
 }

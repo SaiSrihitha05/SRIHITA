@@ -19,6 +19,7 @@ namespace Application.Interfaces.Repositories
         Task<bool> HasActivePoliciesByAgentAsync(int agentId);
         Task<IEnumerable<PolicyAssignment>> GetPoliciesDueSoonAsync(int daysAhead);
         Task<IEnumerable<PolicyAssignment>> GetMaturedPoliciesAsync();
+        Task<IEnumerable<PolicyAssignment>> GetLapsedCandidatesAsync();
         Task AddAsync(PolicyAssignment policy);
         void Update(PolicyAssignment policy);
         Task SaveChangesAsync();

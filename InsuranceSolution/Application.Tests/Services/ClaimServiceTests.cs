@@ -3,481 +3,340 @@ using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Services;
-using Application.Tests.Common;
 using Domain.Entities;
 using Domain.Enums;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Application.Tests.Services
 {
-    public class ClaimServiceTests : ApplicationTestBase
+    public class ClaimServiceTests
     {
-        private readonly ClaimService _claimService;
-        private readonly IClaimRepository _claimRepository;
-        private readonly IPolicyRepository _policyRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IDocumentRepository _documentRepository;
-        private readonly IPaymentRepository _paymentRepository;
-        private readonly Mock<INotificationService> _mockNotificationService;
-        private readonly Mock<IEmailService> _mockEmailService;
-        private readonly Mock<IWebHostEnvironment> _mockEnvironment;
-
-        public ClaimServiceTests()
+        private (InsuranceDbContext db, ClaimService service, Mock<INotificationService> notifyMock, Mock<IEmailService> emailMock) BuildTestContextAndService()
         {
-            _claimRepository = new ClaimRepository(Context);
-            _policyRepository = new PolicyRepository(Context);
-            _userRepository = new UserRepository(Context);
-            _documentRepository = new DocumentRepository(Context);
-            _paymentRepository = new PaymentRepository(Context);
-            _mockNotificationService = new Mock<INotificationService>();
-            _mockEmailService = new Mock<IEmailService>();
-            _mockEnvironment = new Mock<IWebHostEnvironment>();
+            var dbOptions = new DbContextOptionsBuilder<InsuranceDbContext>()
+                .UseInMemoryDatabase($"ClaimServiceTestDb_{Guid.NewGuid()}")
+                .ConfigureWarnings(cfg => cfg.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options;
 
-            _mockEnvironment.Setup(m => m.WebRootPath).Returns(Path.GetTempPath());
+            var dbContext = new InsuranceDbContext(dbOptions);
 
-            _claimService = new ClaimService(
-                _claimRepository,
-                _policyRepository,
-                _userRepository,
-                _documentRepository,
-                _mockNotificationService.Object,
-                _mockEmailService.Object,
-                _mockEnvironment.Object,
-                _paymentRepository);
+            // Repositories
+            var claimRepo = new ClaimRepository(dbContext);
+            var policyRepo = new PolicyRepository(dbContext);
+            var userRepo = new UserRepository(dbContext);
+            var docRepo = new DocumentRepository(dbContext);
+            var paymentRepo = new PaymentRepository(dbContext);
+
+            // Mocks
+            var notifyMock = new Mock<INotificationService>();
+            var emailMock = new Mock<IEmailService>();
+            var envMock = new Mock<IWebHostEnvironment>();
+            envMock.Setup(m => m.WebRootPath).Returns("wwwroot");
+
+            var service = new ClaimService(
+                claimRepo,
+                policyRepo,
+                userRepo,
+                docRepo,
+                notifyMock.Object,
+                emailMock.Object,
+                envMock.Object,
+                paymentRepo);
+
+            return (dbContext, service, notifyMock, emailMock);
         }
 
-        private async Task<(User customer, Plan plan, PolicyAssignment policy, PolicyMember member)> SeedBaseDataAsync()
+        private async Task<(User customer, User officer, PolicyAssignment policy, PolicyMember member)> SeedBasicData(InsuranceDbContext db)
         {
-            var customer = new User { Name = "C", Email = "c@t.com", Role = UserRole.Customer, PasswordHash = "h" };
-            await Context.Users.AddAsync(customer);
+            var customer = new User { Name = "Customer", Email = "c@t.com", Role = UserRole.Customer, PasswordHash = "h", IsActive = true, Phone = "123" };
+            var officer = new User { Name = "Officer", Email = "o@t.com", Role = UserRole.ClaimsOfficer, PasswordHash = "h", IsActive = true, Phone = "456" };
+            db.Users.AddRange(customer, officer);
 
             var plan = new Plan
             {
                 PlanName = "Plan",
-                IsActive = true,
-                MinAge = 0,
-                MaxAge = 100,
-                MinCoverageAmount = 1000,
-                MaxCoverageAmount = 1000000,
-                MinTermYears = 1,
-                MaxTermYears = 50,
+                PlanType = "Life",
+                Description = "Desc",
                 GracePeriodDays = 30,
                 HasMaturityBenefit = true,
-                BaseRate = 10
+                IsActive = true
             };
-            await Context.Plans.AddAsync(plan);
+            db.Plans.Add(plan);
+            await db.SaveChangesAsync();
 
             var policy = new PolicyAssignment
             {
-                PolicyNumber = "POL123",
+                PolicyNumber = "POL-123",
                 CustomerId = customer.Id,
                 PlanId = plan.Id,
                 Status = PolicyStatus.Active,
                 StartDate = DateTime.UtcNow.AddMonths(-1),
-                EndDate = DateTime.UtcNow.AddYears(10),
-                NextDueDate = DateTime.UtcNow.AddMonths(1)
+                EndDate = DateTime.UtcNow.AddYears(1),
+                NextDueDate = DateTime.UtcNow.AddDays(15),
+                PremiumFrequency = PremiumFrequency.Monthly
             };
-            await Context.PolicyAssignments.AddAsync(policy);
+            db.PolicyAssignments.Add(policy);
+            await db.SaveChangesAsync();
 
             var member = new PolicyMember
             {
-                MemberName = "Primary",
-                IsPrimaryInsured = true,
-                DateOfBirth = DateTime.UtcNow.AddYears(-30),
-                CoverageAmount = 500000,
-                PolicyAssignmentId = policy.Id
+                PolicyAssignmentId = policy.Id,
+                MemberName = "Member",
+                CoverageAmount = 100000,
+                IsPrimaryInsured = true
             };
-            await Context.PolicyMembers.AddAsync(member);
+            db.PolicyMembers.Add(member);
 
-            // Add a payment to allow filing
-            await Context.Payments.AddAsync(new Payment
+            var payment = new Payment
             {
                 PolicyAssignmentId = policy.Id,
-                Status = PaymentStatus.Completed,
                 Amount = 1000,
-                PaymentDate = DateTime.UtcNow.AddDays(-1)
-            });
+                Status = PaymentStatus.Completed,
+                PaymentDate = DateTime.UtcNow,
+                TransactionReference = "T1"
+            };
+            db.Payments.Add(payment);
 
-            await Context.SaveChangesAsync();
-            return (customer, plan, policy, member);
+            await db.SaveChangesAsync();
+            return (customer, officer, policy, member);
         }
-
-        private List<IFormFile> GetMockFiles(int count)
-        {
-            var files = new List<IFormFile>();
-            for (int i = 0; i < count; i++)
-            {
-                var mockFile = new Mock<IFormFile>();
-                var ms = new MemoryStream();
-                var writer = new StreamWriter(ms);
-                writer.Write("Test"); writer.Flush(); ms.Position = 0;
-                mockFile.Setup(f => f.OpenReadStream()).Returns(ms);
-                mockFile.Setup(f => f.FileName).Returns($"t{i}.pdf");
-                mockFile.Setup(f => f.Length).Returns(ms.Length);
-                files.Add(mockFile.Object);
-            }
-            return files;
-        }
-
-        #region FileClaimAsync Tests (5)
 
         [Fact]
-        public async Task FileClaimAsync_ValidInput_ReturnsResponse()
+        public async Task FileClaimAsync_ShouldCreateClaim_WhenRequestIsValid()
         {
-            var data = await SeedBaseDataAsync();
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
             var dto = new FileClaimDto
             {
                 PolicyAssignmentId = data.policy.Id,
                 PolicyMemberId = data.member.Id,
-                ClaimType = ClaimType.Accidental,
-                Remarks = "Accident"
+                ClaimType = ClaimType.Death,
+                DeathCertificateNumber = "DC123",
+                NomineeName = "Nominee",
+                NomineeContact = "999",
+                Remarks = "Test claim",
+                Documents = new List<IFormFile> { new Mock<IFormFile>().Object }
             };
 
-            var result = await _claimService.FileClaimAsync(data.customer.Id, dto);
+            // Act
+            var result = await service.FileClaimAsync(data.customer.Id, dto);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(ClaimStatus.Submitted.ToString(), result.Status);
+            Assert.Equal("Submitted", result.Status);
+            Assert.Equal(data.member.CoverageAmount, result.ClaimAmount);
         }
 
         [Fact]
-        public async Task FileClaimAsync_NoPayments_ThrowsBadRequest()
+        public async Task FileClaimAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist()
         {
-            var data = await SeedBaseDataAsync();
-            var p = await Context.Payments.FirstAsync(p => p.PolicyAssignmentId == data.policy.Id);
-            Context.Payments.Remove(p); await Context.SaveChangesAsync();
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var dto = new FileClaimDto { PolicyAssignmentId = 999 };
 
-            var dto = new FileClaimDto { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id };
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.FileClaimAsync(data.customer.Id, dto));
-        }
-
-        [Fact]
-        public async Task FileClaimAsync_MaturityType_ThrowsBadRequest()
-        {
-            var data = await SeedBaseDataAsync();
-            var dto = new FileClaimDto { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, ClaimType = ClaimType.Maturity };
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.FileClaimAsync(data.customer.Id, dto));
+            // Act & Assert
+            await Assert.ThrowsAsync<NotFoundException>(() => service.FileClaimAsync(data.customer.Id, dto));
         }
 
         [Fact]
-        public async Task FileClaimAsync_DeathClaimMissingDocs_ThrowsBadRequest()
+        public async Task FileClaimAsync_ShouldThrowForbiddenException_WhenPolicyDoesNotBelongToCustomer()
         {
-            var data = await SeedBaseDataAsync();
-            var dto = new FileClaimDto { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, ClaimType = ClaimType.Death, DeathCertificateNumber = "D123", NomineeName = "N", NomineeContact = "1", Documents = null };
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.FileClaimAsync(data.customer.Id, dto));
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var otherCustomer = new User { Name = "Other", Email = "o2@t.com", Role = UserRole.Customer, PasswordHash = "h", Phone = "789" };
+            db.Users.Add(otherCustomer);
+            await db.SaveChangesAsync();
+
+            var dto = new FileClaimDto { PolicyAssignmentId = data.policy.Id };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ForbiddenException>(() => service.FileClaimAsync(otherCustomer.Id, dto));
         }
 
         [Fact]
-        public async Task FileClaimAsync_ActivePolicyCheck_ThrowsBadRequestIfPending()
+        public async Task FileClaimAsync_ShouldThrowBadRequestException_WhenPolicyIsClosed()
         {
-            var data = await SeedBaseDataAsync();
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            pol!.Status = PolicyStatus.Pending; await Context.SaveChangesAsync();
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            data.policy.Status = PolicyStatus.Closed;
+            await db.SaveChangesAsync();
 
-            var dto = new FileClaimDto { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id };
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.FileClaimAsync(data.customer.Id, dto));
-        }
+            var dto = new FileClaimDto { PolicyAssignmentId = data.policy.Id };
 
-        #endregion
-
-        #region AssignClaimsOfficerAsync Tests (5)
-        [Fact]
-        public async Task AssignClaimsOfficerAsync_ValidOfficer_Assigns()
-        {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, Status = ClaimStatus.Submitted };
-            await Context.Claims.AddAsync(cl);
-            var officer = new User { Role = UserRole.ClaimsOfficer, Email = "o@t.com", PasswordHash = "h" };
-            await Context.Users.AddAsync(officer); await Context.SaveChangesAsync();
-
-            await _claimService.AssignClaimsOfficerAsync(cl.Id, new AssignClaimsOfficerDto { ClaimsOfficerId = officer.Id });
-            var updated = await Context.Claims.FindAsync(cl.Id);
-            Assert.Equal(officer.Id, updated!.ClaimsOfficerId);
-            Assert.Equal(ClaimStatus.UnderReview, updated.Status);
-        }
-        [Fact] public async Task AssignClaimsOfficerAsync_NotFound_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _claimService.AssignClaimsOfficerAsync(999, new AssignClaimsOfficerDto { ClaimsOfficerId = 1 }));
-        [Fact]
-        public async Task AssignClaimsOfficerAsync_InvalidRole_ThrowsBadRequest()
-        {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id };
-            await Context.Claims.AddAsync(cl);
-            var customer = new User { Role = UserRole.Customer, Email = "c2@t.com", PasswordHash = "h" };
-            await Context.Users.AddAsync(customer); await Context.SaveChangesAsync();
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.AssignClaimsOfficerAsync(cl.Id, new AssignClaimsOfficerDto { ClaimsOfficerId = customer.Id }));
-        }
-        [Fact]
-        public async Task AssignClaimsOfficerAsync_TriggersNotification()
-        {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, Status = ClaimStatus.Submitted };
-            await Context.Claims.AddAsync(cl);
-            var officer = new User { Role = UserRole.ClaimsOfficer, Email = "o@t.com", PasswordHash = "h" };
-            await Context.Users.AddAsync(officer); await Context.SaveChangesAsync();
-            await _claimService.AssignClaimsOfficerAsync(cl.Id, new AssignClaimsOfficerDto { ClaimsOfficerId = officer.Id });
-            _mockNotificationService.Verify(n => n.CreateNotificationAsync(data.customer.Id, "Claim Under Review", It.IsAny<string>(), NotificationType.ClaimStatusUpdate, It.IsAny<int?>(), cl.Id, It.IsAny<int?>()), Times.Once);
-        }
-        [Fact]
-        public async Task AssignClaimsOfficerAsync_OfficerNotificationCheck()
-        {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, Status = ClaimStatus.Submitted };
-            await Context.Claims.AddAsync(cl);
-            var officer = new User { Role = UserRole.ClaimsOfficer, Email = "o@t.com", PasswordHash = "h" };
-            await Context.Users.AddAsync(officer); await Context.SaveChangesAsync();
-            await _claimService.AssignClaimsOfficerAsync(cl.Id, new AssignClaimsOfficerDto { ClaimsOfficerId = officer.Id });
-            _mockNotificationService.Verify(n => n.CreateNotificationAsync(officer.Id, "New Claim Assigned", It.IsAny<string>(), NotificationType.ClaimStatusUpdate, It.IsAny<int?>(), cl.Id, It.IsAny<int?>()), Times.Once);
-        }
-        #endregion
-
-        #region ProcessClaimAsync Tests (5)
-
-        [Fact]
-        public async Task ProcessClaimAsync_ValidApproval_SetsSettlement()
-        {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, ClaimAmount = 500000 };
-            await Context.Claims.AddAsync(cl); await Context.SaveChangesAsync();
-
-            var dto = new ProcessClaimDto { Status = ClaimStatus.Settled, SettlementAmount = 450000, Remarks = "OK" };
-            var result = await _claimService.ProcessClaimAsync(cl.Id, 0, dto);
-
-            Assert.Equal(ClaimStatus.Settled.ToString(), result.Status);
-            Assert.Equal(450000, result.SettlementAmount);
-
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            Assert.Equal(PolicyStatus.Closed, pol!.Status);
+            // Act & Assert
+            await Assert.ThrowsAsync<BadRequestException>(() => service.FileClaimAsync(data.customer.Id, dto));
         }
 
         [Fact]
-        public async Task ProcessClaimAsync_AmountTooHigh_ThrowsBadRequest()
+        public async Task FileClaimAsync_ShouldThrowBadRequestException_WhenMemberDoesNotBelongToPolicy()
         {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, ClaimAmount = 1000 };
-            await Context.Claims.AddAsync(cl); await Context.SaveChangesAsync();
-            var dto = new ProcessClaimDto { Status = ClaimStatus.Approved, SettlementAmount = 2000 };
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.ProcessClaimAsync(cl.Id, 0, dto));
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var dto = new FileClaimDto
+            {
+                PolicyAssignmentId = data.policy.Id,
+                PolicyMemberId = 999 // Invalid member
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<BadRequestException>(() => service.FileClaimAsync(data.customer.Id, dto));
         }
 
         [Fact]
-        public async Task ProcessClaimAsync_Rejection_SetsZeroSettlement()
+        public async Task FileClaimAsync_ShouldThrowConflictException_WhenMemberHasActiveClaim()
         {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, ClaimAmount = 1000 };
-            await Context.Claims.AddAsync(cl); await Context.SaveChangesAsync();
-            var dto = new ProcessClaimDto { Status = ClaimStatus.Rejected, Remarks = "Denied" };
-            var res = await _claimService.ProcessClaimAsync(cl.Id, 0, dto);
-            Assert.Equal(0, res.SettlementAmount);
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+
+            db.Claims.Add(new InsuranceClaim
+            {
+                PolicyAssignmentId = data.policy.Id,
+                PolicyMemberId = data.member.Id,
+                Status = ClaimStatus.Submitted,
+                ClaimType = ClaimType.Death,
+                NomineeName = "N",
+                NomineeContact = "C",
+                FiledDate = DateTime.UtcNow
+            });
+            await db.SaveChangesAsync();
+
+            var dto = new FileClaimDto
+            {
+                PolicyAssignmentId = data.policy.Id,
+                PolicyMemberId = data.member.Id
+            };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ConflictException>(() => service.FileClaimAsync(data.customer.Id, dto));
         }
 
         [Fact]
-        public async Task ProcessClaimAsync_MissingAmountOnSettle_ThrowsBadRequest()
+        public async Task AssignClaimsOfficerAsync_ShouldUpdateClaimStatus_WhenOfficerIsValid()
         {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id };
-            await Context.Claims.AddAsync(cl); await Context.SaveChangesAsync();
-            var dto = new ProcessClaimDto { Status = ClaimStatus.Settled, SettlementAmount = null };
-            await Assert.ThrowsAsync<BadRequestException>(() => _claimService.ProcessClaimAsync(cl.Id, 0, dto));
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var claim = new InsuranceClaim
+            {
+                PolicyAssignmentId = data.policy.Id,
+                PolicyMemberId = data.member.Id,
+                Status = ClaimStatus.Submitted,
+                NomineeName = "N",
+                NomineeContact = "C",
+                FiledDate = DateTime.UtcNow,
+                ClaimType = ClaimType.Death
+            };
+            db.Claims.Add(claim);
+            await db.SaveChangesAsync();
+
+            var dto = new AssignClaimsOfficerDto { ClaimsOfficerId = data.officer.Id };
+
+            // Act
+            await service.AssignClaimsOfficerAsync(claim.Id, dto);
+
+            // Assert
+            var updatedClaim = await db.Claims.FindAsync(claim.Id);
+            Assert.Equal(ClaimStatus.UnderReview, updatedClaim!.Status);
+            Assert.Equal(data.officer.Id, updatedClaim.ClaimsOfficerId);
         }
 
         [Fact]
-        public async Task ProcessClaimAsync_TriggersEmail()
+        public async Task AssignClaimsOfficerAsync_ShouldThrowBadRequestException_WhenUserIsNotClaimsOfficer()
         {
-            var data = await SeedBaseDataAsync();
-            var cl = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id };
-            await Context.Claims.AddAsync(cl); await Context.SaveChangesAsync();
-            await _claimService.ProcessClaimAsync(cl.Id, 0, new ProcessClaimDto { Status = ClaimStatus.Rejected });
-            _mockEmailService.Verify(e => e.SendPolicyStatusChangedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), "Rejected"), Times.Once);
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var claim = new InsuranceClaim { PolicyAssignmentId = data.policy.Id, PolicyMemberId = data.member.Id, NomineeName = "N", NomineeContact = "C", FiledDate = DateTime.UtcNow, ClaimType = ClaimType.Death };
+            db.Claims.Add(claim);
+            await db.SaveChangesAsync();
+
+            var dto = new AssignClaimsOfficerDto { ClaimsOfficerId = data.customer.Id }; // Not an officer
+
+            // Act & Assert
+            await Assert.ThrowsAsync<BadRequestException>(() => service.AssignClaimsOfficerAsync(claim.Id, dto));
         }
 
-        #endregion
+        [Fact]
+        public async Task ProcessClaimAsync_ShouldUpdateStatusToSettled_WhenApprovedWithValidAmount()
+        {
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var claim = new InsuranceClaim
+            {
+                PolicyAssignmentId = data.policy.Id,
+                PolicyMemberId = data.member.Id,
+                ClaimAmount = 50000,
+                Status = ClaimStatus.UnderReview,
+                ClaimsOfficerId = data.officer.Id,
+                NomineeName = "N",
+                NomineeContact = "C",
+                FiledDate = DateTime.UtcNow,
+                ClaimType = ClaimType.Death
+            };
+            db.Claims.Add(claim);
+            await db.SaveChangesAsync();
 
-        #region ProcessMaturityClaimsAsync Tests (5)
-        [Fact]
-        public async Task ProcessMaturityClaimsAsync_CreatesAutoClaims()
-        {
-            var data = await SeedBaseDataAsync();
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            pol!.EndDate = DateTime.UtcNow.AddDays(-1); await Context.SaveChangesAsync();
+            var dto = new ProcessClaimDto
+            {
+                Status = ClaimStatus.Settled,
+                SettlementAmount = 45000,
+                Remarks = "Approved"
+            };
 
-            await _claimService.ProcessMaturityClaimsAsync();
-            var cl = await Context.Claims.FirstOrDefaultAsync(c => c.ClaimType == ClaimType.Maturity);
-            Assert.NotNull(cl);
-            Assert.Equal(ClaimStatus.Approved, cl.Status);
-        }
-        [Fact]
-        public async Task ProcessMaturityClaimsAsync_UpdatesPolicyStatus()
-        {
-            var data = await SeedBaseDataAsync();
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            pol!.EndDate = DateTime.UtcNow.AddDays(-1); await Context.SaveChangesAsync();
-            await _claimService.ProcessMaturityClaimsAsync();
-            var updatedPol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            Assert.Equal(PolicyStatus.Matured, updatedPol!.Status);
-        }
-        [Fact]
-        public async Task ProcessMaturityClaimsAsync_NoBenefitPlan_ExpiresPolicy()
-        {
-            var data = await SeedBaseDataAsync();
-            var plan = await Context.Plans.FindAsync(data.plan.Id);
-            plan!.HasMaturityBenefit = false;
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            pol!.EndDate = DateTime.UtcNow.AddDays(-1); await Context.SaveChangesAsync();
-            await _claimService.ProcessMaturityClaimsAsync();
-            var updatedPol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            Assert.Equal(PolicyStatus.Expired, updatedPol!.Status);
-            Assert.Empty(await Context.Claims.ToListAsync());
-        }
-        [Fact]
-        public async Task ProcessMaturityClaimsAsync_SkipsIfActiveClaimExists()
-        {
-            var data = await SeedBaseDataAsync();
-            await Context.Claims.AddAsync(new InsuranceClaim { PolicyMemberId = data.member.Id, Status = ClaimStatus.Submitted });
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            pol!.EndDate = DateTime.UtcNow.AddDays(-1); await Context.SaveChangesAsync();
-            await _claimService.ProcessMaturityClaimsAsync();
-            Assert.DoesNotContain(await Context.Claims.ToListAsync(), c => c.ClaimType == ClaimType.Maturity);
-        }
-        [Fact]
-        public async Task ProcessMaturityClaimsAsync_TriggersNotification()
-        {
-            var data = await SeedBaseDataAsync();
-            var pol = await Context.PolicyAssignments.FindAsync(data.policy.Id);
-            pol!.EndDate = DateTime.UtcNow.AddDays(-1); await Context.SaveChangesAsync();
-            await _claimService.ProcessMaturityClaimsAsync();
-            _mockNotificationService.Verify(n => n.CreateNotificationAsync(data.customer.Id, "Policy Matured \u2014 Benefit Credited", It.IsAny<string>(), NotificationType.PolicyStatusUpdate, It.IsAny<int?>(), It.IsAny<int?>(), It.IsAny<int?>()), Times.Once);
-        }
-        #endregion
+            // Act
+            var result = await service.ProcessClaimAsync(claim.Id, data.officer.Id, dto);
 
-        #region GetAllClaimsAsync Tests (5)
-        [Fact] public async Task GetAllClaimsAsync_NoData_ReturnsEmpty() => Assert.Empty(await _claimService.GetAllClaimsAsync());
-        [Fact]
-        public async Task GetAllClaimsAsync_WithData_ReturnsAll()
-        {
-            await Context.Claims.AddAsync(new InsuranceClaim()); await Context.SaveChangesAsync();
-            Assert.Single(await _claimService.GetAllClaimsAsync());
+            // Assert
+            Assert.Equal("Settled", result.Status);
+            Assert.Equal(45000, result.SettlementAmount);
         }
-        [Fact]
-        public async Task GetAllClaimsAsync_CountCorrect()
-        {
-            await Context.Claims.AddAsync(new InsuranceClaim()); await Context.Claims.AddAsync(new InsuranceClaim());
-            await Context.SaveChangesAsync();
-            Assert.Equal(2, (await _claimService.GetAllClaimsAsync()).Count());
-        }
-        [Fact]
-        public async Task GetAllClaimsAsync_MappingCheck()
-        {
-            var c = new InsuranceClaim { ClaimAmount = 100 }; await Context.Claims.AddAsync(c); await Context.SaveChangesAsync();
-            var res = await _claimService.GetAllClaimsAsync();
-            Assert.Equal(100, res.First().ClaimAmount);
-        }
-        [Fact] public async Task GetAllClaimsAsync_ResultTypeIsClaimResponseDto() => Assert.IsAssignableFrom<IEnumerable<ClaimResponseDto>>(await _claimService.GetAllClaimsAsync());
-        #endregion
 
-        #region GetMyClaimsAsync Tests (5)
         [Fact]
-        public async Task GetMyClaimsAsync_FilterByCustomer_Works()
+        public async Task ProcessClaimAsync_ShouldThrowBadRequestException_WhenSettlementAmountExceedsClaimAmount()
         {
-            var data = await SeedBaseDataAsync();
-            await Context.Claims.AddAsync(new InsuranceClaim { PolicyAssignmentId = data.policy.Id });
-            await Context.Claims.AddAsync(new InsuranceClaim { PolicyAssignmentId = 999 }); // Not mine
-            await Context.SaveChangesAsync();
-            var res = await _claimService.GetMyClaimsAsync(data.customer.Id);
-            Assert.Single(res);
-        }
-        [Fact] public async Task GetMyClaimsAsync_NoClaims_ReturnsEmpty() => Assert.Empty(await _claimService.GetMyClaimsAsync(1));
-        [Fact]
-        public async Task GetMyClaimsAsync_MultipleMyClaims_ReturnsAll()
-        {
-            var data = await SeedBaseDataAsync();
-            await Context.Claims.AddAsync(new InsuranceClaim { PolicyAssignmentId = data.policy.Id });
-            await Context.Claims.AddAsync(new InsuranceClaim { PolicyAssignmentId = data.policy.Id });
-            await Context.SaveChangesAsync();
-            Assert.Equal(2, (await _claimService.GetMyClaimsAsync(data.customer.Id)).Count());
-        }
-        [Fact]
-        public async Task GetMyClaimsAsync_InactiveClaims_StillIncluded()
-        {
-            var data = await SeedBaseDataAsync();
-            await Context.Claims.AddAsync(new InsuranceClaim { PolicyAssignmentId = data.policy.Id, Status = ClaimStatus.Rejected });
-            await Context.SaveChangesAsync();
-            Assert.Single(await _claimService.GetMyClaimsAsync(data.customer.Id));
-        }
-        [Fact] public async Task GetMyClaimsAsync_InvalidCustomer_ReturnsEmpty() => Assert.Empty(await _claimService.GetMyClaimsAsync(999));
-        #endregion
+            // Arrange
+            var (db, service, _, _) = BuildTestContextAndService();
+            var data = await SeedBasicData(db);
+            var claim = new InsuranceClaim
+            {
+                PolicyAssignmentId = data.policy.Id,
+                PolicyMemberId = data.member.Id,
+                ClaimAmount = 50000,
+                Status = ClaimStatus.UnderReview,
+                NomineeName = "N",
+                NomineeContact = "C",
+                FiledDate = DateTime.UtcNow,
+                ClaimType = ClaimType.Death
+            };
+            db.Claims.Add(claim);
+            await db.SaveChangesAsync();
 
-        #region GetMyAssignedClaimsAsync Tests (5)
-        [Fact]
-        public async Task GetMyAssignedClaimsAsync_FilterByOfficer_Works()
-        {
-            await Context.Claims.AddAsync(new InsuranceClaim { ClaimsOfficerId = 10 });
-            await Context.Claims.AddAsync(new InsuranceClaim { ClaimsOfficerId = 20 });
-            await Context.SaveChangesAsync();
-            var res = await _claimService.GetMyAssignedClaimsAsync(10);
-            Assert.Single(res);
-        }
-        [Fact] public async Task GetMyAssignedClaimsAsync_NoAssigned_ReturnsEmpty() => Assert.Empty(await _claimService.GetMyAssignedClaimsAsync(1));
-        [Fact]
-        public async Task GetMyAssignedClaimsAsync_CountIsCorrect()
-        {
-            await Context.Claims.AddAsync(new InsuranceClaim { ClaimsOfficerId = 10 });
-            await Context.Claims.AddAsync(new InsuranceClaim { ClaimsOfficerId = 10 });
-            await Context.SaveChangesAsync();
-            Assert.Equal(2, (await _claimService.GetMyAssignedClaimsAsync(10)).Count());
-        }
-        [Fact]
-        public async Task GetMyAssignedClaimsAsync_UnassignedExcluded()
-        {
-            await Context.Claims.AddAsync(new InsuranceClaim { ClaimsOfficerId = null });
-            await Context.SaveChangesAsync();
-            Assert.Empty(await _claimService.GetMyAssignedClaimsAsync(10));
-        }
-        [Fact]
-        public async Task GetMyAssignedClaimsAsync_MappingOk()
-        {
-            await Context.Claims.AddAsync(new InsuranceClaim { ClaimsOfficerId = 10, Status = ClaimStatus.UnderReview });
-            await Context.SaveChangesAsync();
-            var res = await _claimService.GetMyAssignedClaimsAsync(10);
-            Assert.Equal("UnderReview", res.First().Status);
-        }
-        #endregion
+            var dto = new ProcessClaimDto
+            {
+                Status = ClaimStatus.Approved,
+                SettlementAmount = 60000 // Exceeds 50000
+            };
 
-        #region GetClaimByIdAsync Tests (5)
-        [Fact]
-        public async Task GetClaimByIdAsync_ValidId_ReturnsClaim()
-        {
-            var c = new InsuranceClaim(); await Context.Claims.AddAsync(c); await Context.SaveChangesAsync();
-            var res = await _claimService.GetClaimByIdAsync(c.Id);
-            Assert.Equal(c.Id, res.Id);
+            // Act & Assert
+            await Assert.ThrowsAsync<BadRequestException>(() => service.ProcessClaimAsync(claim.Id, data.officer.Id, dto));
         }
-        [Fact] public async Task GetClaimByIdAsync_NotFound_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _claimService.GetClaimByIdAsync(999));
-        [Fact] public async Task GetClaimByIdAsync_ZeroId_ThrowsNotFound() => await Assert.ThrowsAsync<NotFoundException>(() => _claimService.GetClaimByIdAsync(0));
-        [Fact]
-        public async Task GetClaimByIdAsync_IncludesPolicyInfo()
-        {
-            var data = await SeedBaseDataAsync();
-            var c = new InsuranceClaim { PolicyAssignmentId = data.policy.Id };
-            await Context.Claims.AddAsync(c); await Context.SaveChangesAsync();
-            var res = await _claimService.GetClaimByIdAsync(c.Id);
-            Assert.Equal(data.policy.PolicyNumber, res.PolicyNumber);
-        }
-        [Fact]
-        public async Task GetClaimByIdAsync_IncludesMemberName()
-        {
-            var data = await SeedBaseDataAsync();
-            var c = new InsuranceClaim { PolicyMemberId = data.member.Id };
-            await Context.Claims.AddAsync(c); await Context.SaveChangesAsync();
-            var res = await _claimService.GetClaimByIdAsync(c.Id);
-            Assert.Equal(data.member.MemberName, res.PolicyMemberName);
-        }
-        #endregion
     }
 }

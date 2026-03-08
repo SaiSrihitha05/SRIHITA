@@ -23,8 +23,8 @@ export class Register {
   constructor() {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^[0-9\-\+\(\)\s]+$/)]],
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -45,6 +45,8 @@ export class Register {
     return this.registerForm.get('password');
   }
 
+
+
   onRegister() {
     this.submitted = true;
     this.errorMessage = '';
@@ -52,6 +54,7 @@ export class Register {
     if (this.registerForm.invalid) {
       return;
     }
+
 
     const userData = this.registerForm.value;
 
@@ -61,7 +64,11 @@ export class Register {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.errorMessage = err.error?.message || 'Registration failed';
+        if (err.status === 409) {
+          this.errorMessage = 'This email is already registered. Please use a different email or login.';
+        } else {
+          this.errorMessage = err.error?.detail || err.error?.message || 'Registration failed. Please try again.';
+        }
         console.error('Registration failed', err);
         this.cdr.detectChanges();
       }

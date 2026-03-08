@@ -20,6 +20,7 @@ namespace Application.DTOs
         public DateTime EndDate { get; set; }
         public int TermYears { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string CommissionStatus { get; set; } = string.Empty;
         public decimal TotalPremiumAmount { get; set; }
         public string PremiumFrequency { get; set; } = string.Empty;
         public DateTime NextDueDate { get; set; }

@@ -131,7 +131,7 @@ namespace InsuranceAPI
                 });
             });
             builder.Services.AddDbContext<InsuranceDbContext>(
-                options =>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Register user service and repo
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -166,17 +166,19 @@ namespace InsuranceAPI
             builder.Services.AddScoped<IClaimService, ClaimService>();
 
             //Service for Dashboard
-            builder.Services.AddScoped<IDashboardService, DashboardService>();  
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
 
             // Background services
             builder.Services.AddHostedService<PremiumReminderService>();
             builder.Services.AddHostedService<MaturityProcessingService>();
+            builder.Services.AddHostedService<LapsePolicyService>();
 
             //CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowFrontend", policy => {
-                    policy.WithOrigins("http://localhost:4200") 
+                options.AddPolicy("AllowFrontend", policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200")
                           .AllowAnyMethod()
                           .AllowAnyHeader();
                 });

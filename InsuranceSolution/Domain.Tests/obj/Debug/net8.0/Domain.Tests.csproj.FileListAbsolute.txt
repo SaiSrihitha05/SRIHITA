@@ -1,3 +1,4 @@
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\CoverletSourceRootsMapping_Domain.Tests
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\testhost.dll
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\testhost.exe
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
@@ -86,6 +87,8 @@ D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\b
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\zh-Hant\Microsoft.TestPlatform.CommunicationUtilities.resources.dll
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\zh-Hant\Microsoft.TestPlatform.CrossPlatEngine.resources.dll
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\zh-Hant\Microsoft.VisualStudio.TestPlatform.Common.resources.dll
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\Domain.dll
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\bin\Debug\net8.0\Domain.pdb
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\obj\Debug\net8.0\Domain.Tests.csproj.AssemblyReference.cache
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\obj\Debug\net8.0\Domain.Tests.GeneratedMSBuildEditorConfig.editorconfig
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain.Tests\obj\Debug\net8.0\Domain.Tests.AssemblyInfoInputs.cache

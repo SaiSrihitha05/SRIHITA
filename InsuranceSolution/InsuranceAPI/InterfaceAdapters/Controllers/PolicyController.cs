@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace InsuranceAPI.InterfaceAdapters.Controllers
 {
@@ -191,9 +192,14 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
             var nomineesJson = Request.Form["nominees"];
             var policyJson = Request.Form["policy"];
 
-            var dto = JsonSerializer.Deserialize<CreatePolicyDto>(policyJson!);
-            var members = JsonSerializer.Deserialize<List<PolicyMemberDto>>(membersJson!);
-            var nominees = JsonSerializer.Deserialize<List<PolicyNomineeDto>>(nomineesJson!);
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters = { new JsonStringEnumConverter() }
+            };
+            var dto = JsonSerializer.Deserialize<CreatePolicyDto>(policyJson!, options);
+            var members = JsonSerializer.Deserialize<List<PolicyMemberDto>>(membersJson!, options);
+            var nominees = JsonSerializer.Deserialize<List<PolicyNomineeDto>>(nomineesJson!, options);
 
             var customerDocs = Request.Form.Files
                 .Where(f => f.Name == "CustomerDocuments").ToList();

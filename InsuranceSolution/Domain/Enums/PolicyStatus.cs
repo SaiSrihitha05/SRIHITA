@@ -11,10 +11,12 @@ namespace Domain.Enums
         Draft,
         Pending,
         Active,
+        Lapsed,
         Expired,
         Cancelled,
         Rejected,
         Matured,
-        Closed
+        Closed,
+        Renewed
     }
 }

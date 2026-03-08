@@ -14,13 +14,17 @@ export const routes: Routes = [
   },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
-  { path: 'forgot-password', 
-  loadComponent: () => import('./components/auth/forgot-password/forgot-password')
-    .then(m => m.ForgotPassword) },
+  {
+    path: 'forgot-password',
+    loadComponent: () => import('./components/auth/forgot-password/forgot-password')
+      .then(m => m.ForgotPassword)
+  },
 
-{ path: 'reset-password',  
-  loadComponent: () => import('./components/auth/reset-password/reset-password')
-    .then(m => m.ResetPassword) },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./components/auth/reset-password/reset-password')
+      .then(m => m.ResetPassword)
+  },
   {
     path: 'admin-dashboard',
     loadComponent: () => import('./components/admin/admin-layout/admin-layout').then(m => m.AdminLayout),
@@ -28,53 +32,53 @@ export const routes: Routes = [
     data: { role: 'Admin' },
     children: [
       {
-        path: '', 
+        path: '',
         loadComponent: () => import('./components/admin/dashboard/dashboard').then(m => m.Dashboard)
       },
       {
-        path: 'plans', 
+        path: 'plans',
         loadComponent: () => import('./components/admin/admin-plans/admin-plans').then(m => m.AdminPlans)
       },
       {
-        path: 'policies', 
+        path: 'policies',
         loadComponent: () => import('./components/admin/admin-policies/admin-policies').then(m => m.AdminPolicies)
       },
       {
-        path: 'claims', 
+        path: 'claims',
         loadComponent: () => import('./components/admin/admin-claims/admin-claims').then(m => m.AdminClaims)
       },
       {
-        path: 'users', 
+        path: 'users',
         loadComponent: () => import('./components/admin/admin-users/admin-users').then(m => m.AdminUsers)
       },
       {
-        path: 'profile', 
+        path: 'profile',
         loadComponent: () => import('./components/admin/admin-profile/admin-profile').then(m => m.AdminProfile)
       },
 
     ]
   },
   {
-  path: 'agent-dashboard',
-  loadComponent: () => import('./components/agent/agent-layout/agent-layout').then(m => m.AgentLayout),
-  canActivate: [authGuard],
-  data: { role: 'Agent' },
-  children: [
-    {
-      path: '', 
-      loadComponent: () => import('./components/agent/dashboard/dashboard').then(m => m.Dashboard)
-    },
-    {
-      path: 'my-policies', 
-      loadComponent: () => import('./components/agent/agent-policies/agent-policies').then(m => m.AgentPolicies)
-    },
-    {
-      path: 'profile', 
-      loadComponent: () => import('./components/agent/agent-profile/agent-profile').then(m => m.AgentProfile)
-    }
-  ]
-},
-{
+    path: 'agent-dashboard',
+    loadComponent: () => import('./components/agent/agent-layout/agent-layout').then(m => m.AgentLayout),
+    canActivate: [authGuard],
+    data: { role: 'Agent' },
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./components/agent/dashboard/dashboard').then(m => m.Dashboard)
+      },
+      {
+        path: 'my-policies',
+        loadComponent: () => import('./components/agent/agent-policies/agent-policies').then(m => m.AgentPolicies)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./components/agent/agent-profile/agent-profile').then(m => m.AgentProfile)
+      }
+    ]
+  },
+  {
     path: 'claims-officer-dashboard',
     loadComponent: () => import('./components/claims-officer/claims-officer-layout/claims-officer-layout').then(m => m.ClaimsOfficerLayout),
     canActivate: [authGuard],
@@ -85,57 +89,63 @@ export const routes: Routes = [
       { path: 'profile', loadComponent: () => import('./components/claims-officer/profile/profile').then(m => m.ClaimsOfficerProfile) }
     ]
   },
-{
+  {
     path: 'customer-dashboard',
     loadComponent: () => import('./components/customer/customer-layout/customer-layout').then(m => m.CustomerLayout),
     canActivate: [authGuard],
     data: { role: 'Customer' },
     children: [
-      { 
-        path: '', 
-        loadComponent: () => import('./components/customer/dashboard/dashboard').then(m => m.Dashboard) 
+      {
+        path: '',
+        loadComponent: () => import('./components/customer/dashboard/dashboard').then(m => m.Dashboard)
       },
-      { 
-        path: 'notifications', 
-        loadComponent: () => import('./components/customer/notification-center/notification-center').then(m => m.NotificationCenter) 
+      {
+        path: 'notifications',
+        loadComponent: () => import('./components/customer/notification-center/notification-center').then(m => m.NotificationCenter)
       },
-      { 
-        path: 'explore-plans', 
-        loadComponent: () => import('./components/customer/explore-plans/explore-plans').then(m => m.ExplorePlans) 
+      {
+        path: 'explore-plans',
+        loadComponent: () => import('./components/customer/explore-plans/explore-plans').then(m => m.ExplorePlans)
       },
-{ 
-      path: 'buy-policy', 
-      loadComponent: () => import('./components/customer/buy-policy/buy-policy').then(m => m.BuyPolicy) 
-    },
-      { 
-        path: 'my-policies', 
-        loadComponent: () => import('./components/customer/my-policies/my-policies').then(m => m.MyPolicies) 
+      {
+        path: 'buy-policy',
+        loadComponent: () => import('./components/customer/buy-policy/buy-policy').then(m => m.BuyPolicy)
       },
-      { 
-        path: 'pay-premium', 
-        loadComponent: () => import('./components/customer/pay-premium/pay-premium').then(m => m.PayPremium) 
+      {
+        path: 'my-policies',
+        loadComponent: () => import('./components/customer/my-policies/my-policies').then(m => m.MyPolicies)
       },
-      { 
-        path: 'payment-history', 
-        loadComponent: () => import('./components/customer/payment-history/payment-history').then(m => m.PaymentHistory) 
+      {
+        path: 'pay-premium',
+        loadComponent: () => import('./components/customer/pay-premium/pay-premium').then(m => m.PayPremium)
       },
-      { 
-        path: 'my-claims', 
-        loadComponent: () => import('./components/customer/my-claims/my-claims').then(m => m.MyClaims) 
+      {
+        path: 'payment-history',
+        loadComponent: () => import('./components/customer/payment-history/payment-history').then(m => m.PaymentHistory)
       },
-      { 
-        path: 'profile', 
-        loadComponent: () => import('./components/customer/profile/profile').then(m => m.Profile) 
+      {
+        path: 'my-claims',
+        loadComponent: () => import('./components/customer/my-claims/my-claims').then(m => m.MyClaims)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./components/customer/profile/profile').then(m => m.Profile)
       },
       { path: 'policy-details/:id', component: PolicyDetails },
       {
-        path:'file-claim',
-        component:FileClaim
+        path: 'file-claim',
+        component: FileClaim
       }
     ]
   },
+  // --- Error Pages ---
+  { path: 'not-found', loadComponent: () => import('./components/errors/not-found/not-found').then(m => m.NotFound) },
+  { path: 'forbidden', loadComponent: () => import('./components/errors/forbidden/forbidden').then(m => m.Forbidden) },
+  { path: 'server-error', loadComponent: () => import('./components/errors/server-error/server-error').then(m => m.ServerError) },
+  { path: 'generic-error', loadComponent: () => import('./components/errors/generic-error/generic-error').then(m => m.GenericError) },
+
   {
     path: '**',
-    redirectTo: ''
+    redirectTo: 'not-found'
   }
 ];

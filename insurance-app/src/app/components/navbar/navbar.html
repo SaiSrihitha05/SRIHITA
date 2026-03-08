@@ -44,14 +44,14 @@
           class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#75013f] dark:hover:text-pink-300 transition-all focus:outline-none"
           title="Notifications">
           <span class="text-2xl">🔔</span>
-          <span *ngIf="unreadCount > 0"
+          <span *ngIf="unreadCount() > 0"
             class="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 bg-[#fe3082] text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-[#f5f2ef] dark:border-gray-800">
-            {{ unreadCount > 9 ? '9+' : unreadCount }}
+            {{ unreadCount() > 9 ? '9+' : unreadCount() }}
           </span>
         </button>
 
         <!-- Profile Initial -->
-        <a [routerLink]="profileLink"
+        <a 
           class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[#75013f] to-[#fe3082] text-white font-bold text-lg shadow-md hover:scale-105 active:scale-95 transition-all focus:outline-none"
           title="My Profile">
           {{ userInitial }}

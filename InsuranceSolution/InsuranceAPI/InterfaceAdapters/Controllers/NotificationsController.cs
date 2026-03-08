@@ -28,7 +28,18 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
             return Ok(result);
         }
 
+        [HttpGet("unread-count")]
+        public async Task<IActionResult> GetUnreadCount()
+        {
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var count = await _notificationService.GetUnreadCountAsync(userId);
+            return Ok(count);
+        }
+
         [HttpPatch("{id}/read")]
+        [HttpPost("mark-read/{id}")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
             var userId = int.Parse(
@@ -39,6 +50,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         }
 
         [HttpPatch("read-all")]
+        [HttpPost("mark-all-read")]
         public async Task<IActionResult> MarkAllAsRead()
         {
             var userId = int.Parse(

@@ -80,9 +80,9 @@ export class MyPolicies implements OnInit {
     return today >= dueDate;
   }
   getTotalSumAssured(policy: any): number {
-  if (!policy || !policy.members) return 0;
-  return policy.members.reduce((acc: number, member: any) => acc + member.coverageAmount, 0);
-}
+    if (!policy || !policy.members) return 0;
+    return policy.members.reduce((acc: number, member: any) => acc + member.coverageAmount, 0);
+  }
 
   // 2. Handle the Details click
   viewPolicyDetails(policyId: number) {
@@ -108,9 +108,12 @@ export class MyPolicies implements OnInit {
     switch (status) {
       case 'Active': return 'bg-green-500 text-white';
       case 'Pending': return 'bg-amber-400 text-white';
-      case 'Lapsed': return 'bg-gray-400 text-white';
-      case 'Cancelled': return 'bg-red-500 text-white';
-      
+      case 'Lapsed': return 'bg-red-500 text-white';
+      case 'Cancelled': return 'bg-red-400 text-white';
+      case 'Expired': return 'bg-gray-500 text-white';
+      case 'Matured': return 'bg-blue-500 text-white';
+      case 'Closed': return 'bg-purple-500 text-white';
+
       default: return 'bg-blue-500 text-white';
     }
   }

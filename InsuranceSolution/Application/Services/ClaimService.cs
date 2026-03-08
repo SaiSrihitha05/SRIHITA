@@ -60,6 +60,10 @@ namespace Application.Services
                     "You can only file claims for your own policies");
 
             // ── Policy status checks ──────────────────────────────
+            if (policy.Status == PolicyStatus.Lapsed)
+                throw new BadRequestException(
+                    "Claims cannot be filed on a lapsed policy.");
+
             if (policy.Status == PolicyStatus.Closed)
                 throw new BadRequestException(
                     "A claim has already been settled for this policy");

@@ -106,6 +106,21 @@ namespace Infrastructure.Repositories
                 .Where(p => p.Status == PolicyStatus.Active &&
                             p.EndDate.Date <= DateTime.UtcNow.Date)
                 .ToListAsync();
+
+        public async Task<IEnumerable<PolicyAssignment>> GetLapsedCandidatesAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+
+            return await _context.PolicyAssignments
+                .Include(p => p.Plan)
+                .Include(p => p.Customer)
+                .Where(p =>
+                    p.Status == PolicyStatus.Active &&
+                    // Grace period has fully expired
+                    p.NextDueDate.Date.AddDays(p.Plan!.GracePeriodDays) < today
+                )
+                .ToListAsync();
+        }
         public void Delete(PolicyAssignment policy)
     => _context.PolicyAssignments.Remove(policy);
     }

@@ -281,8 +281,44 @@
   {
     "ContainingType": "InsuranceAPI.InterfaceAdapters.Controllers.NotificationsController",
     "Method": "MarkAllAsRead",
+    "RelativePath": "api/Notifications/mark-all-read",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceAPI.InterfaceAdapters.Controllers.NotificationsController",
+    "Method": "MarkAsRead",
+    "RelativePath": "api/Notifications/mark-read/{id}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceAPI.InterfaceAdapters.Controllers.NotificationsController",
+    "Method": "MarkAllAsRead",
     "RelativePath": "api/Notifications/read-all",
     "HttpMethod": "PATCH",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "InsuranceAPI.InterfaceAdapters.Controllers.NotificationsController",
+    "Method": "GetUnreadCount",
+    "RelativePath": "api/Notifications/unread-count",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],

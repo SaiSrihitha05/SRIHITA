@@ -426,6 +426,18 @@
         }
       }
     },
+    "/api/Notifications/unread-count": {
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Notifications/{id}/read": {
       "patch": {
         "tags": [
@@ -449,8 +461,43 @@
         }
       }
     },
+    "/api/Notifications/mark-read/{id}": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Notifications/read-all": {
       "patch": {
+        "tags": [
+          "Notifications"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Notifications/mark-all-read": {
+      "post": {
         "tags": [
           "Notifications"
         ],
@@ -1736,11 +1783,13 @@
           "Draft",
           "Pending",
           "Active",
+          "Lapsed",
           "Expired",
           "Cancelled",
           "Rejected",
           "Matured",
-          "Closed"
+          "Closed",
+          "Renewed"
         ],
         "type": "string"
       },

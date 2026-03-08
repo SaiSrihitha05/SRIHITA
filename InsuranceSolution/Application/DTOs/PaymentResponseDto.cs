@@ -11,11 +11,12 @@ namespace Application.DTOs
         public int PolicyAssignmentId { get; set; }
         public string PolicyNumber { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public int InstallmentsPaid { get; set; } 
+        public int InstallmentsPaid { get; set; }
         public DateTime PaymentDate { get; set; }
         public string PaymentMethod { get; set; } = string.Empty;
         public string TransactionReference { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public string CommissionStatus { get; set; } = string.Empty;
         public string InvoiceNumber { get; set; } = string.Empty;
         public DateTime NextDueDate { get; set; }
         public DateTime CreatedAt { get; set; }

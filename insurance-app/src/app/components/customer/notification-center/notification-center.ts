@@ -12,7 +12,7 @@ export class NotificationCenter implements OnInit {
   private notifyService = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
   notifications: any[] = [];
-  unreadCount = 0;
+  unreadCount = this.notifyService.unreadCount;
 
   ngOnInit() {
     this.loadNotifications();
@@ -21,7 +21,6 @@ export class NotificationCenter implements OnInit {
   loadNotifications() {
     this.notifyService.getMyNotifications().subscribe(data => {
       this.notifications = data;
-      this.unreadCount = data.filter(n => !n.isRead).length;
       this.cdr.detectChanges();
     });
   }
@@ -29,14 +28,12 @@ export class NotificationCenter implements OnInit {
   markRead(id: number) {
     this.notifyService.markAsRead(id).subscribe(() => {
       this.loadNotifications();
-      this.cdr.detectChanges();
     });
   }
 
   markAllRead() {
     this.notifyService.markAllAsRead().subscribe(() => {
       this.loadNotifications();
-      this.cdr.detectChanges();
     });
   }
 

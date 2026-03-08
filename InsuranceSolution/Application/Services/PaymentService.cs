@@ -53,9 +53,13 @@ namespace Application.Services
                 throw new ForbiddenException(
                     "You can only make payments for your own policies");
 
+            if (policy.Status == PolicyStatus.Lapsed)
+                throw new BadRequestException(
+                    "This policy has lapsed. Please contact support to reinstate before making payments.");
+
             if (policy.Status != PolicyStatus.Active)
                 throw new BadRequestException(
-                    "Payments can only be made for active policies");
+                    "Payments can only be made on Active policies.");
             // Validate payment is not too early
             if (DateTime.UtcNow.Date < policy.NextDueDate.Date.AddDays(-30))
                 throw new BadRequestException(
@@ -94,6 +98,8 @@ namespace Application.Services
                 policy.NextDueDate,
                 policy.PremiumFrequency,
                 totalInstallments);
+
+            policy.CommissionStatus = CommissionStatus.Paid;
 
             _policyRepository.Update(policy);
             await _paymentRepository.SaveChangesAsync();
@@ -332,6 +338,7 @@ namespace Application.Services
                 PaymentMethod = payment.PaymentMethod,
                 TransactionReference = payment.TransactionReference,
                 Status = payment.Status.ToString(),
+                CommissionStatus = payment.PolicyAssignment?.CommissionStatus.ToString() ?? string.Empty,
                 InvoiceNumber = payment.InvoiceNumber,
                 NextDueDate = nextDueDate,
                 CreatedAt = payment.CreatedAt

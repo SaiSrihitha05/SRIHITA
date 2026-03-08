@@ -4,7 +4,7 @@
       <h1 class="text-2xl font-bold text-[#75013f] dark:text-pink-300">Notifications</h1>
       <p class="text-xs text-gray-500 dark:text-gray-400">Stay updated on your policy and claim status</p>
     </div>
-    <button *ngIf="unreadCount > 0" (click)="markAllRead()"
+    <button *ngIf="unreadCount() > 0" (click)="markAllRead()"
       class="text-xs font-bold text-[#fe3082] dark:text-pink-400 hover:underline">
       Mark all as read
     </button>

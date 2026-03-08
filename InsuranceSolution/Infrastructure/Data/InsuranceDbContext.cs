@@ -61,6 +61,10 @@ namespace Infrastructure.Data
                 .HasConversion<string>();
 
             builder.Entity<PolicyAssignment>()
+                .Property(p => p.CommissionStatus)
+                .HasConversion<string>();
+
+            builder.Entity<PolicyAssignment>()
                 .Property(p => p.PremiumFrequency)
                 .HasConversion<string>();
 

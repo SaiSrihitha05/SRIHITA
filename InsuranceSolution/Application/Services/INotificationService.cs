@@ -15,6 +15,7 @@ namespace Application.Interfaces
             int? policyId, int? claimId, int? paymentId);
 
         Task<IEnumerable<NotificationResponseDto>> GetMyNotificationsAsync(int userId);
+        Task<int> GetUnreadCountAsync(int userId);
         Task MarkAsReadAsync(int notificationId, int userId);
         Task MarkAllAsReadAsync(int userId);
     }

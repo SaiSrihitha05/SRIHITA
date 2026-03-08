@@ -1,10 +1,4 @@
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\CoverletSourceRootsMapping_Application.Tests
-D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.csproj.AssemblyReference.cache
-D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.GeneratedMSBuildEditorConfig.editorconfig
-D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.AssemblyInfoInputs.cache
-D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.AssemblyInfo.cs
-D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.csproj.CoreCompileInputs.cache
-D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.sourcelink.json
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\testhost.dll
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\testhost.exe
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\xunit.runner.visualstudio.dotnetcore.testadapter.dll
@@ -196,6 +190,12 @@ D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Te
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.pdb
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Domain.pdb
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Infrastructure.pdb
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.csproj.AssemblyReference.cache
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.GeneratedMSBuildEditorConfig.editorconfig
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.AssemblyInfoInputs.cache
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.AssemblyInfo.cs
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.csproj.CoreCompileInputs.cache
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.sourcelink.json
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Applicat.7AAE1402.Up2Date
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\Application.Tests.dll
 D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\obj\Debug\net8.0\refint\Application.Tests.dll

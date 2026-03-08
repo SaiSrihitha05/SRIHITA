@@ -380,7 +380,6 @@ namespace Application.Services
             await _documentRepository.SaveChangesAsync();
         }
 
-        // PolicyService.cs — replace old CalculatePremium with this
         private static decimal CalculatePremium(
             decimal baseRate,
             decimal coverageAmount,
@@ -490,6 +489,7 @@ namespace Application.Services
             TermYears = p.TermYears,
             EndDate = p.EndDate,
             Status = p.Status.ToString(),
+            CommissionStatus = p.CommissionStatus.ToString(),
             TotalPremiumAmount = p.TotalPremiumAmount,
             PremiumFrequency = p.PremiumFrequency.ToString(),
             NextDueDate = p.NextDueDate,

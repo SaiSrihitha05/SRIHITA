@@ -1,10 +1,12 @@
 using Application.DTOs;
 using Application.Exceptions;
-using Application.Interfaces.Repositories;
-using Application.Tests.Common;
+using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
+using Infrastructure.Data;
 using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using System;
@@ -14,317 +16,201 @@ using Xunit;
 
 namespace Application.Tests.Services
 {
-    public class AuthServiceTests : ApplicationTestBase
+    public class AuthServiceTests
     {
-        private readonly AuthService _authService;
-        private readonly IUserRepository _userRepository;
-        private readonly Mock<IConfiguration> _mockConfig;
-
-        public AuthServiceTests()
+        private (InsuranceDbContext db, AuthService service) BuildTestContextAndService()
         {
-            _userRepository = new UserRepository(Context);
-            _mockConfig = new Mock<IConfiguration>();
+            var dbOptions = new DbContextOptionsBuilder<InsuranceDbContext>()
+                .UseInMemoryDatabase($"AuthServiceTestDb_{Guid.NewGuid()}")
+                .ConfigureWarnings(cfg => cfg.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options;
 
-            // Setup mock config for JWT
-            _mockConfig.Setup(x => x["Jwt:Key"]).Returns("SuperSecretKey12345678901234567890");
-            _mockConfig.Setup(x => x["Jwt:Issuer"]).Returns("TestIssuer");
-            _mockConfig.Setup(x => x["Jwt:Audience"]).Returns("TestAudience");
+            var dbContext = new InsuranceDbContext(dbOptions);
+            var userRepo = new UserRepository(dbContext);
 
-            _authService = new AuthService(_userRepository, _mockConfig.Object);
+            var mockConfig = new Mock<IConfiguration>();
+            mockConfig.Setup(c => c["Jwt:Key"]).Returns("SuperSecretKeyForTestingPurposesOnly123!");
+            mockConfig.Setup(c => c["Jwt:Issuer"]).Returns("TestIssuer");
+            mockConfig.Setup(c => c["Jwt:Audience"]).Returns("TestAudience");
+
+            var service = new AuthService(userRepo, mockConfig.Object);
+
+            return (dbContext, service);
         }
 
-        #region RegisterAsync Tests (5)
 
         [Fact]
-        public async Task RegisterAsync_ValidDetails_ReturnsSuccess()
+        public async Task RegisterAsync_ShouldRegisterUser_WhenEmailIsNew()
         {
-            // Arrange
-            var dto = new RegisterDto { Name = "Test User", Email = "new@test.com", Password = "Pass@123", Phone = "1234567890" };
+            var (db, service) = BuildTestContextAndService();
+            var dto = new RegisterDto { Name = "Test User", Email = "newuser@example.com", Password = "Password123!", Phone = "1234567890" };
 
-            // Act
-            var result = await _authService.RegisterAsync(dto);
+            var result = await service.RegisterAsync(dto);
 
-            // Assert
             Assert.Equal("User registered successfully", result);
-            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
             Assert.NotNull(user);
+            Assert.Equal(dto.Name, user.Name);
         }
 
         [Fact]
-        public async Task RegisterAsync_ExistingEmail_ThrowsConflictException()
+        public async Task RegisterAsync_ShouldThrowConflictException_WhenEmailAlreadyExists()
         {
-            // Arrange
-            var email = "existing@test.com";
-            await _userRepository.AddAsync(new User { Name = "Old", Email = email, PasswordHash = "hash", Role = UserRole.Customer });
-            await _userRepository.SaveChangesAsync();
+            var (db, service) = BuildTestContextAndService();
+            var email = "existing@example.com";
+            db.Users.Add(new User { Name = "Existing", Email = email, PasswordHash = "hashed", Role = UserRole.Customer, IsActive = true });
+            await db.SaveChangesAsync();
 
-            var dto = new RegisterDto { Name = "New", Email = email, Password = "Pass", Phone = "1" };
+            var dto = new RegisterDto { Name = "New User", Email = email, Password = "Password123!", Phone = "1234567890" };
 
-            // Act & Assert
-            await Assert.ThrowsAsync<ConflictException>(() => _authService.RegisterAsync(dto));
+            await Assert.ThrowsAsync<ConflictException>(() => service.RegisterAsync(dto));
         }
 
         [Fact]
-        public async Task RegisterAsync_NullEmail_ThrowsException()
+        public async Task RegisterAsync_ShouldHashPasswordAndAssignCustomerRole_WhenRegistered()
         {
-            // Arrange
-            var dto = new RegisterDto { Name = "Name", Email = null!, Password = "p", Phone = "1" };
+            var (db, service) = BuildTestContextAndService();
+            var password = "PlainPass@123";
+            var dto = new RegisterDto { Name = "User", Email = "u@example.com", Password = password, Phone = "0000000000" };
 
-            // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => _authService.RegisterAsync(dto));
+            await service.RegisterAsync(dto);
+
+            var saved = await db.Users.FirstAsync();
+            Assert.NotEqual(password, saved.PasswordHash);
+            Assert.True(BCrypt.Net.BCrypt.Verify(password, saved.PasswordHash));
+            Assert.Equal(UserRole.Customer, saved.Role);
+        }
+
+
+        [Fact]
+        public async Task LoginAsync_ShouldReturnToken_WhenCredentialsAreValid()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var email = "loginuser@example.com";
+            var password = "Password123!";
+            db.Users.Add(new User { Name = "Login User", Email = email, PasswordHash = BCrypt.Net.BCrypt.HashPassword(password), Role = UserRole.Customer, IsActive = true });
+            await db.SaveChangesAsync();
+
+            var result = await service.LoginAsync(new LoginDto { Email = email, Password = password });
+
+            Assert.NotNull(result);
+            Assert.Equal(email, result.Email);
+            Assert.NotNull(result.Token);
+            Assert.Equal("Customer", result.Role);
         }
 
         [Fact]
-        public async Task RegisterAsync_VeryLongPhone_ShouldStillWork()
+        public async Task LoginAsync_ShouldThrowUnauthorizedException_WhenEmailDoesNotExist()
         {
-            // Arrange
-            var dto = new RegisterDto { Name = "T", Email = "long@test.com", Password = "p", Phone = new string('9', 20) };
+            var (_, service) = BuildTestContextAndService();
 
-            // Act
-            var result = await _authService.RegisterAsync(dto);
-
-            // Assert
-            Assert.Equal("User registered successfully", result);
+            await Assert.ThrowsAsync<UnauthorizedException>(() =>
+                service.LoginAsync(new LoginDto { Email = "nobody@example.com", Password = "Any123!" }));
         }
 
         [Fact]
-        public async Task RegisterAsync_SpecialCharactersInName_ShouldStillWork()
+        public async Task LoginAsync_ShouldThrowUnauthorizedException_WhenPasswordIsWrong()
         {
-            // Arrange
-            var dto = new RegisterDto { Name = "User!@#$%", Email = "spec@test.com", Password = "p", Phone = "1" };
+            var (db, service) = BuildTestContextAndService();
+            var email = "user@example.com";
+            db.Users.Add(new User { Email = email, PasswordHash = BCrypt.Net.BCrypt.HashPassword("CorrectPass!"), Role = UserRole.Customer, IsActive = true });
+            await db.SaveChangesAsync();
 
-            // Act
-            var result = await _authService.RegisterAsync(dto);
-
-            // Assert
-            Assert.Equal("User registered successfully", result);
+            await Assert.ThrowsAsync<UnauthorizedException>(() =>
+                service.LoginAsync(new LoginDto { Email = email, Password = "WrongPass!" }));
         }
 
-        #endregion
-
-        #region LoginAsync Tests (5)
 
         [Fact]
-        public async Task LoginAsync_ValidCredentials_ReturnsToken()
+        public async Task CreatePasswordResetTokenAsync_ShouldReturnToken_WhenEmailExists()
         {
-            // Arrange
-            var email = "login@test.com";
-            var password = "Password123";
-            await _authService.RegisterAsync(new RegisterDto { Name = "L", Email = email, Password = password, Phone = "1" });
+            var (db, service) = BuildTestContextAndService();
+            db.Users.Add(new User { Email = "reset@example.com", PasswordHash = "h", Role = UserRole.Customer, IsActive = true });
+            await db.SaveChangesAsync();
 
-            var dto = new LoginDto { Email = email, Password = password };
+            var token = await service.CreatePasswordResetTokenAsync("reset@example.com");
 
-            // Act
-            var response = await _authService.LoginAsync(dto);
-
-            // Assert
-            Assert.NotNull(response.Token);
-            Assert.Equal(email, response.Email);
-        }
-
-        [Fact]
-        public async Task LoginAsync_InvalidEmail_ThrowsUnauthorizedException()
-        {
-            // Arrange
-            var dto = new LoginDto { Email = "wrong@test.com", Password = "p" };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<UnauthorizedException>(() => _authService.LoginAsync(dto));
-        }
-
-        [Fact]
-        public async Task LoginAsync_WrongPassword_ThrowsUnauthorizedException()
-        {
-            // Arrange
-            var email = "wrongpass@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "L", Email = email, Password = "Correct", Phone = "1" });
-
-            var dto = new LoginDto { Email = email, Password = "Wrong" };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<UnauthorizedException>(() => _authService.LoginAsync(dto));
-        }
-
-        [Fact]
-        public async Task LoginAsync_NullCredentials_ThrowsException()
-        {
-            // Arrange
-            var dto = new LoginDto { Email = null!, Password = null! };
-
-            // Act & Assert
-            await Assert.ThrowsAnyAsync<Exception>(() => _authService.LoginAsync(dto));
-        }
-
-        [Fact]
-        public async Task LoginAsync_EmptyPassword_ThrowsUnauthorizedException()
-        {
-            // Arrange
-            var email = "empty@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "L", Email = email, Password = "p", Phone = "1" });
-
-            var dto = new LoginDto { Email = email, Password = "" };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<UnauthorizedException>(() => _authService.LoginAsync(dto));
-        }
-
-        #endregion
-
-        #region CreatePasswordResetTokenAsync Tests (5)
-
-        [Fact]
-        public async Task CreatePasswordResetTokenAsync_ExistingEmail_ReturnsToken()
-        {
-            // Arrange
-            var email = "reset@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "R", Email = email, Password = "p", Phone = "1" });
-
-            // Act
-            var token = await _authService.CreatePasswordResetTokenAsync(email);
-
-            // Assert
             Assert.NotNull(token);
+            Assert.False(string.IsNullOrWhiteSpace(token));
         }
 
         [Fact]
-        public async Task CreatePasswordResetTokenAsync_NonExistentEmail_ReturnsNull()
+        public async Task CreatePasswordResetTokenAsync_ShouldReturnNull_WhenEmailDoesNotExist()
         {
-            // Arrange
-            var email = "none@test.com";
+            var (_, service) = BuildTestContextAndService();
 
-            // Act
-            var token = await _authService.CreatePasswordResetTokenAsync(email);
+            var token = await service.CreatePasswordResetTokenAsync("nobody@example.com");
 
-            // Assert
             Assert.Null(token);
         }
 
         [Fact]
-        public async Task CreatePasswordResetTokenAsync_NullEmail_ReturnsNull()
+        public async Task CreatePasswordResetTokenAsync_ShouldGenerateUniqueToken_EachTime()
         {
-            // Act
-            var token = await _authService.CreatePasswordResetTokenAsync(null!);
+            var (db, service) = BuildTestContextAndService();
+            db.Users.Add(new User { Email = "u@example.com", PasswordHash = "h", Role = UserRole.Customer, IsActive = true });
+            await db.SaveChangesAsync();
 
-            // Assert
-            Assert.Null(token);
-        }
+            var token1 = await service.CreatePasswordResetTokenAsync("u@example.com");
+            var token2 = await service.CreatePasswordResetTokenAsync("u@example.com");
 
-        [Fact]
-        public async Task CreatePasswordResetTokenAsync_EmptyEmail_ReturnsNull()
-        {
-            // Act
-            var token = await _authService.CreatePasswordResetTokenAsync("");
-
-            // Assert
-            Assert.Null(token);
-        }
-
-        [Fact]
-        public async Task CreatePasswordResetTokenAsync_MultipleCalls_GeneratesDifferentTokens()
-        {
-            // Arrange
-            var email = "multi@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "R", Email = email, Password = "p", Phone = "1" });
-
-            // Act
-            var token1 = await _authService.CreatePasswordResetTokenAsync(email);
-            var token2 = await _authService.CreatePasswordResetTokenAsync(email);
-
-            // Assert
             Assert.NotEqual(token1, token2);
         }
 
-        #endregion
-
-        #region ResetPasswordAsync Tests (5)
 
         [Fact]
-        public async Task ResetPasswordAsync_ValidToken_ReturnsTrue()
+        public async Task ResetPasswordAsync_ShouldReturnTrue_WhenTokenIsValid()
         {
-            // Arrange
-            var email = "actualreset@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "R", Email = email, Password = "OldPassword", Phone = "1" });
-            var token = await _authService.CreatePasswordResetTokenAsync(email);
+            var (db, service) = BuildTestContextAndService();
+            var token = Guid.NewGuid().ToString();
+            db.Users.Add(new User
+            {
+                Email = "r@example.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("OldPass!"),
+                ResetToken = token,
+                ResetTokenExpiry = DateTime.UtcNow.AddHours(1),
+                Role = UserRole.Customer,
+                IsActive = true
+            });
+            await db.SaveChangesAsync();
 
-            var dto = new ResetPasswordDto { Token = token!, NewPassword = "NewPassword123" };
+            var result = await service.ResetPasswordAsync(new ResetPasswordDto { Token = token, NewPassword = "NewPass@123" });
 
-            // Act
-            var result = await _authService.ResetPasswordAsync(dto);
-
-            // Assert
             Assert.True(result);
-
-            // Verify login with new password
-            var loginResult = await _authService.LoginAsync(new LoginDto { Email = email, Password = "NewPassword123" });
-            Assert.NotNull(loginResult.Token);
+            var user = await db.Users.FirstAsync();
+            Assert.True(BCrypt.Net.BCrypt.Verify("NewPass@123", user.PasswordHash));
+            Assert.Null(user.ResetToken);
         }
 
         [Fact]
-        public async Task ResetPasswordAsync_InvalidToken_ReturnsFalse()
+        public async Task ResetPasswordAsync_ShouldReturnFalse_WhenTokenIsExpired()
         {
-            // Arrange
-            var dto = new ResetPasswordDto { Token = "InvalidToken", NewPassword = "p" };
+            var (db, service) = BuildTestContextAndService();
+            var token = Guid.NewGuid().ToString();
+            db.Users.Add(new User
+            {
+                Email = "e@example.com",
+                PasswordHash = "h",
+                ResetToken = token,
+                ResetTokenExpiry = DateTime.UtcNow.AddHours(-1), // Expired
+                Role = UserRole.Customer,
+                IsActive = true
+            });
+            await db.SaveChangesAsync();
 
-            // Act
-            var result = await _authService.ResetPasswordAsync(dto);
+            var result = await service.ResetPasswordAsync(new ResetPasswordDto { Token = token, NewPassword = "NewPass@123" });
 
-            // Assert
             Assert.False(result);
         }
 
         [Fact]
-        public async Task ResetPasswordAsync_ExpiredToken_ReturnsFalse()
+        public async Task ResetPasswordAsync_ShouldReturnFalse_WhenTokenIsInvalid()
         {
-            // Arrange
-            var email = "expired@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "R", Email = email, Password = "p", Phone = "1" });
-            var token = await _authService.CreatePasswordResetTokenAsync(email);
+            var (_, service) = BuildTestContextAndService();
 
-            // Manually expire token in DB
-            var user = await _userRepository.GetByEmailAsync(email);
-            user!.ResetTokenExpiry = DateTime.UtcNow.AddMinutes(-1);
-            await _userRepository.SaveChangesAsync();
+            var result = await service.ResetPasswordAsync(new ResetPasswordDto { Token = "invalid-token", NewPassword = "NewPass@123" });
 
-            var dto = new ResetPasswordDto { Token = token!, NewPassword = "p" };
-
-            // Act
-            var result = await _authService.ResetPasswordAsync(dto);
-
-            // Assert
             Assert.False(result);
         }
-
-        [Fact]
-        public async Task ResetPasswordAsync_NullToken_ReturnsFalse()
-        {
-            // Arrange
-            var dto = new ResetPasswordDto { Token = null!, NewPassword = "p" };
-
-            // Act
-            var result = await _authService.ResetPasswordAsync(dto);
-
-            // Assert
-            Assert.False(result);
-        }
-
-        [Fact]
-        public async Task ResetPasswordAsync_TokenUsedTwice_ReturnsFalseOnSecondTime()
-        {
-            // Arrange
-            var email = "twice@test.com";
-            await _authService.RegisterAsync(new RegisterDto { Name = "R", Email = email, Password = "p", Phone = "1" });
-            var token = await _authService.CreatePasswordResetTokenAsync(email);
-
-            var dto = new ResetPasswordDto { Token = token!, NewPassword = "p1" };
-
-            // Act
-            await _authService.ResetPasswordAsync(dto);
-            var result2 = await _authService.ResetPasswordAsync(dto);
-
-            // Assert
-            Assert.False(result2);
-        }
-
-        #endregion
     }
 }

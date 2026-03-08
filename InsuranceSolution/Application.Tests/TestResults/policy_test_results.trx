@@ -1,0 +1,575 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="37a808e0-dde7-4891-95be-dc121a160818" name="HP@SRIHITHAKAMTALA 2026-03-04 02:50:14" runUser="SRIHITHAKAMTALA\HP" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-03-04T02:50:14.5902189+05:30" queuing="2026-03-04T02:50:14.5902192+05:30" start="2026-03-04T02:50:12.0870761+05:30" finish="2026-03-04T02:50:14.9728786+05:30" />
+  <TestSettings name="default" id="eb6f4d21-d389-44fa-8a15-518d8e268cd9">
+    <Deployment runDeploymentRoot="HP_SRIHITHAKAMTALA_2026-03-04_02_50_14" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="2e47cadd-0f8e-4567-a2ba-a1cddc842f23" testId="c3a09cc5-49f2-87d7-4f71-48fd68f14b0b" testName="Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.0030280" startTime="2026-03-04T02:50:14.6975543+05:30" endTime="2026-03-04T02:50:14.6975547+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2e47cadd-0f8e-4567-a2ba-a1cddc842f23" />
+    <UnitTestResult executionId="dc1878e4-1d8d-4b9d-a03c-e5f03a297795" testId="8206ae41-d020-afa5-9ed6-e689658c8863" testName="Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldThrowBadRequestException_WhenTermYearsOutsidePlanLimits" computerName="SRIHITHAKAMTALA" duration="00:00:00.0024666" startTime="2026-03-04T02:50:14.8861712+05:30" endTime="2026-03-04T02:50:14.8861714+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dc1878e4-1d8d-4b9d-a03c-e5f03a297795" />
+    <UnitTestResult executionId="990cce50-6528-4d11-9561-be79396f76d7" testId="ba1202e3-1255-e5c8-e5b9-442975c2d554" testName="Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnEmptyList_WhenNoDataExists" computerName="SRIHITHAKAMTALA" duration="00:00:00.0606753" startTime="2026-03-04T02:50:14.5247833+05:30" endTime="2026-03-04T02:50:14.5247836+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="990cce50-6528-4d11-9561-be79396f76d7" />
+    <UnitTestResult executionId="b52357a6-66ba-4e74-b309-c750dc00417d" testId="1c8632fd-1859-282f-4e80-be0fca3c024b" testName="Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowNotFoundException_WhenFileDoesNotExistOnServer" computerName="SRIHITHAKAMTALA" duration="00:00:00.0019951" startTime="2026-03-04T02:50:14.8882660+05:30" endTime="2026-03-04T02:50:14.8882662+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b52357a6-66ba-4e74-b309-c750dc00417d" />
+    <UnitTestResult executionId="39e6f2c3-ff50-4cac-bfdb-62505e81e7e8" testId="61ed4e63-66f8-3afd-785e-ffbad2221361" testName="Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies" computerName="SRIHITHAKAMTALA" duration="00:00:00.0018594" startTime="2026-03-04T02:50:14.8071252+05:30" endTime="2026-03-04T02:50:14.8071256+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="39e6f2c3-ff50-4cac-bfdb-62505e81e7e8">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 248&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7dde45d6-ea22-4e89-b9e2-033bc3c255fb" testId="914bb999-af36-c0f7-8b0c-c81629f3534f" testName="Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne" computerName="SRIHITHAKAMTALA" duration="00:00:00.0046761" startTime="2026-03-04T02:50:14.8726437+05:30" endTime="2026-03-04T02:50:14.8726440+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7dde45d6-ea22-4e89-b9e2-033bc3c255fb">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: Exception type was not an exact match&#xD;
+Expected: typeof(Application.Exceptions.BadRequestException)&#xD;
+Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 570&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at Application.Services.PolicyService.SubmitDraftAsync(Int32 policyId, Int32 customerId, CreatePolicyDto dto, List`1 members, List`1 nominees, List`1 customerDocuments, List`1 memberDocuments) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 713</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="17a0d638-0d70-494d-8cba-521f6bcece1e" testId="a47b0bb0-5ba1-fb18-5fcc-85e87329ac4d" testName="Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldThrowBadRequestException_WhenStatusIsNotPending" computerName="SRIHITHAKAMTALA" duration="00:00:00.0049531" startTime="2026-03-04T02:50:14.8767276+05:30" endTime="2026-03-04T02:50:14.8767283+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="17a0d638-0d70-494d-8cba-521f6bcece1e" />
+    <UnitTestResult executionId="a1a0d35e-3ed1-4ee5-b520-4897d94bcbe5" testId="4a0d2aad-6052-7ae6-15e8-c1e4aa8df75f" testName="Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldCancelPolicy_WhenStatusIsPending" computerName="SRIHITHAKAMTALA" duration="00:00:01.2269640" startTime="2026-03-04T02:50:14.0367576+05:30" endTime="2026-03-04T02:50:14.0367767+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a1a0d35e-3ed1-4ee5-b520-4897d94bcbe5" />
+    <UnitTestResult executionId="51eab0b8-3438-422b-b3a6-35937750ad29" testId="d5b4b14f-b1f9-13f4-fd62-de7779203780" testName="Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldThrowBadRequestException_WhenUserIsNotAgent" computerName="SRIHITHAKAMTALA" duration="00:00:00.0035350" startTime="2026-03-04T02:50:14.8804689+05:30" endTime="2026-03-04T02:50:14.8804690+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="51eab0b8-3438-422b-b3a6-35937750ad29" />
+    <UnitTestResult executionId="f4ef310b-d49a-4baa-ad16-712ede36a71a" testId="702c6b33-8653-0003-9374-48538180036f" testName="Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast" computerName="SRIHITHAKAMTALA" duration="00:00:00.0898820" startTime="2026-03-04T02:50:14.6372960+05:30" endTime="2026-03-04T02:50:14.6372963+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f4ef310b-d49a-4baa-ad16-712ede36a71a">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: Exception type was not an exact match&#xD;
+Expected: typeof(Application.Exceptions.BadRequestException)&#xD;
+Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 585&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at Application.Services.PolicyService.SubmitDraftAsync(Int32 policyId, Int32 customerId, CreatePolicyDto dto, List`1 members, List`1 nominees, List`1 customerDocuments, List`1 memberDocuments) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 713</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="55472071-8ed6-428a-bc4c-de5ed94d54e8" testId="c3de4487-c0bb-392b-434c-e4f537d9ea06" testName="Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldThrowBadRequestException_WhenNomineeSharesDoNotTotal100" computerName="SRIHITHAKAMTALA" duration="00:00:00.0039276" startTime="2026-03-04T02:50:14.7910455+05:30" endTime="2026-03-04T02:50:14.7910457+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="55472071-8ed6-428a-bc4c-de5ed94d54e8" />
+    <UnitTestResult executionId="9f085f92-3193-49dd-8f19-433695b22854" testId="55b05da6-7f74-b9de-9ca1-c0e96ea8db49" testName="Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive" computerName="SRIHITHAKAMTALA" duration="00:00:00.0036867" startTime="2026-03-04T02:50:14.8118486+05:30" endTime="2026-03-04T02:50:14.8118488+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9f085f92-3193-49dd-8f19-433695b22854">
+      <Output>
+        <ErrorInfo>
+          <Message>Application.Exceptions.NotFoundException : Policy with id '1' was not found.</Message>
+          <StackTrace>   at Application.Services.PolicyService.UpdatePolicyStatusAsync(Int32 id, UpdatePolicyStatusDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 238&#xD;
+   at Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 333&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e1e2d9fe-8f8f-48b3-b434-3f9515800d87" testId="92428950-a81e-397e-f510-0995b81e55d8" testName="Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft" computerName="SRIHITHAKAMTALA" duration="00:00:00.0025167" startTime="2026-03-04T02:50:14.5291654+05:30" endTime="2026-03-04T02:50:14.5291657+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e1e2d9fe-8f8f-48b3-b434-3f9515800d87">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: Exception type was not an exact match&#xD;
+Expected: typeof(Application.Exceptions.BadRequestException)&#xD;
+Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 533&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 625</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e88e23cb-5614-43ce-bd9a-e9a8db248298" testId="5d5d9c3c-b042-c3be-d56c-2e3952574ae9" testName="Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldCreatePolicySuccessfully_WhenDataIsValid" computerName="SRIHITHAKAMTALA" duration="00:00:00.0716621" startTime="2026-03-04T02:50:14.7752867+05:30" endTime="2026-03-04T02:50:14.7752869+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e88e23cb-5614-43ce-bd9a-e9a8db248298" />
+    <UnitTestResult executionId="2b467aaa-d881-432b-b3df-b5abe64f4a6f" testId="8e456ee0-0b7b-7827-bf96-3777f90e1100" testName="Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.0017571" startTime="2026-03-04T02:50:14.7869754+05:30" endTime="2026-03-04T02:50:14.7869755+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2b467aaa-d881-432b-b3df-b5abe64f4a6f" />
+    <UnitTestResult executionId="2466b6c4-ef00-42cb-bb32-c388beadadbc" testId="9d808d03-27ed-e63a-ca6a-0c4708ca9ebb" testName="Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldUpdateDraft_WhenValid" computerName="SRIHITHAKAMTALA" duration="00:00:00.0048943" startTime="2026-03-04T02:50:14.7970609+05:30" endTime="2026-03-04T02:50:14.7970611+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2466b6c4-ef00-42cb-bb32-c388beadadbc">
+      <Output>
+        <ErrorInfo>
+          <Message>Application.Exceptions.NotFoundException : Draft with id '1' was not found.</Message>
+          <StackTrace>   at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 625&#xD;
+   at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldUpdateDraft_WhenValid() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 507&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="25aa772f-75b4-4cfa-82c0-31194ac133d6" testId="66ff2c68-0ac5-5665-fc4f-1d02ac48c519" testName="Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft" computerName="SRIHITHAKAMTALA" duration="00:00:00.1570123" startTime="2026-03-04T02:50:14.3908783+05:30" endTime="2026-03-04T02:50:14.3908786+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="25aa772f-75b4-4cfa-82c0-31194ac133d6">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: Exception type was not an exact match&#xD;
+Expected: typeof(Application.Exceptions.ForbiddenException)&#xD;
+Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 522&#xD;
+--- End of stack trace from previous location ---&#xD;
+----- Inner Stack Trace -----&#xD;
+   at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 625</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2ba7b2da-0e30-4226-89aa-5cc9916c3882" testId="718fab87-c93f-b17d-9f76-7bde24f6f402" testName="Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided" computerName="SRIHITHAKAMTALA" duration="00:00:00.0020728" startTime="2026-03-04T02:50:14.7007704+05:30" endTime="2026-03-04T02:50:14.7007707+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2ba7b2da-0e30-4226-89aa-5cc9916c3882">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at Application.Services.PolicyService.MapToDto(PolicyAssignment p) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 479&#xD;
+   at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 615&#xD;
+   at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 491&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7e46e05a-1172-45c3-bd4f-0c5b3f1e0de4" testId="52b5c8ea-5935-3fa8-6710-3e752746b6cb" testName="Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.0020152" startTime="2026-03-04T02:50:14.8670987+05:30" endTime="2026-03-04T02:50:14.8670990+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7e46e05a-1172-45c3-bd4f-0c5b3f1e0de4">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values differ&#xD;
+Expected: 2&#xD;
+Actual:   0</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 264&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="39c0f645-fa27-4336-abd6-4b64bf82ffba" testId="428bd70e-05a6-075e-a482-1fe317531051" testName="Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldThrowNotFoundException_WhenPlanIdIsProvidedButDoesNotExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.1807330" startTime="2026-03-04T02:50:14.2176119+05:30" endTime="2026-03-04T02:50:14.2176122+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="39c0f645-fa27-4336-abd6-4b64bf82ffba" />
+    <UnitTestResult executionId="43b58ad0-b3d3-47c9-8886-f4f2b4fabeda" testId="0d031858-fe61-feca-ef83-3936d0f4a0c2" testName="Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowForbiddenException_WhenCustomerTriesToDownloadOthersDocument" computerName="SRIHITHAKAMTALA" duration="00:00:00.0236368" startTime="2026-03-04T02:50:14.8347589+05:30" endTime="2026-03-04T02:50:14.8347592+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="43b58ad0-b3d3-47c9-8886-f4f2b4fabeda" />
+    <UnitTestResult executionId="3df6d4e2-37fd-4976-883a-cd05e894e162" testId="689f2bae-bd0e-85eb-8469-03ff6a3a5251" testName="Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldMapEntityToDtoCorrectly" computerName="SRIHITHAKAMTALA" duration="00:00:00.0225560" startTime="2026-03-04T02:50:14.8636747+05:30" endTime="2026-03-04T02:50:14.8636750+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3df6d4e2-37fd-4976-883a-cd05e894e162" />
+    <UnitTestResult executionId="685c9236-418a-4591-8687-e3d137c86a19" testId="ae459237-9183-4665-b033-c1c0fbe8775e" testName="Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnEmptyList_WhenCustomerHasNoPolicies" computerName="SRIHITHAKAMTALA" duration="00:00:00.0014596" startTime="2026-03-04T02:50:14.8363009+05:30" endTime="2026-03-04T02:50:14.8363011+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="685c9236-418a-4591-8687-e3d137c86a19" />
+    <UnitTestResult executionId="b9ef12b3-e88f-4876-9973-cc71bc11b94e" testId="2d5ba11e-d193-e5b3-f2e2-f6583e50ddff" testName="Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldAssignAgent_WhenAgentIsValid" computerName="SRIHITHAKAMTALA" duration="00:00:00.0077205" startTime="2026-03-04T02:50:14.8042425+05:30" endTime="2026-03-04T02:50:14.8042428+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b9ef12b3-e88f-4876-9973-cc71bc11b94e" />
+    <UnitTestResult executionId="92997b2b-c098-4492-8fa6-88f54ae88422" testId="dc5f53ea-2be5-2649-587f-6ea4348d314a" testName="Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid" computerName="SRIHITHAKAMTALA" duration="00:00:00.0027433" startTime="2026-03-04T02:50:14.7039104+05:30" endTime="2026-03-04T02:50:14.7039105+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="92997b2b-c098-4492-8fa6-88f54ae88422">
+      <Output>
+        <ErrorInfo>
+          <Message>Application.Exceptions.NotFoundException : Draft with id '1' was not found.</Message>
+          <StackTrace>   at Application.Services.PolicyService.SubmitDraftAsync(Int32 policyId, Int32 customerId, CreatePolicyDto dto, List`1 members, List`1 nominees, List`1 customerDocuments, List`1 memberDocuments) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 713&#xD;
+   at Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 550&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8cd6c5a1-308e-454a-86ba-e6d857c43b32" testId="8f0219c7-f772-7a37-7115-65518f4e2ef6" testName="Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists" computerName="SRIHITHAKAMTALA" duration="00:00:00.0048431" startTime="2026-03-04T02:50:14.5517024+05:30" endTime="2026-03-04T02:50:14.5517025+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8cd6c5a1-308e-454a-86ba-e6d857c43b32">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values differ&#xD;
+Expected: 2&#xD;
+Actual:   0</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 186&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a2336bf0-bec0-45df-882f-818d2ec8da96" testId="2696e3c3-7d2c-abaa-00c7-a2104785588d" testName="Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.0084365" startTime="2026-03-04T02:50:14.5396186+05:30" endTime="2026-03-04T02:50:14.5396188+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a2336bf0-bec0-45df-882f-818d2ec8da96" />
+    <UnitTestResult executionId="4e40f3ee-f66c-411a-87bf-aa404858680a" testId="c7c397b9-6914-a35f-4e9f-c3b01e1716a3" testName="Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowNotFoundException_WhenDocumentDoesNotExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.0098070" startTime="2026-03-04T02:50:14.7851341+05:30" endTime="2026-03-04T02:50:14.7851344+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4e40f3ee-f66c-411a-87bf-aa404858680a" />
+    <UnitTestResult executionId="26939ff9-d64e-4867-bc9c-fce82113c7f3" testId="5c56ec8d-e3df-f681-9be7-e6c09d66374e" testName="Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly" computerName="SRIHITHAKAMTALA" duration="00:00:00.0029768" startTime="2026-03-04T02:50:14.6404013+05:30" endTime="2026-03-04T02:50:14.6404016+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="26939ff9-d64e-4867-bc9c-fce82113c7f3">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Sequence contains no elements</Message>
+          <StackTrace>   at System.Linq.ThrowHelper.ThrowNoElementsException()&#xD;
+   at System.Linq.Enumerable.First[TSource](IEnumerable`1 source)&#xD;
+   at Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 208&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="9cd1dae4-fbdc-49b0-9fff-ccc1a68a7f72" testId="8695f0aa-ace3-1b2a-d46f-ae4d7c725c03" testName="Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldThrowForbiddenException_WhenNotCustomerPolicy" computerName="SRIHITHAKAMTALA" duration="00:00:00.0026644" startTime="2026-03-04T02:50:14.8409183+05:30" endTime="2026-03-04T02:50:14.8409187+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9cd1dae4-fbdc-49b0-9fff-ccc1a68a7f72" />
+    <UnitTestResult executionId="0077412c-819c-4462-b854-2a1ef5d3d3c3" testId="de61ae76-ee91-eb14-3d30-57759dfd3a88" testName="Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData" computerName="SRIHITHAKAMTALA" duration="00:00:00.0217000" startTime="2026-03-04T02:50:14.4646204+05:30" endTime="2026-03-04T02:50:14.4646207+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0077412c-819c-4462-b854-2a1ef5d3d3c3">
+      <Output>
+        <ErrorInfo>
+          <Message>System.NullReferenceException : Object reference not set to an instance of an object.</Message>
+          <StackTrace>   at Application.Services.PolicyService.MapToDto(PolicyAssignment p) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 479&#xD;
+   at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 615&#xD;
+   at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 468&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="dd7f9996-8ec8-4cb1-8e30-f4bbfc07be46" testId="4280a8d3-56c6-647a-e8c3-78bec273ffc6" testName="Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies" computerName="SRIHITHAKAMTALA" duration="00:00:00.0556284" startTime="2026-03-04T02:50:14.4426390+05:30" endTime="2026-03-04T02:50:14.4426394+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dd7f9996-8ec8-4cb1-8e30-f4bbfc07be46">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Single() Failure: The collection was empty</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 289&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="eaaa1dc0-e234-4c76-a309-a118e4189945" testId="a6492885-6e5a-44a2-7e53-17c0808ff1e4" testName="Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnEmptyList_WhenAgentHasNoPolicies" computerName="SRIHITHAKAMTALA" duration="00:00:00.0029701" startTime="2026-03-04T02:50:14.5310830+05:30" endTime="2026-03-04T02:50:14.5310832+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eaaa1dc0-e234-4c76-a309-a118e4189945" />
+    <UnitTestResult executionId="35e5af21-6dde-41e6-a794-9d1d3fab47ef" testId="8b5b5821-43ea-bbef-2076-214c649b0e95" testName="Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist" computerName="SRIHITHAKAMTALA" duration="00:00:00.0539450" startTime="2026-03-04T02:50:14.6949857+05:30" endTime="2026-03-04T02:50:14.6949859+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="35e5af21-6dde-41e6-a794-9d1d3fab47ef">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values differ&#xD;
+Expected: 2&#xD;
+Actual:   0</Message>
+          <StackTrace>   at Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 223&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e02b177d-016c-49f5-b89a-57b98389e451" testId="3b2ef0f7-52e2-eb1e-85df-caa85db1c17d" testName="Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid" computerName="SRIHITHAKAMTALA" duration="00:00:00.0026589" startTime="2026-03-04T02:50:14.8842054+05:30" endTime="2026-03-04T02:50:14.8842056+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e02b177d-016c-49f5-b89a-57b98389e451">
+      <Output>
+        <ErrorInfo>
+          <Message>Application.Exceptions.NotFoundException : Policy with id '1' was not found.</Message>
+          <StackTrace>   at Application.Services.PolicyService.UpdatePolicyStatusAsync(Int32 id, UpdatePolicyStatusDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 238&#xD;
+   at Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 306&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="a848943c-ed30-4378-85d8-a2fa889f27fa" testId="babddb1b-9f0a-c0d8-a1e8-e7d47a9beb53" testName="Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists" computerName="SRIHITHAKAMTALA" duration="00:00:00.0015330" startTime="2026-03-04T02:50:14.8387064+05:30" endTime="2026-03-04T02:50:14.8387066+05:30" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a848943c-ed30-4378-85d8-a2fa889f27fa">
+      <Output>
+        <ErrorInfo>
+          <Message>Application.Exceptions.NotFoundException : Policy with id '1' was not found.</Message>
+          <StackTrace>   at Application.Services.PolicyService.GetPolicyByIdAsync(Int32 id) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 207&#xD;
+   at Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 146&#xD;
+--- End of stack trace from previous location ---</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldCreatePolicySuccessfully_WhenDataIsValid" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="5d5d9c3c-b042-c3be-d56c-2e3952574ae9">
+      <Execution id="e88e23cb-5614-43ce-bd9a-e9a8db248298" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="CreatePolicyAsync_ShouldCreatePolicySuccessfully_WhenDataIsValid" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="92428950-a81e-397e-f510-0995b81e55d8">
+      <Execution id="e1e2d9fe-8f8f-48b3-b434-3f9515800d87" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldThrowBadRequestException_WhenStatusIsNotPending" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="a47b0bb0-5ba1-fb18-5fcc-85e87329ac4d">
+      <Execution id="17a0d638-0d70-494d-8cba-521f6bcece1e" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="CancelPendingPolicyAsync_ShouldThrowBadRequestException_WhenStatusIsNotPending" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="5c56ec8d-e3df-f681-9be7-e6c09d66374e">
+      <Execution id="26939ff9-d64e-4867-bc9c-fce82113c7f3" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="dc5f53ea-2be5-2649-587f-6ea4348d314a">
+      <Execution id="92997b2b-c098-4492-8fa6-88f54ae88422" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowForbiddenException_WhenCustomerTriesToDownloadOthersDocument" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="0d031858-fe61-feca-ef83-3936d0f4a0c2">
+      <Execution id="43b58ad0-b3d3-47c9-8886-f4f2b4fabeda" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="DownloadDocumentAsync_ShouldThrowForbiddenException_WhenCustomerTriesToDownloadOthersDocument" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="4280a8d3-56c6-647a-e8c3-78bec273ffc6">
+      <Execution id="dd7f9996-8ec8-4cb1-8e30-f4bbfc07be46" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="52b5c8ea-5935-3fa8-6710-3e752746b6cb">
+      <Execution id="7e46e05a-1172-45c3-bd4f-0c5b3f1e0de4" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="718fab87-c93f-b17d-9f76-7bde24f6f402">
+      <Execution id="2ba7b2da-0e30-4226-89aa-5cc9916c3882" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldThrowBadRequestException_WhenNomineeSharesDoNotTotal100" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="c3de4487-c0bb-392b-434c-e4f537d9ea06">
+      <Execution id="55472071-8ed6-428a-bc4c-de5ed94d54e8" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="CreatePolicyAsync_ShouldThrowBadRequestException_WhenNomineeSharesDoNotTotal100" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldThrowBadRequestException_WhenUserIsNotAgent" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="d5b4b14f-b1f9-13f4-fd62-de7779203780">
+      <Execution id="51eab0b8-3438-422b-b3a6-35937750ad29" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="AssignAgentAsync_ShouldThrowBadRequestException_WhenUserIsNotAgent" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="c3a09cc5-49f2-87d7-4f71-48fd68f14b0b">
+      <Execution id="2e47cadd-0f8e-4567-a2ba-a1cddc842f23" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="UpdatePolicyStatusAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowNotFoundException_WhenFileDoesNotExistOnServer" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="1c8632fd-1859-282f-4e80-be0fca3c024b">
+      <Execution id="b52357a6-66ba-4e74-b309-c750dc00417d" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="DownloadDocumentAsync_ShouldThrowNotFoundException_WhenFileDoesNotExistOnServer" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnEmptyList_WhenCustomerHasNoPolicies" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="ae459237-9183-4665-b033-c1c0fbe8775e">
+      <Execution id="685c9236-418a-4591-8687-e3d137c86a19" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetMyPoliciesAsync_ShouldReturnEmptyList_WhenCustomerHasNoPolicies" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="8b5b5821-43ea-bbef-2076-214c649b0e95">
+      <Execution id="35e5af21-6dde-41e6-a794-9d1d3fab47ef" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldThrowNotFoundException_WhenPlanIdIsProvidedButDoesNotExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="428bd70e-05a6-075e-a482-1fe317531051">
+      <Execution id="39c0f645-fa27-4336-abd6-4b64bf82ffba" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="SaveDraftAsync_ShouldThrowNotFoundException_WhenPlanIdIsProvidedButDoesNotExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="66ff2c68-0ac5-5665-fc4f-1d02ac48c519">
+      <Execution id="25aa772f-75b4-4cfa-82c0-31194ac133d6" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="8e456ee0-0b7b-7827-bf96-3777f90e1100">
+      <Execution id="2b467aaa-d881-432b-b3df-b5abe64f4a6f" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetPolicyByIdAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="8f0219c7-f772-7a37-7115-65518f4e2ef6">
+      <Execution id="8cd6c5a1-308e-454a-86ba-e6d857c43b32" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="3b2ef0f7-52e2-eb1e-85df-caa85db1c17d">
+      <Execution id="e02b177d-016c-49f5-b89a-57b98389e451" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="55b05da6-7f74-b9de-9ca1-c0e96ea8db49">
+      <Execution id="9f085f92-3193-49dd-8f19-433695b22854" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="61ed4e63-66f8-3afd-785e-ffbad2221361">
+      <Execution id="39e6f2c3-ff50-4cac-bfdb-62505e81e7e8" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="702c6b33-8653-0003-9374-48538180036f">
+      <Execution id="f4ef310b-d49a-4baa-ad16-712ede36a71a" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="babddb1b-9f0a-c0d8-a1e8-e7d47a9beb53">
+      <Execution id="a848943c-ed30-4378-85d8-a2fa889f27fa" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="2696e3c3-7d2c-abaa-00c7-a2104785588d">
+      <Execution id="a2336bf0-bec0-45df-882f-818d2ec8da96" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="AssignAgentAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldCancelPolicy_WhenStatusIsPending" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="4a0d2aad-6052-7ae6-15e8-c1e4aa8df75f">
+      <Execution id="a1a0d35e-3ed1-4ee5-b520-4897d94bcbe5" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="CancelPendingPolicyAsync_ShouldCancelPolicy_WhenStatusIsPending" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldThrowForbiddenException_WhenNotCustomerPolicy" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="8695f0aa-ace3-1b2a-d46f-ae4d7c725c03">
+      <Execution id="9cd1dae4-fbdc-49b0-9fff-ccc1a68a7f72" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="CancelPendingPolicyAsync_ShouldThrowForbiddenException_WhenNotCustomerPolicy" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnEmptyList_WhenNoDataExists" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="ba1202e3-1255-e5c8-e5b9-442975c2d554">
+      <Execution id="990cce50-6528-4d11-9561-be79396f76d7" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetAllPoliciesAsync_ShouldReturnEmptyList_WhenNoDataExists" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldUpdateDraft_WhenValid" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="9d808d03-27ed-e63a-ca6a-0c4708ca9ebb">
+      <Execution id="2466b6c4-ef00-42cb-bb32-c388beadadbc" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="UpdateDraftAsync_ShouldUpdateDraft_WhenValid" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="914bb999-af36-c0f7-8b0c-c81629f3534f">
+      <Execution id="7dde45d6-ea22-4e89-b9e2-033bc3c255fb" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldMapEntityToDtoCorrectly" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="689f2bae-bd0e-85eb-8469-03ff6a3a5251">
+      <Execution id="3df6d4e2-37fd-4976-883a-cd05e894e162" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetPolicyByIdAsync_ShouldMapEntityToDtoCorrectly" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldAssignAgent_WhenAgentIsValid" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="2d5ba11e-d193-e5b3-f2e2-f6583e50ddff">
+      <Execution id="b9ef12b3-e88f-4876-9973-cc71bc11b94e" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="AssignAgentAsync_ShouldAssignAgent_WhenAgentIsValid" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowNotFoundException_WhenDocumentDoesNotExist" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="c7c397b9-6914-a35f-4e9f-c3b01e1716a3">
+      <Execution id="4e40f3ee-f66c-411a-87bf-aa404858680a" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="DownloadDocumentAsync_ShouldThrowNotFoundException_WhenDocumentDoesNotExist" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnEmptyList_WhenAgentHasNoPolicies" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="a6492885-6e5a-44a2-7e53-17c0808ff1e4">
+      <Execution id="eaaa1dc0-e234-4c76-a309-a118e4189945" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="GetAgentPoliciesAsync_ShouldReturnEmptyList_WhenAgentHasNoPolicies" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldThrowBadRequestException_WhenTermYearsOutsidePlanLimits" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="8206ae41-d020-afa5-9ed6-e689658c8863">
+      <Execution id="dc1878e4-1d8d-4b9d-a03c-e5f03a297795" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="CreatePolicyAsync_ShouldThrowBadRequestException_WhenTermYearsOutsidePlanLimits" />
+    </UnitTest>
+    <UnitTest name="Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData" storage="d:\angularpractice\hartfordassignments\capstone\insurancesolution\application.tests\bin\debug\net8.0\application.tests.dll" id="de61ae76-ee91-eb14-3d30-57759dfd3a88">
+      <Execution id="0077412c-819c-4462-b854-2a1ef5d3d3c3" />
+      <TestMethod codeBase="D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Application.Tests.Services.PolicyServiceTests" name="SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="c3a09cc5-49f2-87d7-4f71-48fd68f14b0b" executionId="2e47cadd-0f8e-4567-a2ba-a1cddc842f23" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8206ae41-d020-afa5-9ed6-e689658c8863" executionId="dc1878e4-1d8d-4b9d-a03c-e5f03a297795" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ba1202e3-1255-e5c8-e5b9-442975c2d554" executionId="990cce50-6528-4d11-9561-be79396f76d7" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="1c8632fd-1859-282f-4e80-be0fca3c024b" executionId="b52357a6-66ba-4e74-b309-c750dc00417d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="61ed4e63-66f8-3afd-785e-ffbad2221361" executionId="39e6f2c3-ff50-4cac-bfdb-62505e81e7e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="914bb999-af36-c0f7-8b0c-c81629f3534f" executionId="7dde45d6-ea22-4e89-b9e2-033bc3c255fb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a47b0bb0-5ba1-fb18-5fcc-85e87329ac4d" executionId="17a0d638-0d70-494d-8cba-521f6bcece1e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4a0d2aad-6052-7ae6-15e8-c1e4aa8df75f" executionId="a1a0d35e-3ed1-4ee5-b520-4897d94bcbe5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d5b4b14f-b1f9-13f4-fd62-de7779203780" executionId="51eab0b8-3438-422b-b3a6-35937750ad29" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="702c6b33-8653-0003-9374-48538180036f" executionId="f4ef310b-d49a-4baa-ad16-712ede36a71a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c3de4487-c0bb-392b-434c-e4f537d9ea06" executionId="55472071-8ed6-428a-bc4c-de5ed94d54e8" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="55b05da6-7f74-b9de-9ca1-c0e96ea8db49" executionId="9f085f92-3193-49dd-8f19-433695b22854" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92428950-a81e-397e-f510-0995b81e55d8" executionId="e1e2d9fe-8f8f-48b3-b434-3f9515800d87" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5d5d9c3c-b042-c3be-d56c-2e3952574ae9" executionId="e88e23cb-5614-43ce-bd9a-e9a8db248298" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8e456ee0-0b7b-7827-bf96-3777f90e1100" executionId="2b467aaa-d881-432b-b3df-b5abe64f4a6f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9d808d03-27ed-e63a-ca6a-0c4708ca9ebb" executionId="2466b6c4-ef00-42cb-bb32-c388beadadbc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="66ff2c68-0ac5-5665-fc4f-1d02ac48c519" executionId="25aa772f-75b4-4cfa-82c0-31194ac133d6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="718fab87-c93f-b17d-9f76-7bde24f6f402" executionId="2ba7b2da-0e30-4226-89aa-5cc9916c3882" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="52b5c8ea-5935-3fa8-6710-3e752746b6cb" executionId="7e46e05a-1172-45c3-bd4f-0c5b3f1e0de4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="428bd70e-05a6-075e-a482-1fe317531051" executionId="39c0f645-fa27-4336-abd6-4b64bf82ffba" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0d031858-fe61-feca-ef83-3936d0f4a0c2" executionId="43b58ad0-b3d3-47c9-8886-f4f2b4fabeda" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="689f2bae-bd0e-85eb-8469-03ff6a3a5251" executionId="3df6d4e2-37fd-4976-883a-cd05e894e162" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ae459237-9183-4665-b033-c1c0fbe8775e" executionId="685c9236-418a-4591-8687-e3d137c86a19" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2d5ba11e-d193-e5b3-f2e2-f6583e50ddff" executionId="b9ef12b3-e88f-4876-9973-cc71bc11b94e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dc5f53ea-2be5-2649-587f-6ea4348d314a" executionId="92997b2b-c098-4492-8fa6-88f54ae88422" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8f0219c7-f772-7a37-7115-65518f4e2ef6" executionId="8cd6c5a1-308e-454a-86ba-e6d857c43b32" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2696e3c3-7d2c-abaa-00c7-a2104785588d" executionId="a2336bf0-bec0-45df-882f-818d2ec8da96" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c7c397b9-6914-a35f-4e9f-c3b01e1716a3" executionId="4e40f3ee-f66c-411a-87bf-aa404858680a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5c56ec8d-e3df-f681-9be7-e6c09d66374e" executionId="26939ff9-d64e-4867-bc9c-fce82113c7f3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8695f0aa-ace3-1b2a-d46f-ae4d7c725c03" executionId="9cd1dae4-fbdc-49b0-9fff-ccc1a68a7f72" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="de61ae76-ee91-eb14-3d30-57759dfd3a88" executionId="0077412c-819c-4462-b854-2a1ef5d3d3c3" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4280a8d3-56c6-647a-e8c3-78bec273ffc6" executionId="dd7f9996-8ec8-4cb1-8e30-f4bbfc07be46" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a6492885-6e5a-44a2-7e53-17c0808ff1e4" executionId="eaaa1dc0-e234-4c76-a309-a118e4189945" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b5b5821-43ea-bbef-2076-214c649b0e95" executionId="35e5af21-6dde-41e6-a794-9d1d3fab47ef" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3b2ef0f7-52e2-eb1e-85df-caa85db1c17d" executionId="e02b177d-016c-49f5-b89a-57b98389e451" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="babddb1b-9f0a-c0d8-a1e8-e7d47a9beb53" executionId="a848943c-ed30-4378-85d8-a2fa889f27fa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="36" executed="36" passed="19" failed="17" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.8)&#xD;
+[xUnit.net 00:00:00.10]   Discovering: Application.Tests&#xD;
+[xUnit.net 00:00:00.16]   Discovered:  Application.Tests&#xD;
+[xUnit.net 00:00:00.17]   Starting:    Application.Tests&#xD;
+[xUnit.net 00:00:01.79]       Assert.Throws() Failure: Exception type was not an exact match&#xD;
+[xUnit.net 00:00:01.79]       Expected: typeof(Application.Exceptions.ForbiddenException)&#xD;
+[xUnit.net 00:00:01.79]       Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+[xUnit.net 00:00:01.79]       ---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.&#xD;
+[xUnit.net 00:00:01.79]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.79]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(522,0): at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft()&#xD;
+[xUnit.net 00:00:01.79]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:01.79]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:01.79]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(625,0): at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto)&#xD;
+[xUnit.net 00:00:01.84]       Assert.Single() Failure: The collection was empty&#xD;
+[xUnit.net 00:00:01.84]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.84]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(289,0): at Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies()&#xD;
+[xUnit.net 00:00:01.84]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:01.86]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:01.86]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.86]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(479,0): at Application.Services.PolicyService.MapToDto(PolicyAssignment p)&#xD;
+[xUnit.net 00:00:01.87]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(615,0): at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto)&#xD;
+[xUnit.net 00:00:01.87]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(468,0): at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData()&#xD;
+[xUnit.net 00:00:01.87]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:01.93]       Assert.Throws() Failure: Exception type was not an exact match&#xD;
+[xUnit.net 00:00:01.93]       Expected: typeof(Application.Exceptions.BadRequestException)&#xD;
+[xUnit.net 00:00:01.93]       Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+[xUnit.net 00:00:01.93]       ---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.&#xD;
+[xUnit.net 00:00:01.93]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.93]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(533,0): at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft()&#xD;
+[xUnit.net 00:00:01.93]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:01.93]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:01.93]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(625,0): at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto)&#xD;
+[xUnit.net 00:00:01.95]       Assert.Equal() Failure: Values differ&#xD;
+[xUnit.net 00:00:01.95]       Expected: 2&#xD;
+[xUnit.net 00:00:01.95]       Actual:   0&#xD;
+[xUnit.net 00:00:01.95]       Stack Trace:&#xD;
+[xUnit.net 00:00:01.95]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(186,0): at Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists()&#xD;
+[xUnit.net 00:00:01.95]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.04]       Assert.Throws() Failure: Exception type was not an exact match&#xD;
+[xUnit.net 00:00:02.04]       Expected: typeof(Application.Exceptions.BadRequestException)&#xD;
+[xUnit.net 00:00:02.04]       Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+[xUnit.net 00:00:02.04]       ---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.04]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.04]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(585,0): at Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast()&#xD;
+[xUnit.net 00:00:02.04]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.04]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:02.04]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(713,0): at Application.Services.PolicyService.SubmitDraftAsync(Int32 policyId, Int32 customerId, CreatePolicyDto dto, List`1 members, List`1 nominees, List`1 customerDocuments, List`1 memberDocuments)&#xD;
+[xUnit.net 00:00:02.04]       System.InvalidOperationException : Sequence contains no elements&#xD;
+[xUnit.net 00:00:02.04]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.04]            at System.Linq.ThrowHelper.ThrowNoElementsException()&#xD;
+[xUnit.net 00:00:02.04]            at System.Linq.Enumerable.First[TSource](IEnumerable`1 source)&#xD;
+[xUnit.net 00:00:02.04]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(208,0): at Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly()&#xD;
+[xUnit.net 00:00:02.04]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.10]       Assert.Equal() Failure: Values differ&#xD;
+[xUnit.net 00:00:02.10]       Expected: 2&#xD;
+[xUnit.net 00:00:02.10]       Actual:   0&#xD;
+[xUnit.net 00:00:02.10]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.10]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(223,0): at Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist()&#xD;
+[xUnit.net 00:00:02.10]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.10]       System.NullReferenceException : Object reference not set to an instance of an object.&#xD;
+[xUnit.net 00:00:02.10]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.10]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(479,0): at Application.Services.PolicyService.MapToDto(PolicyAssignment p)&#xD;
+[xUnit.net 00:00:02.10]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(615,0): at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto)&#xD;
+[xUnit.net 00:00:02.10]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(491,0): at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided()&#xD;
+[xUnit.net 00:00:02.10]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.10]       Application.Exceptions.NotFoundException : Draft with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.10]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.10]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(713,0): at Application.Services.PolicyService.SubmitDraftAsync(Int32 policyId, Int32 customerId, CreatePolicyDto dto, List`1 members, List`1 nominees, List`1 customerDocuments, List`1 memberDocuments)&#xD;
+[xUnit.net 00:00:02.10]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(550,0): at Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid()&#xD;
+[xUnit.net 00:00:02.10]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.20]       Application.Exceptions.NotFoundException : Draft with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.20]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.20]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(625,0): at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto)&#xD;
+[xUnit.net 00:00:02.20]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(507,0): at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldUpdateDraft_WhenValid()&#xD;
+[xUnit.net 00:00:02.20]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.21]       Assert.Single() Failure: The collection was empty&#xD;
+[xUnit.net 00:00:02.21]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.21]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(248,0): at Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies()&#xD;
+[xUnit.net 00:00:02.21]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.21]       Application.Exceptions.NotFoundException : Policy with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.21]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.21]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(238,0): at Application.Services.PolicyService.UpdatePolicyStatusAsync(Int32 id, UpdatePolicyStatusDto dto)&#xD;
+[xUnit.net 00:00:02.21]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(333,0): at Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive()&#xD;
+[xUnit.net 00:00:02.21]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.24]       Application.Exceptions.NotFoundException : Policy with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.24]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.24]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(207,0): at Application.Services.PolicyService.GetPolicyByIdAsync(Int32 id)&#xD;
+[xUnit.net 00:00:02.24]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(146,0): at Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists()&#xD;
+[xUnit.net 00:00:02.24]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.27]       Assert.Equal() Failure: Values differ&#xD;
+[xUnit.net 00:00:02.27]       Expected: 2&#xD;
+[xUnit.net 00:00:02.27]       Actual:   0&#xD;
+[xUnit.net 00:00:02.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.27]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(264,0): at Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist()&#xD;
+[xUnit.net 00:00:02.27]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.27]       Assert.Throws() Failure: Exception type was not an exact match&#xD;
+[xUnit.net 00:00:02.27]       Expected: typeof(Application.Exceptions.BadRequestException)&#xD;
+[xUnit.net 00:00:02.27]       Actual:   typeof(Application.Exceptions.NotFoundException)&#xD;
+[xUnit.net 00:00:02.27]       ---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.27]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(570,0): at Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne()&#xD;
+[xUnit.net 00:00:02.27]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.27]         ----- Inner Stack Trace -----&#xD;
+[xUnit.net 00:00:02.27]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(713,0): at Application.Services.PolicyService.SubmitDraftAsync(Int32 policyId, Int32 customerId, CreatePolicyDto dto, List`1 members, List`1 nominees, List`1 customerDocuments, List`1 memberDocuments)&#xD;
+[xUnit.net 00:00:02.28]       Application.Exceptions.NotFoundException : Policy with id '1' was not found.&#xD;
+[xUnit.net 00:00:02.28]       Stack Trace:&#xD;
+[xUnit.net 00:00:02.28]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(238,0): at Application.Services.PolicyService.UpdatePolicyStatusAsync(Int32 id, UpdatePolicyStatusDto dto)&#xD;
+[xUnit.net 00:00:02.28]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(306,0): at Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid()&#xD;
+[xUnit.net 00:00:02.28]         --- End of stack trace from previous location ---&#xD;
+[xUnit.net 00:00:02.29]   Finished:    Application.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.3879729+05:30">
+        <Text>[xUnit.net 00:00:01.79]     Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.4421769+05:30">
+        <Text>[xUnit.net 00:00:01.84]     Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.4643288+05:30">
+        <Text>[xUnit.net 00:00:01.86]     Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.5284741+05:30">
+        <Text>[xUnit.net 00:00:01.93]     Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.6115772+05:30">
+        <Text>[xUnit.net 00:00:01.95]     Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.6366884+05:30">
+        <Text>[xUnit.net 00:00:02.04]     Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.6402490+05:30">
+        <Text>[xUnit.net 00:00:02.04]     Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.6948903+05:30">
+        <Text>[xUnit.net 00:00:02.10]     Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.7005890+05:30">
+        <Text>[xUnit.net 00:00:02.10]     Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.7038015+05:30">
+        <Text>[xUnit.net 00:00:02.10]     Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.7968045+05:30">
+        <Text>[xUnit.net 00:00:02.20]     Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldUpdateDraft_WhenValid [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.8069658+05:30">
+        <Text>[xUnit.net 00:00:02.21]     Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.8114518+05:30">
+        <Text>[xUnit.net 00:00:02.21]     Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.8385345+05:30">
+        <Text>[xUnit.net 00:00:02.24]     Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.8664754+05:30">
+        <Text>[xUnit.net 00:00:02.27]     Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.8720361+05:30">
+        <Text>[xUnit.net 00:00:02.27]     Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="SRIHITHAKAMTALA" outcome="Error" timestamp="2026-03-04T02:50:14.8839753+05:30">
+        <Text>[xUnit.net 00:00:02.28]     Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

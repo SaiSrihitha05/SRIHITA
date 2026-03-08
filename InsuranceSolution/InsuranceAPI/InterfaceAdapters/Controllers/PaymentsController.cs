@@ -18,7 +18,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
             _paymentService = paymentService;
         }
 
-        // ── Customer ──────────────────────────────────────────
+        // ── Customer 
 
         [HttpPost]
         [Authorize(Roles = "Customer")]
@@ -56,7 +56,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
                 $"Invoice_{id}_{DateTime.UtcNow:yyyyMMdd}.pdf");
         }
 
-        // ── Admin ─────────────────────────────────────────────
+        // ── Admin 
 
         [HttpGet]
         [Authorize(Roles = "Admin")]

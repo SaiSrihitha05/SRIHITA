@@ -308,6 +308,10 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("AssignedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CommissionStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -500,11 +504,11 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 3, 3, 11, 32, 50, 315, DateTimeKind.Utc).AddTicks(1560),
+                            CreatedAt = new DateTime(2026, 3, 5, 10, 25, 23, 193, DateTimeKind.Utc).AddTicks(915),
                             Email = "admin@insurance.com",
                             IsActive = true,
                             Name = "System Admin",
-                            PasswordHash = "$2a$11$N4oi0dpXYtn5B/s33QrSROH.uFXQp67F9Q6f1m00b9u.k5QnexDa2",
+                            PasswordHash = "$2a$11$JvtWl/8zsawuMC/hRmhya.yY.uMlrpSratbLxcKUBV9G3TWOzI1KC",
                             Phone = "9999999999",
                             Role = "Admin"
                         });

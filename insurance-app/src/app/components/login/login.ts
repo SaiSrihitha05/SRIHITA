@@ -10,11 +10,11 @@ import { AuthService } from '../../services/auth-service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login { // Add OnInit
+export class Login {
   loginForm: FormGroup;
   submitted = false;
   errorMessage = '';
-  captchaCode = ''; // Initialize this
+  captchaCode = '';
 
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -23,9 +23,9 @@ export class Login { // Add OnInit
 
   constructor() {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      captcha: ['', [Validators.required]] // Add this field
+      captcha: ['', [Validators.required]]
     });
   }
 
@@ -35,7 +35,7 @@ export class Login { // Add OnInit
 
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
-  get captcha() { return this.loginForm.get('captcha'); } // Add getter
+  get captcha() { return this.loginForm.get('captcha'); }
 
   loadCaptcha() {
     this.authService.getCaptcha().subscribe({
@@ -54,7 +54,7 @@ export class Login { // Add OnInit
 
     if (this.loginForm.invalid) return;
 
-    // Local Validation
+    // Validation for captcha
     if (this.captcha?.value.toUpperCase() !== this.captchaCode) {
       this.errorMessage = 'Incorrect CAPTCHA. Please try again.';
       this.loadCaptcha();
@@ -66,20 +66,21 @@ export class Login { // Add OnInit
       password: this.loginForm.value.password
     };
 
+    //role based redirection
     this.authService.login(credentials).subscribe({
       next: (response) => {
         localStorage.setItem('token', response.token);
-              localStorage.setItem('email', response.email);
+        localStorage.setItem('email', response.email);
         localStorage.setItem('role', response.role);
-              if (response.role === 'Admin') {
-        this.router.navigate(['/admin-dashboard']);
-      } else if (response.role === 'Agent') {
-        this.router.navigate(['/agent-dashboard']);
-      } else if(response.role === 'ClaimsOfficer'){
-        this.router.navigate(['/claims-officer-dashboard']);
-      }else {
-        this.router.navigate(['/customer-dashboard']); 
-      }
+        if (response.role === 'Admin') {
+          this.router.navigate(['/admin-dashboard']);
+        } else if (response.role === 'Agent') {
+          this.router.navigate(['/agent-dashboard']);
+        } else if (response.role === 'ClaimsOfficer') {
+          this.router.navigate(['/claims-officer-dashboard']);
+        } else {
+          this.router.navigate(['/customer-dashboard']);
+        }
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Invalid email or password';

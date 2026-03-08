@@ -62,6 +62,14 @@ namespace Application.Services
             });
         }
 
+        public async Task<int> GetUnreadCountAsync(int userId)
+        {
+            var notifications = await _notificationRepository
+                .GetByUserIdAsync(userId);
+
+            return notifications.Count(n => !n.IsRead);
+        }
+
         public async Task MarkAsReadAsync(int notificationId, int userId)
         {
             var notification = await _notificationRepository

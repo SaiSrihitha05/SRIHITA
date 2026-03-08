@@ -35,6 +35,7 @@ filters = {
   ngOnInit() {
     this.loadPlans();
   }
+  
 
   loadPlans() {
     this.planService.getPlans().subscribe(data => {

@@ -47,9 +47,7 @@ namespace Infrastructure.Repositories
         .AnyAsync(p => p.PlanName.ToLower() == planName.ToLower());
         public async Task<IEnumerable<Plan>> GetFilteredAsync(PlanFilterDto filter)
         {
-            var query = _context.Plans
-                .Where(p => p.IsActive)   // customers only see active
-                .AsQueryable();
+            var query = _context.Plans.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(filter.PlanType))
                 query = query.Where(p =>

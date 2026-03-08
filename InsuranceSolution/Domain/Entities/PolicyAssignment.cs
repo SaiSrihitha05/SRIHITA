@@ -32,6 +32,8 @@ namespace Domain.Entities
         // Current lifecycle state (Active, Lapsed, Matured, etc.)
         public PolicyStatus Status { get; set; }
 
+        public CommissionStatus CommissionStatus { get; set; } = CommissionStatus.Pending;
+
         // The total calculated premium across all covered members
         public decimal TotalPremiumAmount { get; set; }
 
