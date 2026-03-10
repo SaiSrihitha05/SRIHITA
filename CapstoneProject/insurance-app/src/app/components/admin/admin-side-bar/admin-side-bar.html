@@ -1,0 +1,21 @@
+<!-- Navigation Sidebar for Administrative portal -->
+<aside
+  class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col fixed left-0 top-16 transition-colors duration-300">
+  <div class="flex-1 py-6 px-4">
+    <nav class="space-y-2">
+      <a *ngFor="let link of navLinks" [routerLink]="link.path"
+        routerLinkActive="bg-[#75013f] dark:bg-pink-700 text-white shadow-lg shadow-pink-900/20"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-[#75013f]/10 dark:hover:bg-pink-900/20 transition-all group font-medium">
+
+        <span class="text-xl group-hover:scale-110 transition-transform">
+          {{ link.icon }}
+        </span>
+
+        <span class="font-lato dark:text-gray-200">{{ link.label }}</span>
+      </a>
+    </nav>
+  </div>
+
+
+</aside>
