@@ -1,0 +1,41 @@
+<div class="max-w-3xl mx-auto font-lato p-6">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-[#75013f] dark:text-pink-300">Notifications</h1>
+      <p class="text-xs text-gray-500 dark:text-gray-400">Stay updated on your policy and claim status</p>
+    </div>
+    <button *ngIf="unreadCount() > 0" (click)="markAllRead()"
+      class="text-xs font-bold text-[#fe3082] dark:text-pink-400 hover:underline">
+      Mark all as read
+    </button>
+  </div>
+
+  <div class="space-y-4">
+    <div *ngFor="let note of notifications" [class.bg-white]="note.isRead" [class.dark:bg-gray-800]="note.isRead"
+      [class.bg-[#f5f2ef]]="!note.isRead" [class.dark:bg-gray-700]="!note.isRead"
+      class="p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex gap-4 items-start relative overflow-hidden transition-colors duration-300">
+
+      <div *ngIf="!note.isRead" class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#fe3082]"></div>
+
+      <span class="text-2xl">{{ getIcon(note.type) }}</span>
+
+      <div class="flex-1">
+        <div class="flex justify-between items-start">
+          <h4 class="font-bold text-gray-800 dark:text-gray-100 text-sm">{{ note.title }}</h4>
+          <span class="text-[10px] text-gray-400 dark:text-gray-500">{{ note.createdAt | date:'short' }}</span>
+        </div>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 leading-relaxed">{{ note.message }}</p>
+
+        <button *ngIf="!note.isRead" (click)="markRead(note.id)"
+          class="mt-3 text-[10px] font-bold text-[#75013f] dark:text-pink-300 uppercase tracking-widest hover:text-[#fe3082] dark:hover:text-pink-400">
+          Mark as read
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="notifications.length === 0"
+      class="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 transition-colors">
+      <p class="text-gray-400 dark:text-gray-500">No notifications to show</p>
+    </div>
+  </div>
+</div>

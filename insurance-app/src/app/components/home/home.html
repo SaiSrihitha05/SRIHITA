@@ -1,0 +1,291 @@
+<section
+  class="relative min-h-screen bg-[#f5f2ef] dark:bg-gray-900 pt-16 transition-colors duration-300 overflow-hidden">
+  <!-- Transparent Background Photo -->
+  <!-- <div class="absolute inset-0 z-0 opacity-40 pointer-events-none">
+    <img src="main.jpg" class="w-full h-full object-cover grayscale" alt="Background">
+  </div> -->
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div class="space-y-6">
+        <div class="inline-block px-4 py-1.5 bg-[#fe3082]/10 dark:bg-pink-500/10 rounded-full">
+          <span class="text-[#fe3082] dark:text-pink-400 text-xs font-black uppercase tracking-widest">Trust Built Over
+            200 Years</span>
+        </div>
+        <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-[#75013f] dark:text-pink-300 leading-[1.1]">
+          Life Insurance <br />
+          <span class="text-[#fe3082] dark:text-pink-400">Simplified.</span>
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400 text-xl leading-relaxed max-w-xl">
+          The Hartford brings you comprehensive life insurance solutions designed to safeguard your family's future and
+          provide lasting peace of mind.
+        </p>
+        <div class="flex flex-wrap gap-4 pt-4">
+          <a href="#about"
+            class="px-10 py-4 bg-[#75013f] text-white rounded-2xl font-bold hover:bg-[#fe3082] transition-all shadow-xl shadow-[#75013f]/20 hover:-translate-y-1">
+            Explore
+          </a>
+          <button (click)="toggleExpertAlert()"
+            class="px-10 py-4 border-2 border-[#75013f] text-[#75013f] dark:text-pink-300 dark:border-pink-300 rounded-2xl font-bold hover:bg-[#75013f] hover:text-white transition-all">
+            Talk to an Expert
+          </button>
+        </div>
+      </div>
+      <div class="flex justify-center relative">
+        <!-- Decorative blob for visual depth -->
+        <div class="absolute inset-0  blur-3xl rounded-full"></div>
+        <img src="landing_page.jpg" class="relative z-10 w-[1000px] h-[400px] drop-shadow-2xl" alt="Hartford Shield">
+      </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-24">
+      <div *ngFor="let stat of stats"
+        class="text-center p-8 bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700 hover:scale-105 transition-all duration-300">
+        <p class="text-4xl font-black text-[#75013f] dark:text-pink-300 mb-2">{{ stat.value }}</p>
+        <p class="text-gray-400 dark:text-gray-500 text-xs font-black uppercase tracking-widest">{{ stat.label }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="py-20 px-10">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+
+    <!-- Left Image -->
+    <div class="flex justify-center">
+      <img src="why_life.jpg" alt="Why Life Insurance"
+        class="w-full max-w-[600px] h-auto rounded-3xl shadow-2xl object-cover" />
+    </div>
+
+    <!-- Right Content -->
+    <div class="space-y-6">
+      <h1 class="text-4xl md:text-5xl font-black text-[#75013f]">
+        Why Life Insurance?
+      </h1>
+
+      <p class="text-gray-600 text-lg leading-relaxed">
+        Life insurance provides financial security and peace of mind for you and your loved ones.
+        It ensures that your family is protected financially in case of unexpected events and
+        helps them maintain their lifestyle even in your absence.
+      </p>
+
+      <ul class="space-y-3 text-gray-700">
+        <li class="flex items-start gap-3">
+          <span class="text-[#fe3082] text-xl">✔</span>
+          Financial protection for your family
+        </li>
+
+        <li class="flex items-start gap-3">
+          <span class="text-[#fe3082] text-xl">✔</span>
+          Helps cover debts and future expenses
+        </li>
+
+        <li class="flex items-start gap-3">
+          <span class="text-[#fe3082] text-xl">✔</span>
+          Supports long-term financial planning
+        </li>
+
+        <li class="flex items-start gap-3">
+          <span class="text-[#fe3082] text-xl">✔</span>
+          Provides peace of mind for the future
+        </li>
+      </ul>
+
+      <button (click)="navigateToExplore()"
+        class="mt-4 px-8 py-4 bg-[#75013f] text-white rounded-2xl font-semibold hover:bg-[#5c0131] transition">
+        Explore Plans →
+      </button>
+    </div>
+
+  </div>
+</section>
+<!-- 
+    About & Mission Section:
+    Highlights the core values of The Hartford and our legacy in Life Insurance.
+  -->
+<section id="about" class="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div class="relative">
+        <div
+          class="bg-gradient-to-br from-[#75013f] to-[#fe3082] rounded-[3rem] p-10 md:p-14 text-white space-y-8 shadow-2xl shadow-[#75013f]/30">
+          <h3 class="text-3xl font-black">Our Life Promise</h3>
+          <p class="text-white/80 text-lg leading-relaxed font-medium">
+            We provide families with affordable, comprehensive life insurance coverage that grants the confidence to
+            live fully today, knowing tomorrow is secured.
+          </p>
+          <div class="space-y-4 pt-4">
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">✓</span>
+              <p class="font-bold">A+ Financial Strength Rating</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">✓</span>
+              <p class="font-bold">Transparent Policy Terms</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold">✓</span>
+              <p class="font-bold">Quick Maturity Settlements</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-8">
+        <h2 class="text-4xl sm:text-5xl font-black text-[#75013f] dark:text-pink-300 leading-tight">Securing Your <br />
+          Family's Legacy</h2>
+        <p class="text-gray-600 dark:text-gray-400 text-lg">
+          Founded in 1810, we believe a life insurance policy is more than just a contract—it's a lifelong partnership
+          and a promise to stand by your side.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div
+            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20">
+            <p class="text-3xl font-black text-[#75013f] dark:text-pink-300">₹12,000Cr+</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mt-1">Total Sum Assured</p>
+          </div>
+          <div
+            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20">
+            <p class="text-3xl font-black text-[#75013f] dark:text-pink-300">98%</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mt-1">First-Try Approval</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 
+    The Hartford Difference:
+    Showcases unique selling points of our life insurance products in a clean grid.
+  -->
+<section id="why-us" class="py-24 bg-[#f5f2ef] dark:bg-gray-900/50 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-20 space-y-4">
+      <h2 class="text-4xl sm:text-5xl font-black text-[#75013f] dark:text-pink-300">The Hartford Advantage</h2>
+      <p class="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-xs">Why thousands trust us
+        with their life's insurance</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div *ngFor="let card of whyUsCards"
+        class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-xl shadow-gray-200/50 dark:shadow-none border border-transparent hover:border-[#fe3082]/30 transition-all duration-300 hover:-translate-y-2 group">
+        <h3
+          class="text-2xl font-black text-[#75013f] dark:text-pink-300 mb-4 group-hover:text-[#fe3082] transition-colors">
+          {{ card.title }}</h3>
+        <p class="text-gray-500 dark:text-gray-400 leading-relaxed">{{ card.description }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 
+    Contact Section:
+    Enables potential customers to reach out for personalized life insurance advice.
+  -->
+<section id="contact" class="py-24 bg-white dark:bg-gray-900 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-20">
+      <h2 class="text-4xl sm:text-5xl font-black text-[#75013f] dark:text-pink-300">Expert Consultation</h2>
+      <p class="text-gray-500 dark:text-gray-400 mt-4 font-medium">Ready to secure your future? Our life insurance
+        experts are here to help.</p>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+      <div class="space-y-8">
+        <div
+          class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all">
+          <h4 class="font-black text-xs uppercase tracking-[0.2em] text-[#fe3082] mb-2">Corporate Headquarters</h4>
+          <p class="text-xl font-bold text-[#75013f] dark:text-pink-100">One Hartford Plaza, <br />Hartford, CT 06155
+          </p>
+        </div>
+        <div
+          class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all">
+          <h4 class="font-black text-xs uppercase tracking-[0.2em] text-[#fe3082] mb-2">Dedicated Support Line</h4>
+          <p class="text-xl font-bold text-[#75013f] dark:text-pink-100">1-860-547-5000</p>
+        </div>
+      </div>
+
+      <div
+        class="bg-[#f5f2ef] dark:bg-gray-800 rounded-[3rem] p-10 md:p-14 shadow-2xl shadow-gray-200/50 dark:shadow-none transition-colors">
+        <div *ngIf="isSubmitted" class="text-center py-12 space-y-4">
+          <div
+            class="w-20 h-20 bg-green-500 text-white rounded-full flex items-center justify-center text-3xl mx-auto shadow-lg shadow-green-500/30">
+            ✓</div>
+          <h3 class="text-2xl font-black text-[#75013f] dark:text-pink-300">Inquiry Received!</h3>
+          <p class="text-gray-500 dark:text-gray-400">An advisor will contact you within 24 hours.</p>
+          <button (click)="isSubmitted = false"
+            class="text-[#fe3082] font-black uppercase text-xs tracking-widest hover:underline pt-4">Start New
+            Inquiry</button>
+        </div>
+
+        <form *ngIf="!isSubmitted" (ngSubmit)="onSubmit()" class="space-y-6">
+          <div class="space-y-4">
+            <input [(ngModel)]="name" name="name" placeholder="Your Full Name" required
+              class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm">
+            <input [(ngModel)]="email" name="email" type="email" placeholder="Email Address" required
+              class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm">
+            <textarea [(ngModel)]="message" name="message" rows="4"
+              placeholder="How can we help you secure your legacy?" required
+              class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm resize-none"></textarea>
+          </div>
+          <button type="submit" [disabled]="isSubmitting"
+            class="w-full py-5 bg-[#75013f] dark:bg-pink-700 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-xl shadow-[#75013f]/20 disabled:opacity-50">
+            {{ isSubmitting ? 'Submitting...' : 'Request a Callback' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Premium Expert Consultation Alert Modal -->
+<div *ngIf="showExpertAlert"
+  class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+  <div
+    class="bg-white dark:bg-gray-800 w-full max-w-lg rounded-[3rem] shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden transform animate-in zoom-in-95 duration-300">
+    <div class="bg-gradient-to-r from-[#75013f] to-[#fe3082] p-8 text-white relative overflow-hidden">
+      <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+      <div class="relative z-10 flex justify-between items-center">
+        <div>
+          <p class="text-[10px] uppercase font-black tracking-[0.3em] opacity-80 mb-2">Hartford Concierge</p>
+          <h3 class="text-3xl font-black">Expert Guidance</h3>
+        </div>
+        <button (click)="toggleExpertAlert()"
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-all">
+          <span class="text-2xl">×</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-10 space-y-6">
+      <div class="flex gap-6 items-start">
+        <div class="w-16 h-16 bg-[#f5f2ef] dark:bg-gray-700/50 rounded-2xl flex items-center justify-center text-3xl">
+          🛡️</div>
+        <div class="flex-1">
+          <p class="text-[#75013f] dark:text-pink-300 font-black text-xs uppercase tracking-widest mb-2">Our Promise</p>
+          <p class="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+            Our certified life insurance specialists are ready to help you navigate through our personalized legacy
+            solutions.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6 bg-[#f5f2ef] dark:bg-gray-700/30 rounded-3xl space-y-4">
+        <div class="flex items-center gap-4">
+          <span class="text-[#fe3082] text-xl">📞</span>
+          <p class="text-lg font-black text-[#75013f] dark:text-pink-100">1-860-547-5000</p>
+        </div>
+        <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Available Mon-Fri, 8 AM - 8 PM EST</p>
+      </div>
+
+      <div class="pt-4 grid grid-cols-2 gap-4 text-center">
+        <button (click)="toggleExpertAlert()"
+          class="py-4 bg-[#75013f] text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-[#fe3082] transition-all shadow-lg shadow-[#75013f]/20">
+          Got It
+        </button>
+        <a href="#contact" (click)="toggleExpertAlert()"
+          class="py-4 border-2 border-gray-100 dark:border-gray-700 text-gray-500 dark:text-gray-300 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+          Email Us
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,138 @@
+<!-- Top Statistics Row: Financial and Operational Summary -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" *ngIf="stats">
+  <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-[#75013f] transition-all">
+    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Total Revenue</p>
+    <p class="text-2xl font-bold text-[#75013f] dark:text-pink-300">₹{{ stats.totalPremiumCollected | number:'1.2-2' }}
+    </p>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ stats.totalPaymentsCount }} Payments processed</p>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-[#fe3082] transition-colors">
+    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Claims Status</p>
+    <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.settledClaims }} / {{ stats.totalClaims }}
+    </p>
+    <p class="text-xs text-green-600 dark:text-green-400 font-bold">{{ stats.claimApprovalRate }}% Approval Rate</p>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-blue-500 transition-colors">
+    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Active Policies</p>
+    <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.activePolicies }}</p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">Out of {{ stats.totalPolicies }} total</p>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-orange-400 transition-colors">
+    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Staff Count</p>
+    <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.totalAgents + stats.totalClaimsOfficers }}
+    </p>
+    <p class="text-xs text-gray-500 dark:text-gray-400">{{ stats.totalAgents }} Agents | {{ stats.totalClaimsOfficers }}
+      Officers</p>
+  </div>
+</div>
+<br>
+
+<!-- Visual Analytics: Trends & Efficiency -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6" *ngIf="stats">
+  <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
+    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Monthly Revenue Trend</h3>
+    <div class="relative h-[300px]">
+      <canvas baseChart [data]="revenueTrendData" [options]="revenueTrendOptions" [type]="'line'"></canvas>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700 flex flex-col">
+    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Claims Overview</h3>
+    <div class="relative flex-grow h-[200px]">
+      <canvas baseChart [data]="claimsEfficiencyData" [options]="claimsEfficiencyOptions" [type]="'doughnut'"></canvas>
+    </div>
+    <div class="mt-4 grid grid-cols-2 gap-2 text-center text-xs">
+      <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+        <p class="text-[10px] text-gray-500 uppercase font-bold">Settled</p>
+        <p class="text-lg font-bold text-green-600">{{ stats.settledClaims }}</p>
+      </div>
+      <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+        <p class="text-[10px] text-gray-500 uppercase font-bold">Pending</p>
+        <p class="text-lg font-bold text-orange-500">{{ stats.totalClaims - stats.settledClaims }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<br>
+
+<!-- Visual Analytics: Distribution & Performance -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6" *ngIf="stats">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
+    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Revenue Mix</h3>
+    <div class="relative h-[250px] flex items-center justify-center">
+      <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
+    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Agent Performance</h3>
+    <div class="relative h-[250px]">
+      <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
+    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Claim Size Dist</h3>
+    <div class="relative h-[250px]">
+      <canvas baseChart [data]="histogramChartData" [options]="histogramChartOptions" [type]="'bar'"></canvas>
+    </div>
+  </div>
+</div>
+<br>
+
+<!-- Activity Logs Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6" *ngIf="stats">
+  <!-- Recent Policies -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border dark:border-gray-700">
+    <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Policy Applications</h3>
+      <span class="text-[10px] bg-[#75013f]/10 text-[#75013f] px-2 py-1 rounded-lg">Latest {{
+        stats.recentPolicies.length }}</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs text-left">
+        <thead class="bg-gray-50 dark:bg-gray-900/80 text-gray-500 uppercase text-[9px] border-b dark:border-gray-700">
+          <tr>
+            <th class="px-4 py-3">Policy No</th>
+            <th class="px-4 py-3">Customer</th>
+            <th class="px-3 py-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+          <tr *ngFor="let policy of stats.recentPolicies" class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+            <td class="px-4 py-3 font-mono font-bold text-[#75013f] dark:text-pink-400">{{ policy.policyNumber }}</td>
+            <td class="px-4 py-3 dark:text-gray-300">{{ policy.customerName }}</td>
+            <td class="px-3 py-3">
+              <span [class]="'px-2 py-0.5 rounded-full text-[9px] font-bold ' + 
+                (policy.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700')">
+                {{ policy.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recent Claims -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border dark:border-gray-700">
+    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4 px-1">Claims Activity</h3>
+    <div class="space-y-3">
+      <div *ngFor="let claim of stats.recentClaims"
+        class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+        <div>
+          <p class="text-xs font-bold text-gray-800 dark:text-gray-200">{{ claim.policyNumber }}</p>
+          <p class="text-[10px] text-gray-500">{{ claim.claimType }} filed on {{ claim.filedDate | date:'shortDate' }}
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs font-bold text-red-600">₹{{ claim.claimAmount | number }}</p>
+          <span class="text-[9px] font-bold text-green-600 uppercase">{{ claim.status }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

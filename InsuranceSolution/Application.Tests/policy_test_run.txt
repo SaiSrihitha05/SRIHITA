@@ -1,0 +1,103 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Domain -> D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Domain\bin\Debug\net8.0\Domain.dll
+  Application -> D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\bin\Debug\net8.0\Application.dll
+  Infrastructure -> D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Infrastructure\bin\Debug\net8.0\Infrastructure.dll
+  Application.Tests -> D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll
+Test run for D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 18.0.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\bin\Debug\net8.0\Application.Tests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.8)
+[xUnit.net 00:00:00.12]   Discovering: Application.Tests
+[xUnit.net 00:00:00.20]   Discovered:  Application.Tests
+[xUnit.net 00:00:00.22]   Starting:    Application.Tests
+[xUnit.net 00:00:02.13]       Assert.Throws() Failure: Exception type was not an exact match
+[xUnit.net 00:00:02.13]       Expected: typeof(Application.Exceptions.ForbiddenException)
+[xUnit.net 00:00:02.13]       Actual:   typeof(Application.Exceptions.NotFoundException)
+[xUnit.net 00:00:02.13]       ---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.
+[xUnit.net 00:00:02.13]       Stack Trace:
+[xUnit.net 00:00:02.13]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(549,0): at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft()
+[xUnit.net 00:00:02.13]         --- End of stack trace from previous location ---
+[xUnit.net 00:00:02.13]         ----- Inner Stack Trace -----
+[xUnit.net 00:00:02.13]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(625,0): at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto)
+[xUnit.net 00:00:02.21]       System.NullReferenceException : Object reference not set to an instance of an object.
+[xUnit.net 00:00:02.21]       Stack Trace:
+[xUnit.net 00:00:02.21]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(479,0): at Application.Services.PolicyService.MapToDto(PolicyAssignment p)
+[xUnit.net 00:00:02.21]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(615,0): at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto)
+[xUnit.net 00:00:02.21]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(493,0): at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData()
+[xUnit.net 00:00:02.21]         --- End of stack trace from previous location ---
+  Passed Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldCancelPolicy_WhenStatusIsPending [1 s]
+  Passed Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldThrowNotFoundException_WhenPlanIdIsProvidedButDoesNotExist [235 ms]
+  Failed Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft [124 ms]
+  Error Message:
+   Assert.Throws() Failure: Exception type was not an exact match
+Expected: typeof(Application.Exceptions.ForbiddenException)
+Actual:   typeof(Application.Exceptions.NotFoundException)
+---- Application.Exceptions.NotFoundException : Draft with id '1' was not found.
+  Stack Trace:
+     at Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowForbiddenException_WhenNotCustomerDraft() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 549
+--- End of stack trace from previous location ---
+----- Inner Stack Trace -----
+   at Application.Services.PolicyService.UpdateDraftAsync(Int32 policyId, Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 625
+  Passed Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldNotReturnOtherAgentsPolicies [67 ms]
+  Failed Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData [20 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at Application.Services.PolicyService.MapToDto(PolicyAssignment p) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 479
+   at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 615
+   at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldCreateDraftPolicy_WithPartialData() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 493
+--- End of stack trace from previous location ---
+  Passed Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnEmptyList_WhenNoDataExists [107 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldThrowBadRequestException_WhenStatusIsNotDraft [10 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnEmptyList_WhenAgentHasNoPolicies [2 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist [20 ms]
+[xUnit.net 00:00:02.46]       System.NullReferenceException : Object reference not set to an instance of an object.
+[xUnit.net 00:00:02.46]       Stack Trace:
+[xUnit.net 00:00:02.46]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(479,0): at Application.Services.PolicyService.MapToDto(PolicyAssignment p)
+[xUnit.net 00:00:02.46]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs(615,0): at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto)
+[xUnit.net 00:00:02.46]         D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs(516,0): at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided()
+[xUnit.net 00:00:02.46]         --- End of stack trace from previous location ---
+  Passed Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists [14 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenStartDateIsInPast [8 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly [3 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnCustomerPolicies_WhenTheyExist [75 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist [4 ms]
+  Failed Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided [3 ms]
+  Error Message:
+   System.NullReferenceException : Object reference not set to an instance of an object.
+  Stack Trace:
+     at Application.Services.PolicyService.MapToDto(PolicyAssignment p) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 479
+   at Application.Services.PolicyService.SaveDraftAsync(Int32 customerId, SaveDraftDto dto) in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application\Services\PolicyService.cs:line 615
+   at Application.Tests.Services.PolicyServiceTests.SaveDraftAsync_ShouldSetCalculatedEndDateCorrectly_WhenStartAndTermProvided() in D:\angularpractice\HartfordAssignments\capstone\InsuranceSolution\Application.Tests\Services\PolicyServiceTests.cs:line 516
+--- End of stack trace from previous location ---
+  Passed Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldUpdateDraftToPending_WhenValid [110 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldCreatePolicySuccessfully_WhenDataIsValid [24 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowNotFoundException_WhenDocumentDoesNotExist [17 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist [3 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldThrowBadRequestException_WhenNomineeSharesDoNotTotal100 [7 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.UpdateDraftAsync_ShouldUpdateDraft_WhenValid [5 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldAssignAgent_WhenAgentIsValid [13 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldNotReturnOtherCustomersPolicies [4 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldSetAssignedDate_WhenStatusChangedToActive [11 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowForbiddenException_WhenCustomerTriesToDownloadOthersDocument [41 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetMyPoliciesAsync_ShouldReturnEmptyList_WhenCustomerHasNoPolicies [4 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists [3 ms]
+[xUnit.net 00:00:02.78]   Finished:    Application.Tests
+  Passed Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldThrowForbiddenException_WhenNotCustomerPolicy [2 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetPolicyByIdAsync_ShouldMapEntityToDtoCorrectly [4 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.GetAgentPoliciesAsync_ShouldReturnAgentPolicies_WhenTheyExist [3 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.SubmitDraftAsync_ShouldThrowBadRequestException_WhenPrimaryInsuredIsNotExactlyOne [3 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.CancelPendingPolicyAsync_ShouldThrowBadRequestException_WhenStatusIsNotPending [3 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.AssignAgentAsync_ShouldThrowBadRequestException_WhenUserIsNotAgent [2 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.UpdatePolicyStatusAsync_ShouldUpdateStatusAndSendNotifications_WhenValid [28 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.CreatePolicyAsync_ShouldThrowBadRequestException_WhenTermYearsOutsidePlanLimits [3 ms]
+  Passed Application.Tests.Services.PolicyServiceTests.DownloadDocumentAsync_ShouldThrowNotFoundException_WhenFileDoesNotExistOnServer [5 ms]
+
+Total tests: 36
+     Passed: 33
+     Failed: 3
+ Total time: 3.5165 Seconds
