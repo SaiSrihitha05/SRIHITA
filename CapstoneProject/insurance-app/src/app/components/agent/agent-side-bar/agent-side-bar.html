@@ -1,0 +1,22 @@
+<!-- Side Navigation for Insurance Agents -->
+<aside
+  class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col fixed left-0 top-16 z-50 transition-colors">
+  <div class="flex-1 py-6 px-4">
+    <nav class="space-y-2">
+      <a *ngFor="let link of navLinks" [routerLink]="link.path" #rla="routerLinkActive"
+        routerLinkActive="bg-[#75013f] dark:bg-pink-700 text-white shadow-lg shadow-pink-900/20"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all group hover:bg-[#75013f]/10 dark:hover:bg-pink-900/20">
+
+        <span class="text-xl group-hover:scale-110 transition-transform">
+          {{ link.icon }}
+        </span>
+
+        <span [class.text-white]="rla.isActive"
+          class="font-lato font-bold text-gray-700 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 block transition-colors">
+          {{ link.label }}
+        </span>
+      </a>
+    </nav>
+  </div>
+</aside>

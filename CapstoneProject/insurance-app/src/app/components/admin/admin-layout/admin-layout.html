@@ -1,0 +1,10 @@
+<!-- Admin Main Layout Stage -->
+<div class="flex">
+  <!-- Sidebar Component -->
+  <app-admin-side-bar></app-admin-side-bar>
+
+  <!-- Content Area: Uses a light beige for clarity in light mode and gray-900 for dark mode depth -->
+  <main class="flex-1 ml-64 p-8 bg-[#f5f2ef] dark:bg-gray-900 min-h-screen pt-24 transition-colors duration-300">
+    <router-outlet></router-outlet>
+  </main>
+</div>

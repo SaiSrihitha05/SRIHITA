@@ -1,0 +1,64 @@
+<footer class="bg-[#75013f] dark:bg-gray-950 text-white transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <!-- Brand -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-[#fe3082] rounded-full flex items-center
+                      justify-center">
+            <span class="text-white font-bold text-sm">H</span>
+          </div>
+          <span class="font-bold text-xl">The Hartford</span>
+        </div>
+        <p class="text-white/70 leading-relaxed text-sm">
+          Protecting families and businesses since 1810.
+          Your trusted partner in insurance.
+        </p>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-lg">Quick Links</h4>
+        <div class="space-y-2">
+          <a href="#about" class="block text-white/70 hover:text-[#fe3082]
+                    transition-colors text-sm">About Us</a>
+          <a href="#why-us" class="block text-white/70 hover:text-[#fe3082]
+                    transition-colors text-sm">Why Us</a>
+          <a href="#contact" class="block text-white/70 hover:text-[#fe3082]
+                    transition-colors text-sm">Contact</a>
+          <a routerLink="/login" class="block text-white/70 hover:text-[#fe3082]
+                    transition-colors text-sm">Login</a>
+          <a routerLink="/register" class="block text-white/70 hover:text-[#fe3082]
+                    transition-colors text-sm">Register</a>
+        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="space-y-4">
+        <h4 class="font-semibold text-lg">Contact</h4>
+        <div class="space-y-2 text-white/70 text-sm">
+          <p>📍 One Hartford Plaza, CT 06155</p>
+          <p>📞 1-860-547-5000</p>
+          <p>✉️ support@thehartford.com</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="border-t border-white/20 dark:border-white/10 mt-8 pt-6 flex flex-col
+                sm:flex-row justify-between items-center gap-4">
+      <p class="text-white/60 dark:text-gray-400 text-sm">
+        © {{ currentYear() }} The Hartford. All rights reserved.
+      </p>
+      <div class="flex gap-4 text-white/60 text-sm">
+        <a href="#" class="hover:text-[#fe3082] transition-colors">
+          Privacy Policy
+        </a>
+        <a href="#" class="hover:text-[#fe3082] transition-colors">
+          Terms of Service
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
