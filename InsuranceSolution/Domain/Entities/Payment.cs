@@ -35,10 +35,17 @@ namespace Domain.Entities
         // Unique business invoice identifier for tax and receipt purposes
         public string InvoiceNumber { get; set; } = string.Empty;
 
+        // ✅ LOAN REPAYMENT FIELDS
+        public int? PolicyLoanId { get; set; }
+        public decimal? PrincipalPaid { get; set; }
+        public decimal? InterestPaid { get; set; }
+        public decimal? BalanceAfter { get; set; }
+
         // Record creation audit trail
         public DateTime CreatedAt { get; set; }
 
         // Link back to the parent policy contract
         public PolicyAssignment? PolicyAssignment { get; set; }
+        public PolicyLoan? PolicyLoan { get; set; }
     }
 }

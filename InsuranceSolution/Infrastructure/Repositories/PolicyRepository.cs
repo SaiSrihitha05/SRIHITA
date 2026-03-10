@@ -31,6 +31,8 @@ namespace Infrastructure.Repositories
                 .Include(p => p.PolicyMembers)
                 .Include(p => p.PolicyNominees)
                 .Include(p => p.Documents)
+                .Include(p => p.Payments)   // ✅ ADDED
+                .Include(p => p.Loans)      // ✅ ADDED
                 .FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<IEnumerable<PolicyAssignment>> GetAllAsync() =>

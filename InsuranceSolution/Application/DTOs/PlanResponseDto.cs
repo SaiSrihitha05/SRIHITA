@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Enums;
+
 namespace Application.DTOs
 {
     public class PlanResponseDto
     {
         public int Id { get; set; }
         public string PlanName { get; set; } = string.Empty;
-        public string PlanType { get; set; } = string.Empty;
+        public PlanCategory PlanType { get; set; }
         public string Description { get; set; } = string.Empty;
         public decimal BaseRate { get; set; }
         public int MinAge { get; set; }
@@ -27,5 +24,16 @@ namespace Application.DTOs
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }
         public decimal CommissionRate { get; set; }
+
+        // ✅ NEW FIELDS
+        public bool HasDeathBenefit { get; set; }
+        public bool HasBonus { get; set; }
+        public bool HasLoanFacility { get; set; }
+        public bool CoverageIncreasing { get; set; }
+        public decimal CoverageIncreaseRate { get; set; }
+        public int CoverageUntilAge { get; set; }
+        public int LoanEligibleAfterYears { get; set; }
+        public decimal MaxLoanPercentage { get; set; }
+        public decimal LoanInterestRate { get; set; }
     }
 }

@@ -33,7 +33,7 @@ export class ClaimService {
   }): Observable<any> {
     return this.http.patch(`${this.baseUrl}/${claimId}/process`, dto);
   }
-    updateClaimStatus(claimId: number, statusDto: { status: string, remarks: string }): Observable<any> {
+  updateClaimStatus(claimId: number, statusDto: { status: string, remarks: string }): Observable<any> {
     return this.http.patch(`${this.baseUrl}/${claimId}/status`, statusDto);
   }
 

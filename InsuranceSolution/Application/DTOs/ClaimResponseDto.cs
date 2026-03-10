@@ -21,6 +21,9 @@ namespace Application.DTOs
         public string? ClaimsOfficerName { get; set; }
         public string ClaimType { get; set; } = string.Empty;
         public decimal ClaimAmount { get; set; }
+        public decimal BaseCoverageAmount { get; set; }
+        public decimal AccumulatedBonus { get; set; }
+        public decimal TerminalBonus { get; set; }
         public string NomineeName { get; set; } = string.Empty;
         public string NomineeContact { get; set; } = string.Empty;
         public string? DeathCertificateNumber { get; set; }
@@ -28,6 +31,8 @@ namespace Application.DTOs
         public string Status { get; set; } = string.Empty;
         public string? Remarks { get; set; }
         public decimal? SettlementAmount { get; set; }
+        public decimal OutstandingLoanAmount { get; set; }
+        public decimal NetSettlementAmount { get; set; }
         public DateTime? ProcessedDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<DocumentResponseDto> Documents { get; set; } = new();

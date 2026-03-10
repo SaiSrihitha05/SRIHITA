@@ -110,7 +110,7 @@ namespace Application.Services
                 .GroupBy(p => new
                 {
                     PlanName = p.PolicyAssignment?.Plan?.PlanName ?? "Unknown",
-                    PlanType = p.PolicyAssignment?.Plan?.PlanType ?? "Unknown"
+                    PlanType = p.PolicyAssignment?.Plan?.PlanType.ToString() ?? "Unknown"
                 })
                 .Select(g => new RevenueByPlanDto
                 {
@@ -341,7 +341,7 @@ namespace Application.Services
 
             // Policies by plan type
             var byPlanType = policiesList
-                .GroupBy(p => p.Plan?.PlanType ?? "Unknown")
+                .GroupBy(p => p.Plan?.PlanType.ToString() ?? "Unknown")
                 .Select(g => new PolicyByPlanTypeDto
                 {
                     PlanType = g.Key,
@@ -414,10 +414,7 @@ namespace Application.Services
             var processedClaims = claimsList
                 .Where(c => c.ProcessedDate.HasValue).ToList();
 
-            var avgProcessingDays = processedClaims.Any()
-                ? processedClaims.Average(c =>
-                    (c.ProcessedDate!.Value - c.FiledDate).TotalDays)
-                : 0;
+
 
             // Urgent claims — under review for more than 7 days
             var urgentClaims = claimsList
@@ -456,7 +453,6 @@ namespace Application.Services
                 ActiveClaimsCount = claimsList
                     .Count(c => c.Status == ClaimStatus.UnderReview ||
                                 c.Status == ClaimStatus.Submitted),
-                AverageProcessingTimeDays = Math.Round(avgProcessingDays, 1),
                 UrgentClaims = urgentClaims,
                 MonthlyProcessed = monthlyProcessed,
                 RecentAssignedClaims = claimsList

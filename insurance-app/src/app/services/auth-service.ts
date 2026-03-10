@@ -1,4 +1,4 @@
-import { Injectable,inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -32,13 +32,19 @@ export class AuthService {
     return this.http.get<{ captchaCode: string }>(
       `${this.baseUrl}/get-captcha`);
   }
-  
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('role');
+    localStorage.removeItem('email');
   }
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem('token');
+  }
+
+  getUserRole(): string | null {
+    return localStorage.getItem('role');
   }
 }

@@ -2,6 +2,7 @@ using Application.DTOs;
 using Application.Exceptions;
 using Application.Services;
 using Domain.Entities;
+using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +57,7 @@ namespace Application.Tests.Services
         public async Task GetAllPlansAsync_ShouldMapEntityToDtoCorrectly()
         {
             var (db, service) = BuildTestContextAndService();
-            var plan = new Plan { PlanName = "MapTest", PlanType = "TypeA", Description = "Desc", IsActive = true, CommissionRate = 12 };
+            var plan = new Plan { PlanName = "MapTest", PlanType = PlanCategory.TermLife, Description = "Desc", IsActive = true, CommissionRate = 12 };
             db.Plans.Add(plan);
             await db.SaveChangesAsync();
 
@@ -64,7 +65,7 @@ namespace Application.Tests.Services
 
             var dto = plans.First();
             Assert.Equal("MapTest", dto.PlanName);
-            Assert.Equal("TypeA", dto.PlanType);
+            Assert.Equal(PlanCategory.TermLife, dto.PlanType);
             Assert.Equal("Desc", dto.Description);
             Assert.True(dto.IsActive);
             Assert.Equal(12, dto.CommissionRate);
@@ -416,12 +417,12 @@ namespace Application.Tests.Services
         public async Task GetFilteredPlansAsync_ShouldReturnMatchingPlans_ForAdmin()
         {
             var (db, service) = BuildTestContextAndService();
-            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA", IsActive = false });
-            db.Plans.Add(new Plan { PlanName = "PlanB", PlanType = "TypeA", IsActive = true });
-            db.Plans.Add(new Plan { PlanName = "PlanC", PlanType = "TypeB", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = PlanCategory.TermLife, IsActive = false });
+            db.Plans.Add(new Plan { PlanName = "PlanB", PlanType = PlanCategory.TermLife, IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "PlanC", PlanType = PlanCategory.Endowment, IsActive = true });
             await db.SaveChangesAsync();
 
-            var filter = new PlanFilterDto { PlanType = "TypeA" };
+            var filter = new PlanFilterDto { PlanType = PlanCategory.TermLife };
             var plans = await service.GetFilteredPlansAsync(filter, "Admin");
 
             Assert.Equal(2, plans.Count());
@@ -431,11 +432,11 @@ namespace Application.Tests.Services
         public async Task GetFilteredPlansAsync_ShouldReturnOnlyActiveMatchingPlans_ForCustomer()
         {
             var (db, service) = BuildTestContextAndService();
-            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA", IsActive = false });
-            db.Plans.Add(new Plan { PlanName = "PlanB", PlanType = "TypeA", IsActive = true });
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = PlanCategory.TermLife, IsActive = false });
+            db.Plans.Add(new Plan { PlanName = "PlanB", PlanType = PlanCategory.TermLife, IsActive = true });
             await db.SaveChangesAsync();
 
-            var filter = new PlanFilterDto { PlanType = "TypeA" };
+            var filter = new PlanFilterDto { PlanType = PlanCategory.TermLife };
             var plans = await service.GetFilteredPlansAsync(filter, "Customer");
 
             Assert.Single(plans);
@@ -446,10 +447,10 @@ namespace Application.Tests.Services
         public async Task GetFilteredPlansAsync_ShouldThrowNotFoundException_WhenNoPlansMatchForAdmin()
         {
             var (db, service) = BuildTestContextAndService();
-            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA" });
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = PlanCategory.TermLife });
             await db.SaveChangesAsync();
 
-            var filter = new PlanFilterDto { PlanType = "RandomType" };
+            var filter = new PlanFilterDto { PlanType = PlanCategory.Savings };
 
             await Assert.ThrowsAsync<NotFoundException>(() => service.GetFilteredPlansAsync(filter, "Admin"));
         }
@@ -458,10 +459,10 @@ namespace Application.Tests.Services
         public async Task GetFilteredPlansAsync_ShouldThrowNotFoundException_WhenPlansMatchButAreInactiveForCustomer()
         {
             var (db, service) = BuildTestContextAndService();
-            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = "TypeA", IsActive = false });
+            db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = PlanCategory.TermLife, IsActive = false });
             await db.SaveChangesAsync();
 
-            var filter = new PlanFilterDto { PlanType = "TypeA" };
+            var filter = new PlanFilterDto { PlanType = PlanCategory.TermLife };
 
             // Throws because only inactive plans exist for this filter, and customer needs active ones
             await Assert.ThrowsAsync<NotFoundException>(() => service.GetFilteredPlansAsync(filter, "Customer"));

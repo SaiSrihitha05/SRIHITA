@@ -65,5 +65,11 @@ namespace Domain.Entities
 
         // Physical or digital proofs uploaded during the application
         public ICollection<Document> Documents { get; set; } = new List<Document>();
+
+        // ✅ NEW NAVIGATION
+        public ICollection<PolicyLoan> Loans { get; set; } = new List<PolicyLoan>();
+
+        // Ensure Payments navigation exists for surrender value calculation
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

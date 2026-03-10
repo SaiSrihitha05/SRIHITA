@@ -49,9 +49,8 @@ namespace Infrastructure.Repositories
         {
             var query = _context.Plans.AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(filter.PlanType))
-                query = query.Where(p =>
-                    p.PlanType.ToLower() == filter.PlanType.ToLower());
+            if (filter.PlanType.HasValue)
+                query = query.Where(p => p.PlanType == filter.PlanType.Value);
 
             if (filter.Age.HasValue)
                 query = query.Where(p =>
@@ -75,6 +74,37 @@ namespace Infrastructure.Repositories
             if (filter.IsReturnOfPremium.HasValue)
                 query = query.Where(p =>
                     p.IsReturnOfPremium == filter.IsReturnOfPremium.Value);
+
+            if (filter.HasDeathBenefit.HasValue)
+                query = query.Where(p =>
+                    p.HasDeathBenefit == filter.HasDeathBenefit.Value);
+
+            if (filter.HasBonus.HasValue)
+                query = query.Where(p =>
+                    p.HasBonus == filter.HasBonus.Value);
+
+            if (filter.HasLoanFacility.HasValue)
+                query = query.Where(p =>
+                    p.HasLoanFacility == filter.HasLoanFacility.Value);
+
+            if (filter.CoverageIncreasing.HasValue)
+                query = query.Where(p =>
+                    p.CoverageIncreasing == filter.CoverageIncreasing.Value);
+
+            if (filter.MaxLoanInterestRate.HasValue)
+                query = query.Where(p => p.LoanInterestRate <= filter.MaxLoanInterestRate.Value);
+
+            if (filter.MinMaxLoanPercentage.HasValue)
+                query = query.Where(p => p.MaxLoanPercentage >= filter.MinMaxLoanPercentage.Value);
+
+            if (filter.MaxLoanEligibleAfterYears.HasValue)
+                query = query.Where(p => p.LoanEligibleAfterYears <= filter.MaxLoanEligibleAfterYears.Value);
+
+            if (filter.MinCoverageUntilAge.HasValue)
+                query = query.Where(p => p.CoverageUntilAge >= filter.MinCoverageUntilAge.Value);
+
+            if (filter.MinCoverageIncreaseRate.HasValue)
+                query = query.Where(p => p.CoverageIncreaseRate >= filter.MinCoverageIncreaseRate.Value);
 
             return await query.ToListAsync();
         }

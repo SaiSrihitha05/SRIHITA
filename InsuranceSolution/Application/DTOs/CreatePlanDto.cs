@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using Domain.Enums;
 
 namespace Application.DTOs
 {
@@ -13,7 +10,7 @@ namespace Application.DTOs
         public string PlanName { get; set; } = string.Empty;
 
         [Required]
-        public string PlanType { get; set; } = string.Empty;
+        public PlanCategory PlanType { get; set; }
 
         [Required]
         public string Description { get; set; } = string.Empty;
@@ -55,6 +52,16 @@ namespace Application.DTOs
 
         [Range(0, 100, ErrorMessage = "Commission rate must be between 0 and 100")]
         public decimal CommissionRate { get; set; }
+
+        public bool HasDeathBenefit { get; set; }
+        public bool HasBonus { get; set; }
+        public bool HasLoanFacility { get; set; }
+        public bool CoverageIncreasing { get; set; }
+        public decimal CoverageIncreaseRate { get; set; }
+        public int CoverageUntilAge { get; set; }
+        public int LoanEligibleAfterYears { get; set; }
+        public decimal MaxLoanPercentage { get; set; }
+        public decimal LoanInterestRate { get; set; }
     }
 }
 

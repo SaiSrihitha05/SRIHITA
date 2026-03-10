@@ -70,14 +70,7 @@ export class MyPolicies implements OnInit {
 
   // 1. Check if the payment button should be visible
   canPayPremium(policy: any): boolean {
-    if (policy.status !== 'Active') return false;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(policy.nextDueDate);
-
-    // Show button if today is the due date or if we are past the due date (Grace Period)
-    return today >= dueDate;
+    return policy.status === 'Active';
   }
   getTotalSumAssured(policy: any): number {
     if (!policy || !policy.members) return 0;

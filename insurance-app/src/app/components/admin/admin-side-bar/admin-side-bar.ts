@@ -13,6 +13,7 @@ export class AdminSideBar {
     { label: 'Dashboard', icon: '📊', path: '/admin-dashboard' },
     { label: 'Insurance Plans', icon: '📋', path: '/admin-dashboard/plans' },
     { label: 'Policies', icon: '🛡️', path: '/admin-dashboard/policies' },
+    { label: 'Loan Management', icon: '🏦', path: '/admin-dashboard/loans' },
     { label: 'Claims', icon: '💰', path: '/admin-dashboard/claims' },
     { label: 'Manage Users', icon: '👥', path: '/admin-dashboard/users' },
     { label: 'Profile', icon: '👤', path: '/admin-dashboard/profile' }

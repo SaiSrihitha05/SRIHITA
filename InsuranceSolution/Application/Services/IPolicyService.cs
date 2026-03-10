@@ -41,6 +41,9 @@ namespace Application.Services
             List<IFormFile> customerDocuments,
             List<IFormFile> memberDocuments);
 
+        decimal GetCurrentCoverage(Domain.Entities.PolicyAssignment policy, Domain.Entities.PolicyMember member);
+        BonusCalculationResult GetBonusDetails(Domain.Entities.PolicyAssignment policy, Domain.Entities.PolicyMember member);
+
         Task<IEnumerable<PolicyResponseDto>> GetMyDraftsAsync(int customerId);
 
         Task DeleteDraftAsync(int policyId, int customerId);

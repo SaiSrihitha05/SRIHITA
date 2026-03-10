@@ -25,6 +25,16 @@ namespace Application.DTOs
         public string PremiumFrequency { get; set; } = string.Empty;
         public DateTime NextDueDate { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool PlanHasLoanFacility { get; set; }
+        public int PlanLoanEligibleAfterYears { get; set; }
+        public decimal PlanMaxLoanPercentage { get; set; }
+        public bool PlanCoverageIncreasing { get; set; }
+        public bool PlanHasBonus { get; set; }
+        public int PlanCoverageUntilAge { get; set; }
+        public decimal PlanCoverageIncreaseRate { get; set; }
+        public decimal PlanBonusRate { get; set; }
+        public decimal PlanTerminalBonusRate { get; set; }
+        public BonusCalculationResult BonusDetails { get; set; } = new();
         public List<PolicyMemberResponseDto> Members { get; set; } = new();
         public List<PolicyNomineeResponseDto> Nominees { get; set; } = new();
         public List<DocumentResponseDto> Documents { get; set; } = new();

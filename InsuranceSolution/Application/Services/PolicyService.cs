@@ -1,4 +1,4 @@
-﻿// Application/Services/PolicyService.cs
+// Application/Services/PolicyService.cs
 using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces;
@@ -59,20 +59,20 @@ namespace Application.Services
             if (!plan.IsActive)
                 throw new BadRequestException("Selected plan is not active");
 
-            if (dto.StartDate.Date <= DateTime.Today)
+            if (dto.StartDate.Date < DateTime.Today)
                 throw new BadRequestException(
-                    "Policy start date must be a future date");
+                    "Policy start date cannot be in the past");
             if (dto.StartDate.Date > DateTime.UtcNow.Date.AddYears(1))
                 throw new BadRequestException(
                     "Policy start date cannot be more than 1 year in the future");
 
-            // ── Validate TermYears against plan ──────────────────
+            // -- Validate TermYears against plan ------------------
             if (dto.TermYears < plan.MinTermYears || dto.TermYears > plan.MaxTermYears)
                 throw new BadRequestException(
                     $"Term years must be between {plan.MinTermYears} " +
                     $"and {plan.MaxTermYears} years for this plan");
 
-            // ── EndDate auto calculated from TermYears ────────────
+            // -- EndDate auto calculated from TermYears ------------
             var endDate = dto.StartDate.AddYears(dto.TermYears);
 
             // Validate member count against plan limit
@@ -116,7 +116,7 @@ namespace Application.Services
                 throw new BadRequestException(
                     $"Nominee share percentages must total 100. Current total: {totalShare}");
 
-            // ── Nominee count validation ──────────────────────────
+            // -- Nominee count validation --------------------------
             if (nominees.Count < plan.MinNominees)
                 throw new BadRequestException(
                     $"This plan requires at least {plan.MinNominees} nominee(s). " +
@@ -284,7 +284,7 @@ namespace Application.Services
 
         //  Private Helpers 
 
-        // ── Customer Documents ────────────────────────────────
+        // -- Customer Documents --------------------------------
         private async Task SaveCustomerDocumentsAsync(
             List<IFormFile> files,
             int policyId,
@@ -331,7 +331,7 @@ namespace Application.Services
             await _documentRepository.SaveChangesAsync();
         }
 
-        // ── Member Documents ──────────────────────────────────
+        // -- Member Documents ----------------------------------
         private async Task SaveMemberDocumentsAsync(
             List<IFormFile> files,
             int policyId,
@@ -475,26 +475,55 @@ namespace Application.Services
             };
         }
 
-        private static PolicyResponseDto MapToDto(PolicyAssignment p) => new()
+        private PolicyResponseDto MapToDto(PolicyAssignment p)
         {
-            Id = p.Id,
-            PolicyNumber = p.PolicyNumber,
-            CustomerId = p.CustomerId,
-            CustomerName = p.Customer?.Name ?? string.Empty,
-            AgentId = p.AgentId,
-            AgentName = p.Agent?.Name,
-            PlanId = p.PlanId,
-            PlanName = p.Plan?.PlanName ?? string.Empty,
-            StartDate = p.StartDate,
-            TermYears = p.TermYears,
-            EndDate = p.EndDate,
-            Status = p.Status.ToString(),
-            CommissionStatus = p.CommissionStatus.ToString(),
-            TotalPremiumAmount = p.TotalPremiumAmount,
-            PremiumFrequency = p.PremiumFrequency.ToString(),
-            NextDueDate = p.NextDueDate,
-            CreatedAt = p.CreatedAt,
-            Members = p.PolicyMembers?.Select(m => new PolicyMemberResponseDto
+            var dto = new PolicyResponseDto
+            {
+                Id = p.Id,
+                PolicyNumber = p.PolicyNumber,
+                CustomerId = p.CustomerId,
+                CustomerName = p.Customer?.Name ?? string.Empty,
+                AgentId = p.AgentId,
+                AgentName = p.Agent?.Name,
+                PlanId = p.PlanId,
+                PlanName = p.Plan?.PlanName ?? string.Empty,
+                StartDate = p.StartDate,
+                TermYears = p.TermYears,
+                EndDate = p.EndDate,
+                Status = p.Status.ToString(),
+                CommissionStatus = p.CommissionStatus.ToString(),
+                TotalPremiumAmount = p.TotalPremiumAmount,
+                PremiumFrequency = p.PremiumFrequency.ToString(),
+                NextDueDate = p.NextDueDate,
+                CreatedAt = p.CreatedAt,
+                PlanHasLoanFacility = p.Plan?.HasLoanFacility ?? false,
+                PlanLoanEligibleAfterYears = p.Plan?.LoanEligibleAfterYears ?? 0,
+                PlanMaxLoanPercentage = p.Plan?.MaxLoanPercentage ?? 0,
+                PlanCoverageIncreasing = p.Plan?.CoverageIncreasing ?? false,
+                PlanCoverageIncreaseRate = p.Plan?.CoverageIncreaseRate ?? 0,
+                PlanHasBonus = p.Plan?.HasBonus ?? false,
+                PlanBonusRate = p.Plan?.BonusRate ?? 0,
+                PlanTerminalBonusRate = p.Plan?.TerminalBonusRate ?? 0,
+                PlanCoverageUntilAge = p.Plan?.CoverageUntilAge ?? 0,
+                Nominees = p.PolicyNominees?.Select(n => new PolicyNomineeResponseDto
+                {
+                    Id = n.Id,
+                    NomineeName = n.NomineeName,
+                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
+                    ContactNumber = n.ContactNumber,
+                    SharePercentage = n.SharePercentage
+                }).ToList() ?? new(),
+                Documents = p.Documents?.Select(d => new DocumentResponseDto
+                {
+                    Id = d.Id,
+                    FileName = d.FileName,
+                    FilePath = d.FilePath,
+                    DocumentCategory = d.DocumentCategory,
+                    UploadedAt = d.UploadedAt
+                }).ToList() ?? new()
+            };
+
+            dto.Members = p.PolicyMembers?.Select(m => new PolicyMemberResponseDto
             {
                 Id = m.Id,
                 MemberName = m.MemberName,
@@ -502,29 +531,24 @@ namespace Application.Services
                 DateOfBirth = m.DateOfBirth,
                 Gender = m.Gender,
                 CoverageAmount = m.CoverageAmount,
+                CurrentCoverageAmount = GetCurrentCoverage(p, m),
+                YearsActive = (DateTime.UtcNow - p.StartDate).Days / 365,
                 IsSmoker = m.IsSmoker,
                 HasPreExistingDiseases = m.HasPreExistingDiseases,
                 DiseaseDescription = m.DiseaseDescription,
                 Occupation = m.Occupation,
                 IsPrimaryInsured = m.IsPrimaryInsured
-            }).ToList() ?? new(),
-            Nominees = p.PolicyNominees?.Select(n => new PolicyNomineeResponseDto
+            }).ToList() ?? new();
+
+            // Set bonus details for the primary insured if applicable
+            var primaryMember = p.PolicyMembers?.FirstOrDefault(m => m.IsPrimaryInsured);
+            if (primaryMember != null)
             {
-                Id = n.Id,
-                NomineeName = n.NomineeName,
-                RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
-                ContactNumber = n.ContactNumber,
-                SharePercentage = n.SharePercentage
-            }).ToList() ?? new(),
-            Documents = p.Documents?.Select(d => new DocumentResponseDto
-            {
-                Id = d.Id,
-                FileName = d.FileName,
-                FilePath = d.FilePath,
-                DocumentCategory = d.DocumentCategory,
-                UploadedAt = d.UploadedAt
-            }).ToList() ?? new()
-        };
+                dto.BonusDetails = GetBonusDetails(p, primaryMember);
+            }
+
+            return dto;
+        }
         public async Task CancelPendingPolicyAsync(int policyId, int customerId)
         {
             var policy = await _policyRepository.GetByIdAsync(policyId);
@@ -559,7 +583,7 @@ namespace Application.Services
                     throw new BadRequestException("Selected plan is not active");
             }
 
-            // Build draft policy — all validations are skipped
+            // Build draft policy � all validations are skipped
             var draft = new PolicyAssignment
             {
                 PolicyNumber = await _policyRepository
@@ -657,7 +681,7 @@ namespace Application.Services
             if (draft.StartDate != default && draft.TermYears > 0)
                 draft.EndDate = draft.StartDate.AddYears(draft.TermYears);
 
-            // Update members — replace all
+            // Update members � replace all
             if (dto.Members != null)
             {
                 draft.PolicyMembers = dto.Members.Select(m => new PolicyMember
@@ -676,7 +700,7 @@ namespace Application.Services
                 }).ToList();
             }
 
-            // Update nominees — replace all
+            // Update nominees � replace all
             if (dto.Nominees != null)
             {
                 draft.PolicyNominees = dto.Nominees.Select(n => new PolicyNominee
@@ -728,9 +752,9 @@ namespace Application.Services
             if (!plan.IsActive)
                 throw new BadRequestException("Selected plan is not active");
 
-            if (dto.StartDate.Date <= DateTime.Today)
+            if (dto.StartDate.Date < DateTime.Today)
                 throw new BadRequestException(
-                    "Policy start date must be a future date");
+                    "Policy start date cannot be in the past");
 
             if (dto.StartDate.Date > DateTime.UtcNow.Date.AddYears(1))
                 throw new BadRequestException(
@@ -790,7 +814,7 @@ namespace Application.Services
                     m.Gender,
                     dto.PremiumFrequency));
 
-            // Update draft → Pending
+            // Update draft ? Pending
             draft.PlanId = dto.PlanId;
             draft.StartDate = dto.StartDate;
             draft.TermYears = dto.TermYears;
@@ -885,6 +909,52 @@ namespace Application.Services
 
             _policyRepository.Delete(draft);
             await _policyRepository.SaveChangesAsync();
+        }
+
+        public BonusCalculationResult GetBonusDetails(PolicyAssignment policy, PolicyMember member)
+        {
+            if (policy.Plan == null || !policy.Plan.HasBonus || policy.Plan.BonusRate <= 0)
+                return new BonusCalculationResult();
+
+            var yearsActive = (DateTime.UtcNow - policy.StartDate).Days / 365;
+
+            if (yearsActive <= 0)
+                return new BonusCalculationResult();
+
+            var sumAssured = member.CoverageAmount;
+            var bonusPerYear = Math.Round(sumAssured * (policy.Plan.BonusRate / 100), 2);
+            var totalBonus = Math.Round(bonusPerYear * yearsActive, 2);
+            var terminalBonus = Math.Round(totalBonus * (policy.Plan.TerminalBonusRate / 100), 2);
+            var totalPayout = Math.Round(sumAssured + totalBonus + terminalBonus, 2);
+
+            return new BonusCalculationResult
+            {
+                SumAssured = sumAssured,
+                BonusPerYear = bonusPerYear,
+                YearsActive = yearsActive,
+                TotalBonus = totalBonus,
+                TerminalBonus = terminalBonus,
+                TotalMaturityPayout = totalPayout,
+                BonusRate = policy.Plan.BonusRate,
+                TerminalBonusRate = policy.Plan.TerminalBonusRate
+            };
+        }
+
+        public decimal GetCurrentCoverage(PolicyAssignment policy, PolicyMember member)
+        {
+            if (policy.Plan == null || !policy.Plan.CoverageIncreasing)
+                return member.CoverageAmount;
+
+            // Years since policy started
+            var years = (DateTime.UtcNow - policy.StartDate).Days / 365;
+            if (years <= 0) return member.CoverageAmount;
+
+            // Coverage increases by CoverageIncreaseRate each year (compound)
+            var increaseRate = policy.Plan.CoverageIncreaseRate / 100;
+            var currentCoverage = member.CoverageAmount * (decimal)Math.Pow((double)(1 + increaseRate), years);
+
+            // Cap at MaxCoverageAmount
+            return Math.Min(currentCoverage, policy.Plan.MaxCoverageAmount);
         }
     }
 }

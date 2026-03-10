@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ClaimService } from '../../../services/claim-service';
 
 @Component({
@@ -12,11 +13,13 @@ import { ClaimService } from '../../../services/claim-service';
 export class ClaimsOfficerClaims implements OnInit {
   private claimService = inject(ClaimService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   claims: any[] = [];
   loading = true;
   selectedClaim: any = null;
   showProcessModal = false;
+  submitting = false;
 
   // All statuses from enum for full officer flexibility
   statusOptions = [
@@ -55,13 +58,17 @@ export class ClaimsOfficerClaims implements OnInit {
 
   openProcessModal(claim: any) {
     this.selectedClaim = claim;
+    // Suggest net amount if loan exists
+    const suggestedAmount = claim.claimAmount - (claim.outstandingLoanAmount || 0);
+
     // Reset form
     this.processForm = {
       status: 'Settled',
       remarks: '',
-      settlementAmount: null
+      settlementAmount: suggestedAmount > 0 ? suggestedAmount : claim.claimAmount
     };
     this.showProcessModal = true;
+    this.submitting = false;
     this.cdr.detectChanges();
   }
 
@@ -95,14 +102,33 @@ export class ClaimsOfficerClaims implements OnInit {
       dto.settlementAmount = this.processForm.settlementAmount;
     }
 
+    this.submitting = true;
     this.claimService.processClaim(this.selectedClaim.id, dto).subscribe({
       next: () => {
-        alert(`Claim status updated to ${this.processForm.status} successfully!`);
-        this.closeModal();
-        this.loadMyClaims();
+        // 1. Close modal first to clean up the DOM
+        this.showProcessModal = false;
+        this.selectedClaim = null;
+
+        // 2. Stop the loading spinner
+        this.submitting = false;
+
+        // 3. Navigate BEFORE any alerts (Direct navigation as requested)
+        this.router.navigate(['/claims-officer-dashboard/my-claims']).then(navigated => {
+          if (navigated) {
+            console.log('Navigation successful');
+          } else {
+            console.error('Navigation failed. Check if the route exists in your AppRoutingModule');
+          }
+          // Always refresh data if we stayed on same page or navigated successfully
+          this.loadMyClaims();
+        });
+
+        this.cdr.detectChanges();
       },
       error: (err) => {
+        this.submitting = false;
         alert(err.error?.detail || 'Error updating claim status');
+        this.cdr.detectChanges();
       }
     });
   }

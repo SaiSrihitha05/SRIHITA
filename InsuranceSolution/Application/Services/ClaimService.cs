@@ -24,6 +24,8 @@ namespace Application.Services
         private readonly IEmailService _emailService;
         private readonly IWebHostEnvironment _environment;
         private readonly IPaymentRepository _paymentRepository;
+        private readonly ILoanRepository _loanRepository;
+        private readonly IPolicyService _policyService;
 
         public ClaimService(
             IClaimRepository claimRepository,
@@ -33,7 +35,9 @@ namespace Application.Services
             INotificationService notificationService,
             IEmailService emailService,
             IWebHostEnvironment environment,
-            IPaymentRepository paymentRepository)
+            IPaymentRepository paymentRepository,
+            ILoanRepository loanRepository,
+            IPolicyService policyService)
         {
             _claimRepository = claimRepository;
             _policyRepository = policyRepository;
@@ -43,6 +47,8 @@ namespace Application.Services
             _emailService = emailService;
             _environment = environment;
             _paymentRepository = paymentRepository;
+            _loanRepository = loanRepository;
+            _policyService = policyService;
         }
 
         // ── Scenario A — Customer files Death Claim ───────────
@@ -147,14 +153,6 @@ namespace Application.Services
                     throw new BadRequestException(
                         "Death certificate number is required for death claims");
 
-                if (string.IsNullOrWhiteSpace(dto.NomineeName))
-                    throw new BadRequestException(
-                        "Nominee name is required for death claims");
-
-                if (string.IsNullOrWhiteSpace(dto.NomineeContact))
-                    throw new BadRequestException(
-                        "Nominee contact is required for death claims");
-
                 if (dto.Documents == null || !dto.Documents.Any())
                     throw new BadRequestException(
                         "Supporting documents are required for death claims");
@@ -180,21 +178,32 @@ namespace Application.Services
                 }
             }
 
+            // ✅ Get current coverage (handles CoverageIncreasing)
+            var currentCoverage = _policyService.GetCurrentCoverage(policy, member);
+
+            // ✅ Get bonus details (handles HasBonus)
+            var bonusDetails = _policyService.GetBonusDetails(policy, member);
+
+            // ✅ Total claim = coverage + bonus
+            var totalClaimAmount = Math.Round(currentCoverage + bonusDetails.TotalBonus, 2);
+
             var claim = new InsuranceClaim
             {
                 PolicyAssignmentId = dto.PolicyAssignmentId,
-                PolicyMemberId = dto.PolicyMemberId,
+                PolicyMemberId = member.Id,
                 ClaimsOfficerId = null,
                 ClaimType = dto.ClaimType,
-                ClaimAmount = member.CoverageAmount,
+                ClaimAmount = totalClaimAmount,
                 NomineeName = nomineeName ?? string.Empty,
                 NomineeContact = nomineeContact ?? string.Empty,
                 DeathCertificateNumber = dto.DeathCertificateNumber,
                 FiledDate = DateTime.UtcNow,
                 Status = ClaimStatus.Submitted,
-                Remarks = isInGracePeriod
-                    ? $"{dto.Remarks} [Filed during grace period]"
-                    : dto.Remarks,
+                Remarks = $"Coverage: ₹{currentCoverage:N2}" +
+                          (bonusDetails.TotalBonus > 0 ? $" + Bonus: ₹{bonusDetails.TotalBonus:N2}" : "") +
+                          $" = Total: ₹{totalClaimAmount:N2}" +
+                          (isInGracePeriod ? " [Filed during grace period]" : "") +
+                          (string.IsNullOrWhiteSpace(dto.Remarks) ? "" : $" | Note: {dto.Remarks}"),
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -295,6 +304,19 @@ namespace Application.Services
                 {
                     policy.Status = PolicyStatus.Closed;
                     _policyRepository.Update(policy);
+
+                    // ✅ SYNC LOAN STATUS
+                    if (dto.Status == ClaimStatus.Settled)
+                    {
+                        var activeLoan = await _loanRepository.GetActiveLoanByPolicyAsync(policy.Id);
+                        if (activeLoan != null)
+                        {
+                            activeLoan.Status = LoanStatus.Adjusted;
+                            activeLoan.ClosedDate = DateTime.UtcNow;
+                            activeLoan.Remarks = $"Adjusted against claim #{claim.Id} settlement";
+                            _loanRepository.Update(activeLoan);
+                        }
+                    }
                 }
             }
             else if (dto.Status == ClaimStatus.Rejected)
@@ -308,14 +330,10 @@ namespace Application.Services
 
             _claimRepository.Update(claim);
 
-            claim.Remarks = dto.Remarks;
-            claim.ProcessedDate = DateTime.UtcNow;
-
-            _claimRepository.Update(claim);
-
-            // ── Save claim first, then policy ────────────────────
+            // ── Save claim first, then policy and loan ──────────
             await _claimRepository.SaveChangesAsync();      // ← claim saved
-            await _policyRepository.SaveChangesAsync();     // ← policy saved separately
+            await _policyRepository.SaveChangesAsync();     // ← policy saved
+            await _loanRepository.SaveChangesAsync();       // ← loan saved
 
             // ── Fetch fresh from DB after save ───────────────────
             var updated = await _claimRepository.GetByIdWithDetailsAsync(claimId);
@@ -347,7 +365,7 @@ namespace Application.Services
             return MapToDto(updated!);
         }
 
-        // ── Scenario B — Maturity (Background Service) ────────
+        // Maturity (Background Service) ────────
         public async Task ProcessMaturityClaimsAsync()
         {
             var maturedPolicies = await _policyRepository
@@ -377,19 +395,35 @@ namespace Application.Services
 
                 if (hasActiveClaim) continue;
 
+                // 🎁 Calculate bonus details
+                var bonusDetails = _policyService.GetBonusDetails(policy, primaryMember);
+                var currentCoverage = _policyService.GetCurrentCoverage(policy, primaryMember);
+
+                // Fetch outstanding loan
+                var activeLoan = await _loanRepository.GetActiveLoanByPolicyAsync(policy.Id);
+                var outstandingLoan = activeLoan?.OutstandingBalance ?? 0;
+
+                // Total payout = SA/CurrentCoverage + Bonus + Terminal Bonus - Loan
+                var grossClaimAmount = Math.Round(currentCoverage + bonusDetails.TotalBonus + bonusDetails.TerminalBonus, 2);
+                var netSettlement = Math.Round(grossClaimAmount - outstandingLoan, 2);
+
                 var maturityClaim = new InsuranceClaim
                 {
                     PolicyAssignmentId = policy.Id,
                     PolicyMemberId = primaryMember.Id,
                     ClaimType = ClaimType.Maturity,
-                    ClaimAmount = primaryMember.CoverageAmount,
+                    ClaimAmount = grossClaimAmount,
                     NomineeName = policy.Customer?.Name ?? string.Empty,
                     NomineeContact = policy.Customer?.Phone ?? string.Empty,
                     FiledDate = DateTime.UtcNow,
-                    Status = ClaimStatus.Approved,
-                    SettlementAmount = primaryMember.CoverageAmount,
+                    Status = ClaimStatus.Settled, // Auto-settle matured policies
+                    SettlementAmount = netSettlement,
                     ProcessedDate = DateTime.UtcNow,
-                    Remarks = "Auto-processed maturity benefit",
+                    Remarks = $"Auto-processed maturity. Coverage: ₹{currentCoverage:N2} " +
+                             $"+ Bonus: ₹{bonusDetails.TotalBonus:N2} " +
+                             $"+ Terminal: ₹{bonusDetails.TerminalBonus:N2}" +
+                             (outstandingLoan > 0 ? $" - Loan Deduction: ₹{outstandingLoan:N2}" : "") +
+                             $" = Net Payout: ₹{netSettlement:N2}",
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -399,6 +433,16 @@ namespace Application.Services
                 policy.Status = PolicyStatus.Matured;
                 _policyRepository.Update(policy);
 
+                // ✅ SYNC LOAN STATUS
+                if (activeLoan != null)
+                {
+                    activeLoan.Status = LoanStatus.Adjusted;
+                    activeLoan.ClosedDate = DateTime.UtcNow;
+                    activeLoan.Remarks = "Adjusted against maturity payout";
+                    _loanRepository.Update(activeLoan);
+                }
+
+                await _loanRepository.SaveChangesAsync();
                 await _claimRepository.SaveChangesAsync();
                 await _policyRepository.SaveChangesAsync();
 
@@ -407,8 +451,7 @@ namespace Application.Services
                     userId: policy.CustomerId,
                     title: "Policy Matured — Benefit Credited",
                     message: $"Your policy {policy.PolicyNumber} has matured. " +
-                             $"Maturity benefit of " +
-                             $"₹{primaryMember.CoverageAmount:N2} will be credited.",
+                             $"Total payout including bonuses: ₹{maturityClaim.SettlementAmount:N2} credited.",
                     type: NotificationType.PolicyStatusUpdate,
                     policyId: null,
                     claimId: maturityClaim.Id,
@@ -457,17 +500,22 @@ namespace Application.Services
         private async Task SaveClaimDocumentsAsync(
             List<IFormFile> files, int claimId, int uploadedByUserId)
         {
-            var folderPath = Path.Combine(
-                _environment.WebRootPath,
-                "uploads", "claims", claimId.ToString());
+            if (files == null || files.Count == 0) return;
 
-            Directory.CreateDirectory(folderPath);
+            var root = _environment?.WebRootPath ?? ".";
+            var folderPath = root.Replace("\\", "/") + "/uploads/claims/" + claimId;
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
 
             foreach (var file in files)
             {
-                var ext = Path.GetExtension(file.FileName);
+                var fileName = file?.FileName ?? "unknown.doc";
+                var ext = Path.GetExtension(fileName);
                 var uniqueName = $"ClaimDoc_{claimId}_{Guid.NewGuid()}{ext}";
-                var filePath = Path.Combine(folderPath, uniqueName);
+                var filePath = folderPath + "/" + uniqueName;
 
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
@@ -489,7 +537,7 @@ namespace Application.Services
             await _documentRepository.SaveChangesAsync();
         }
 
-        private static ClaimResponseDto MapToDto(InsuranceClaim c)
+        private ClaimResponseDto MapToDto(InsuranceClaim c)
         {
             var dto = new ClaimResponseDto
             {
@@ -501,7 +549,6 @@ namespace Application.Services
                 ClaimsOfficerId = c.ClaimsOfficerId,
                 ClaimsOfficerName = c.ClaimsOfficer?.Name,
                 ClaimType = c.ClaimType.ToString(),
-                ClaimAmount = c.ClaimAmount,
                 NomineeName = c.NomineeName,
                 NomineeContact = c.NomineeContact,
                 DeathCertificateNumber = c.DeathCertificateNumber,
@@ -521,6 +568,47 @@ namespace Application.Services
                 }).ToList() ?? new()
             };
 
+            // Force calculation of Dynamic Benefits if Policy Assignment is loaded
+            if (c.PolicyAssignment != null && c.PolicyMember != null)
+            {
+                try
+                {
+                    var currentCoverage = _policyService.GetCurrentCoverage(c.PolicyAssignment, c.PolicyMember);
+                    var bonusResult = _policyService.GetBonusDetails(c.PolicyAssignment, c.PolicyMember);
+
+                    dto.BaseCoverageAmount = currentCoverage;
+                    dto.AccumulatedBonus = bonusResult.TotalBonus;
+                    dto.TerminalBonus = bonusResult.TerminalBonus;
+
+                    // Always recalculate view-only ClaimAmount for pending cases to reflect latest bonuses
+                    if (c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.UnderReview)
+                    {
+                        dto.ClaimAmount = Math.Round(currentCoverage + bonusResult.TotalBonus, 2);
+                        if (c.ClaimType == ClaimType.Maturity)
+                        {
+                            dto.ClaimAmount = Math.Round(dto.ClaimAmount + bonusResult.TerminalBonus, 2);
+                        }
+                    }
+                    else
+                    {
+                        dto.ClaimAmount = Math.Round(c.ClaimAmount, 2);
+                    }
+                }
+                catch
+                {
+                    dto.ClaimAmount = c.ClaimAmount;
+                }
+            }
+            else
+            {
+                dto.ClaimAmount = c.ClaimAmount;
+            }
+
+            // Loan Info
+            var activeLoan = _loanRepository.GetActiveLoanByPolicyAsync(c.PolicyAssignmentId).GetAwaiter().GetResult();
+            dto.OutstandingLoanAmount = Math.Round(activeLoan?.OutstandingBalance ?? 0, 2);
+            dto.NetSettlementAmount = Math.Round(dto.ClaimAmount - dto.OutstandingLoanAmount, 2);
+
             // Calculate settlement breakdown if settled
             if (c.Status == ClaimStatus.Settled && c.SettlementAmount > 0 && c.PolicyAssignment?.PolicyNominees != null)
             {
@@ -528,7 +616,7 @@ namespace Application.Services
                 {
                     NomineeName = n.NomineeName,
                     SharePercentage = n.SharePercentage,
-                    SettlementAmount = (c.SettlementAmount.Value * n.SharePercentage) / 100
+                    SettlementAmount = Math.Round((c.SettlementAmount.Value * n.SharePercentage) / 100, 2)
                 }).ToList();
             }
 

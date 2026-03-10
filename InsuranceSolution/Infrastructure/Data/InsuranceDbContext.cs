@@ -24,6 +24,7 @@ namespace Infrastructure.Data
         public DbSet<PolicyMember> PolicyMembers { get; set; }
         public DbSet<PolicyNominee> PolicyNominees { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<PolicyLoan> PolicyLoans { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -84,6 +85,10 @@ namespace Infrastructure.Data
                 .Property(n => n.Type)
                 .HasConversion<string>();
 
+            builder.Entity<PolicyLoan>()
+                .Property(l => l.Status)
+                .HasConversion<string>();
+
             // Relationships
 
             builder.Entity<PolicyAssignment>()
@@ -136,8 +141,27 @@ namespace Infrastructure.Data
 
             builder.Entity<Payment>()
                 .HasOne(p => p.PolicyAssignment)
-                .WithMany()
+                .WithMany(p => p.Payments)
                 .HasForeignKey(p => p.PolicyAssignmentId);
+
+            builder.Entity<PolicyLoan>()
+                .HasOne(l => l.PolicyAssignment)
+                .WithMany(p => p.Loans)
+                .HasForeignKey(l => l.PolicyAssignmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<PolicyLoan>()
+                .HasOne(l => l.Customer)
+                .WithMany()
+                .HasForeignKey(l => l.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Payment>()
+                .HasOne(p => p.PolicyLoan)
+                .WithMany(l => l.Payments)
+                .HasForeignKey(p => p.PolicyLoanId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Document>()
                 .HasOne(d => d.PolicyAssignment)
@@ -199,6 +223,33 @@ namespace Infrastructure.Data
             builder.Entity<Plan>()
                 .Property(p => p.CommissionRate)
                 .HasColumnType("decimal(5,2)");
+
+            builder.Entity<Plan>()
+                .Property(p => p.CoverageIncreaseRate)
+                .HasColumnType("decimal(5,2)");
+
+            builder.Entity<Plan>()
+                .Property(p => p.MaxLoanPercentage)
+                .HasColumnType("decimal(5,2)");
+
+            builder.Entity<Plan>()
+                .Property(p => p.LoanInterestRate)
+                .HasColumnType("decimal(5,2)");
+
+            builder.Entity<PolicyLoan>(entity =>
+            {
+                entity.Property(l => l.LoanAmount).HasColumnType("decimal(18,2)");
+                entity.Property(l => l.InterestRate).HasColumnType("decimal(5,2)");
+                entity.Property(l => l.OutstandingBalance).HasColumnType("decimal(18,2)");
+                entity.Property(l => l.TotalInterestPaid).HasColumnType("decimal(18,2)");
+            });
+
+            builder.Entity<Payment>(entity =>
+            {
+                entity.Property(p => p.PrincipalPaid).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.InterestPaid).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.BalanceAfter).HasColumnType("decimal(18,2)");
+            });
         }
     }
 }

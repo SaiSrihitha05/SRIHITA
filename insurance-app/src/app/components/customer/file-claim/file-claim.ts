@@ -22,6 +22,13 @@ export class FileClaim implements OnInit {
   selectedFiles: File[] = [];
   submitAttempted = false;
 
+  // Preview fields
+  selectedMemberObj: any = null;
+  currentCoverage: number = 0;
+  bonusDetails: any = null;
+  totalClaimAmount: number = 0;
+  planHasBonus: boolean = false;
+
   claimData = {
     policyAssignmentId: 0,
     policyMemberId: 0,
@@ -35,7 +42,6 @@ export class FileClaim implements OnInit {
   ngOnInit() {
     const policyId = Number(this.route.snapshot.queryParams['policyId']);
 
-    // ← Add this check
     if (!policyId || policyId === 0) {
       alert('No policy selected. Please go back and select a policy.');
       this.router.navigate(['/customer-dashboard/my-policies']);
@@ -46,8 +52,11 @@ export class FileClaim implements OnInit {
       next: (data) => {
         this.policy = data;
         this.claimData.policyAssignmentId = policyId;
-        this.claimData.policyMemberId = data.members.find(
-          (m: any) => m.isPrimaryInsured)?.id;
+        const primary = data.members.find((m: any) => m.isPrimaryInsured);
+        if (primary) {
+          this.claimData.policyMemberId = primary.id;
+          this.onMemberSelected();
+        }
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -57,6 +66,23 @@ export class FileClaim implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  onMemberSelected() {
+    this.selectedMemberObj = this.policy.members.find(
+      (m: any) => m.id == this.claimData.policyMemberId
+    );
+
+    if (this.selectedMemberObj) {
+      this.currentCoverage = this.selectedMemberObj.currentCoverageAmount
+        || this.selectedMemberObj.coverageAmount;
+
+      this.bonusDetails = this.policy.bonusDetails;
+      this.planHasBonus = this.policy.planHasBonus;
+
+      // Total = coverage + bonus (Note: Terminal bonus is usually maturity only, so we stick to accumulated for death)
+      this.totalClaimAmount = this.currentCoverage + (this.bonusDetails?.totalBonus ?? 0);
+    }
   }
 
   onFileSelect(event: any) {
@@ -88,7 +114,6 @@ export class FileClaim implements OnInit {
 
     if (this.claimData.claimType === 'Death') {
       formData.append('DeathCertificateNumber', this.claimData.deathCertificateNumber);
-      // NomineeName and NomineeContact are now optional, backend will fetch from policy if missing
     }
 
     this.selectedFiles.forEach(file =>

@@ -72,10 +72,16 @@
               placeholder="e.g. Elite Shield Term Life">
           </div>
           <div>
-            <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">Plan Type</label>
-            <input name="planType" [(ngModel)]="currentPlan.planType" [disabled]="isViewOnly"
-              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-70"
-              placeholder="e.g. Term Insurance">
+            <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">Plan
+              Category</label>
+            <select name="planType" [(ngModel)]="currentPlan.planType" [disabled]="isViewOnly"
+              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-70">
+              <option value="TermLife">Term Life</option>
+              <option value="Endowment">Endowment</option>
+              <option value="Savings">Savings</option>
+              <option value="WholeLife">Whole Life</option>
+              <option value="Others">Others</option>
+            </select>
           </div>
           <div class="md:col-span-3">
             <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">Description</label>
@@ -176,20 +182,114 @@
           </div>
 
           <div class="flex flex-col gap-3 pb-2">
-            <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
-              <input type="checkbox" name="maturity" [(ngModel)]="currentPlan.hasMaturityBenefit"
-                [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600">
-              <span
-                class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Maturity
-                Benefit</span>
+            <div class="flex flex-wrap gap-4">
+              <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
+                <input type="checkbox" name="hasDeathBenefit" [(ngModel)]="currentPlan.hasDeathBenefit"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600">
+                <span
+                  class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Death
+                  Benefit</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
+                <input type="checkbox" name="hasBonus" [(ngModel)]="currentPlan.hasBonus" [disabled]="isViewOnly"
+                  class="accent-[#75013f] dark:accent-pink-600">
+                <span
+                  class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Bonus
+                  & Profits</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
+                <input type="checkbox" name="maturity" [(ngModel)]="currentPlan.hasMaturityBenefit"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600">
+                <span
+                  class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Maturity
+                  Benefit</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
+                <input type="checkbox" name="rop" [(ngModel)]="currentPlan.isReturnOfPremium" [disabled]="isViewOnly"
+                  class="accent-[#75013f] dark:accent-pink-600">
+                <span
+                  class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Return
+                  of Premium</span>
+              </label>
+            </div>
+            <div class="flex flex-wrap gap-4">
+              <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
+                <input type="checkbox" name="hasLoanFacility" [(ngModel)]="currentPlan.hasLoanFacility"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600">
+                <span
+                  class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Loan
+                  Facility</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
+                <input type="checkbox" name="coverageIncreasing" [(ngModel)]="currentPlan.coverageIncreasing"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600">
+                <span
+                  class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Coverage
+                  Increasing</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <!-- Standalone Maturity/Whole Life Column -->
+          <div class="space-y-2">
+            <label class="block text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
+              Coverage Until Age
             </label>
-            <label class="flex items-center gap-2 cursor-pointer group" [class.pointer-events-none]="isViewOnly">
-              <input type="checkbox" name="rop" [(ngModel)]="currentPlan.isReturnOfPremium" [disabled]="isViewOnly"
-                class="accent-[#75013f] dark:accent-pink-600">
-              <span
-                class="text-xs font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Return
-                of Premium</span>
+            <input type="number" name="coverageUntilAge" [(ngModel)]="currentPlan.coverageUntilAge"
+              [disabled]="isViewOnly"
+              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-70"
+              placeholder="e.g. 100 for Whole Life">
+            <p class="text-[9px] text-gray-400 italic font-medium mt-1">
+              Set to 0 for Fixed Term; 100 for Whole Life / Pension
+            </p>
+          </div>
+
+          <!-- Conditional Annual Increase Rate Column -->
+          <div *ngIf="currentPlan.coverageIncreasing"
+            class="p-4 bg-purple-50/50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-900/20 transition-all animate-in slide-in-from-top-2 duration-300">
+            <label
+              class="block text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">
+              Annual Increase Rate (%)
             </label>
+            <input type="number" name="increaseRate" [(ngModel)]="currentPlan.coverageIncreaseRate"
+              [disabled]="isViewOnly"
+              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-70">
+          </div>
+        </div>
+
+        <div *ngIf="currentPlan.hasLoanFacility"
+          class="space-y-4 p-5 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2rem] border border-blue-100 dark:border-blue-900/20 transition-all animate-in slide-in-from-top-4 duration-500">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-blue-600 dark:text-blue-400">🏦</span>
+            <h4 class="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest">Loan Facility
+              Parameters</h4>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-1">
+              <label
+                class="block text-[9px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wide">Eligible
+                After (Years)</label>
+              <input type="number" name="loanYrs" [(ngModel)]="currentPlan.loanEligibleAfterYears"
+                [disabled]="isViewOnly"
+                class="form-input-custom border-blue-200 dark:border-blue-800 dark:bg-gray-900 dark:text-white disabled:opacity-70">
+            </div>
+            <div class="space-y-1">
+              <label
+                class="block text-[9px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wide">Max
+                Loan (% of Surrender)</label>
+              <input type="number" name="loanPct" [(ngModel)]="currentPlan.maxLoanPercentage" [disabled]="isViewOnly"
+                class="form-input-custom border-blue-200 dark:border-blue-800 dark:bg-gray-900 dark:text-white disabled:opacity-70">
+            </div>
+            <div class="space-y-1">
+              <label
+                class="block text-[9px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wide">Loan
+                Interest Rate (%)</label>
+              <input type="number" name="loanInt" [(ngModel)]="currentPlan.loanInterestRate" [disabled]="isViewOnly"
+                class="form-input-custom border-blue-200 dark:border-blue-800 dark:bg-gray-900 dark:text-white disabled:opacity-70">
+            </div>
           </div>
         </div>
 

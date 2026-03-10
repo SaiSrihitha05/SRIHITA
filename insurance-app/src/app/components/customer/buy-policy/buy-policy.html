@@ -1,12 +1,10 @@
 <div class="max-w-6xl mx-auto font-lato py-10 px-4 print:p-0" *ngIf="selectedPlan">
-<a 
-(click)="goBack()"
-class="cursor-pointer px-6 py-3 rounded-xl border border-gray-300 
+  <a (click)="goBack()" class="cursor-pointer px-6 py-3 rounded-xl border border-gray-300 
 text-gray-700 dark:text-gray-200 font-semibold 
 hover:bg-gray-100 dark:hover:bg-gray-700 
 transition-all duration-200">
-Cancel
-</a>
+    Cancel
+  </a>
   <div class="flex items-center justify-center gap-4 mb-12 print:hidden transition-all">
     <div *ngFor="let s of [1,2,3,4]" class="flex items-center">
       <div
@@ -47,26 +45,26 @@ Cancel
         <div class="space-y-3">
           <label class="block text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Policy
             Start Date</label>
-          <input type="date" [(ngModel)]="policyData.startDate"
+          <input type="date" [(ngModel)]="policyData.startDate" [min]="today"
             class="w-full p-5 bg-[#f5f2ef] dark:bg-gray-900/50 dark:text-gray-100 rounded-3xl border-none outline-none focus:ring-2 focus:ring-[#75013f] dark:focus:ring-pink-600 transition-colors">
           <p *ngIf="!isFutureDate()" class="text-[13px] text-red-500 dark:text-red-400 font-bold">⚠️ Start date must be
             in the future.</p>
-            <p *ngIf="!policyData.startDate" class="text-[13px] text-red-500 font-bold">
-    ⚠️ Selection required to continue.
-  </p>
+          <p *ngIf="!policyData.startDate" class="text-[13px] text-red-500 font-bold">
+            ⚠️ Selection required to continue.
+          </p>
         </div>
 
-        <div class="space-y-3">
+        <div class="space-y-3" *ngIf="!isWholeLifePlan">
           <label class="block text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Policy
             Term (Years)</label>
           <input type="number" [(ngModel)]="policyData.termYears"
             class="w-full p-5 bg-[#f5f2ef] dark:bg-gray-900/50 dark:text-gray-100 rounded-3xl border-none outline-none focus:ring-2 focus:ring-[#75013f] dark:focus:ring-pink-600 transition-colors">
           <p class="text-[9px] text-gray-500 dark:text-gray-400">Available Range: {{selectedPlan.minTermYears}} to
             {{selectedPlan.maxTermYears}} Years.</p>
-<p *ngIf="policyData.termYears < selectedPlan.minTermYears || policyData.termYears > selectedPlan.maxTermYears"
-     class="text-[13px] text-red-500 font-bold animate-pulse">
-    ⚠️ Plan requires {{selectedPlan.minTermYears}} to {{selectedPlan.maxTermYears}} years.
-  </p>
+          <p *ngIf="policyData.termYears < selectedPlan.minTermYears || policyData.termYears > selectedPlan.maxTermYears"
+            class="text-[13px] text-red-500 font-bold animate-pulse">
+            ⚠️ Plan requires {{selectedPlan.minTermYears}} to {{selectedPlan.maxTermYears}} years.
+          </p>
         </div>
 
         <div class="space-y-3">
@@ -74,10 +72,9 @@ Cancel
             Insured Members</label>
           <input type="number" [(ngModel)]="numMembers" (change)="syncMembers()"
             class="w-full p-5 bg-[#f5f2ef] dark:bg-gray-900/50 dark:text-gray-100 rounded-3xl border-none outline-none focus:ring-2 focus:ring-[#75013f] dark:focus:ring-pink-600 transition-colors">
-<p *ngIf="numMembers > selectedPlan.maxPolicyMembersAllowed"
-     class="text-[13px] text-red-500 font-bold">
-    ⚠️ This plan is capped at {{selectedPlan.maxPolicyMembersAllowed}} members.
-  </p>
+          <p *ngIf="numMembers > selectedPlan.maxPolicyMembersAllowed" class="text-[13px] text-red-500 font-bold">
+            ⚠️ This plan is capped at {{selectedPlan.maxPolicyMembersAllowed}} members.
+          </p>
         </div>
 
         <div class="space-y-3">
@@ -91,114 +88,121 @@ Cancel
       </div>
     </div>
 
-<div *ngIf="step === 2"
-  class="p-12 space-y-12 overflow-y-auto max-h-[75vh] animate-in slide-in-from-right duration-500">
-  <div class="border-b dark:border-gray-700 pb-4 transition-colors">
-    <h2 class="text-3xl font-black text-[#75013f] dark:text-pink-300">Step 2: Insured Members & Documents</h2>
-  </div>
-
-  <div *ngFor="let m of members; let i = index"
-    class="p-8 bg-gray-50 dark:bg-gray-900 rounded-[2.5rem] relative border border-gray-100 dark:border-gray-700 shadow-sm space-y-8 transition-colors duration-300">
-    <span
-      class="absolute top-6 right-10 text-[9px] font-black py-1 px-4 bg-white dark:bg-gray-800 rounded-full border dark:border-gray-700 text-[#75013f] dark:text-pink-300 uppercase tracking-widest shadow-sm">
-      {{ m.IsPrimaryInsured ? 'Primary Insured' : 'Dependent ' + i }}
-    </span>
-
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div class="space-y-2">
-        <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Legal Name <span class="text-red-500">*</span></label>
-        <input [(ngModel)]="m.MemberName" required
-          class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
-        <p *ngIf="isSubmitted && !m.MemberName" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
+    <div *ngIf="step === 2"
+      class="p-12 space-y-12 overflow-y-auto max-h-[75vh] animate-in slide-in-from-right duration-500">
+      <div class="border-b dark:border-gray-700 pb-4 transition-colors">
+        <h2 class="text-3xl font-black text-[#75013f] dark:text-pink-300">Step 2: Insured Members & Documents</h2>
       </div>
 
-      <div class="space-y-2">
-        <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">DOB <span class="text-red-500">*</span></label>
-        <input [(ngModel)]="m.DateOfBirth" type="date" required
-          class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
-<p *ngIf="isSubmitted && !m.DateOfBirth" 
-   class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
-<p *ngIf="isSubmitted && m.DateOfBirth && 
+      <div *ngFor="let m of members; let i = index"
+        class="p-8 bg-gray-50 dark:bg-gray-900 rounded-[2.5rem] relative border border-gray-100 dark:border-gray-700 shadow-sm space-y-8 transition-colors duration-300">
+        <span
+          class="absolute top-6 right-10 text-[9px] font-black py-1 px-4 bg-white dark:bg-gray-800 rounded-full border dark:border-gray-700 text-[#75013f] dark:text-pink-300 uppercase tracking-widest shadow-sm">
+          {{ m.IsPrimaryInsured ? 'Primary Insured' : 'Dependent ' + i }}
+        </span>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div class="space-y-2">
+            <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Legal Name <span
+                class="text-red-500">*</span></label>
+            <input [(ngModel)]="m.MemberName" required
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+            <p *ngIf="isSubmitted && !m.MemberName" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">DOB <span
+                class="text-red-500">*</span></label>
+            <input [(ngModel)]="m.DateOfBirth" type="date" [max]="yesterday" required
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+            <p *ngIf="isSubmitted && !m.DateOfBirth" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
+            <p *ngIf="isSubmitted && m.DateOfBirth && 
          (getAge(m.DateOfBirth) < selectedPlan.minAge || 
-          getAge(m.DateOfBirth) > selectedPlan.maxAge)"
-   class="text-[9px] text-red-500 font-bold">
-  ⚠️ Age must be {{selectedPlan.minAge}}—{{selectedPlan.maxAge}}
-</p>
+          getAge(m.DateOfBirth) > selectedPlan.maxAge)" class="text-[9px] text-red-500 font-bold">
+              ⚠️ Age must be {{selectedPlan.minAge}}—{{selectedPlan.maxAge}}
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="block text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Gender <span
+                class="text-red-500">*</span></label>
+            <select [(ngModel)]="m.Gender" required
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-2xl border-none shadow-inner text-sm outline-none focus:ring-2 focus:ring-[#75013f]/20">
+              <option value="Male" class="dark:bg-gray-800">Male</option>
+              <option value="Female" class="dark:bg-gray-800">Female</option>
+              <option value="Other" class="dark:bg-gray-800">Other</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Coverage Amt (₹) <span
+                class="text-red-500">*</span></label>
+            <input [(ngModel)]="m.CoverageAmount" type="number" required
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+            <p *ngIf="isSubmitted&&(m.CoverageAmount < selectedPlan.minCoverageAmount || m.CoverageAmount > selectedPlan.maxCoverageAmount)"
+              class="text-[9px] text-red-500 font-bold">
+              ⚠️ Min: ₹{{selectedPlan.minCoverageAmount | number}} | Max: ₹{{selectedPlan.maxCoverageAmount | number}}
+            </p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Occupation <span
+                class="text-red-500">*</span></label>
+            <input [(ngModel)]="m.Occupation" required
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+            <p *ngIf="isSubmitted&&!m.Occupation" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-6 items-center pt-6 border-t dark:border-gray-700 transition-colors">
+          <div class="flex gap-6">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" [(ngModel)]="m.IsSmoker" class="w-5 h-5 accent-[#75013f] dark:accent-pink-600">
+              <span class="text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Smoker</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" [(ngModel)]="m.HasPreExistingDiseases"
+                class="w-5 h-5 accent-[#75013f] dark:accent-pink-600">
+              <span class="text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Medical History</span>
+            </label>
+          </div>
+          <div class="flex-1 space-y-2">
+            <label class="text-[13px] font-black text-[#75013f] dark:text-pink-300 uppercase">
+              {{ m.IsPrimaryInsured ? 'Customer Identity Proof' : 'Dependent Identity Proof' }} <span
+                class="text-red-500">*</span>
+            </label>
+            <input type="file" (change)="onFileChange($event, m.IsPrimaryInsured ? 'id' : 'member', i)" required
+              class="block text-[13px] dark:text-gray-300">
+            <p *ngIf="isSubmitted&&((m.IsPrimaryInsured && !identityProof) || (!m.IsPrimaryInsured && !memberDocuments[i]))"
+              class="text-[9px] text-red-400 font-bold">⚠️ Upload Required</p>
+          </div>
+        </div>
       </div>
 
-      <div class="space-y-2">
-        <label class="block text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Gender <span class="text-red-500">*</span></label>
-        <select [(ngModel)]="m.Gender" required
-          class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-2xl border-none shadow-inner text-sm outline-none focus:ring-2 focus:ring-[#75013f]/20">
-          <option value="Male" class="dark:bg-gray-800">Male</option>
-          <option value="Female" class="dark:bg-gray-800">Female</option>
-          <option value="Other" class="dark:bg-gray-800">Other</option>
-        </select>
-      </div>
-
-      <div class="space-y-2">
-        <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Coverage Amt (₹) <span class="text-red-500">*</span></label>
-        <input [(ngModel)]="m.CoverageAmount" type="number" required
-          class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
-        <p *ngIf="isSubmitted&&(m.CoverageAmount < selectedPlan.minCoverageAmount || m.CoverageAmount > selectedPlan.maxCoverageAmount)"
-          class="text-[9px] text-red-500 font-bold">
-          ⚠️ Min: ₹{{selectedPlan.minCoverageAmount | number}} | Max: ₹{{selectedPlan.maxCoverageAmount | number}}
+      <div
+        class="p-10 border-4 border-dotted border-gray-100 dark:border-gray-700 rounded-[3rem] text-center bg-gray-50/50 dark:bg-gray-900/50 transition-colors duration-300">
+        <label class="block text-xs font-black text-[#75013f] dark:text-pink-300 uppercase mb-4">
+          Customer Income Proof (Required for Policy Holder) <span class="text-red-500">*</span>
+        </label>
+        <input type="file" (change)="onFileChange($event, 'income')" required
+          class="mx-auto block text-xs dark:text-gray-300">
+        <p *ngIf="isSubmitted&&!incomeProof" class="text-[9px] text-red-400 font-bold mt-2">⚠️ Income proof is mandatory
         </p>
       </div>
-      
-      <div class="space-y-2">
-        <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Occupation <span class="text-red-500">*</span></label>
-        <input [(ngModel)]="m.Occupation" required
-          class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
-        <p *ngIf="isSubmitted&&!m.Occupation" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
+
+      <div
+        class="mt-10 p-8 bg-[#75013f] dark:bg-pink-900/40 rounded-[2.5rem] text-white shadow-xl flex justify-between items-center animate-in fade-in zoom-in duration-700 border dark:border-pink-800 transition-colors">
+        <div>
+          <h3 class="text-xs font-black uppercase tracking-widest opacity-70">Estimated Premium</h3>
+          <p class="text-[13px] opacity-50">Based on {{policyData.premiumFrequency}} payment cycle</p>
+        </div>
+        <div class="text-right">
+          <span class="text-4xl font-black">₹{{ calculateTotalPremium() | number:'1.2-2' }}</span>
+          <p class="text-[9px] font-bold uppercase tracking-tighter mt-1 italic opacity-60">* Includes 18% GST & Risk
+            Surcharges</p>
+        </div>
       </div>
     </div>
-
-    <div class="flex flex-col md:flex-row gap-6 items-center pt-6 border-t dark:border-gray-700 transition-colors">
-      <div class="flex gap-6">
-        <label class="flex items-center gap-2">
-          <input type="checkbox" [(ngModel)]="m.IsSmoker"
-            class="w-5 h-5 accent-[#75013f] dark:accent-pink-600">
-          <span class="text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Smoker</span>
-        </label>
-        <label class="flex items-center gap-2">
-          <input type="checkbox" [(ngModel)]="m.HasPreExistingDiseases"
-            class="w-5 h-5 accent-[#75013f] dark:accent-pink-600">
-          <span class="text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Medical History</span>
-        </label>
-      </div>
-      <div class="flex-1 space-y-2">
-        <label class="text-[13px] font-black text-[#75013f] dark:text-pink-300 uppercase">
-          {{ m.IsPrimaryInsured ? 'Customer Identity Proof' : 'Dependent Identity Proof' }} <span class="text-red-500">*</span>
-        </label>
-        <input type="file" (change)="onFileChange($event, m.IsPrimaryInsured ? 'id' : 'member', i)" required
-          class="block text-[13px] dark:text-gray-300">
-        <p *ngIf="isSubmitted&&((m.IsPrimaryInsured && !identityProof) || (!m.IsPrimaryInsured && !memberDocuments[i]))" class="text-[9px] text-red-400 font-bold">⚠️ Upload Required</p>
-      </div>
-    </div>
-  </div>
-
-  <div
-    class="p-10 border-4 border-dotted border-gray-100 dark:border-gray-700 rounded-[3rem] text-center bg-gray-50/50 dark:bg-gray-900/50 transition-colors duration-300">
-    <label class="block text-xs font-black text-[#75013f] dark:text-pink-300 uppercase mb-4">
-      Customer Income Proof (Required for Policy Holder) <span class="text-red-500">*</span>
-    </label>
-    <input type="file" (change)="onFileChange($event, 'income')" required class="mx-auto block text-xs dark:text-gray-300">
-    <p *ngIf="isSubmitted&&!incomeProof" class="text-[9px] text-red-400 font-bold mt-2">⚠️ Income proof is mandatory</p>
-  </div>
-
-  <div
-    class="mt-10 p-8 bg-[#75013f] dark:bg-pink-900/40 rounded-[2.5rem] text-white shadow-xl flex justify-between items-center animate-in fade-in zoom-in duration-700 border dark:border-pink-800 transition-colors">
-    <div>
-      <h3 class="text-xs font-black uppercase tracking-widest opacity-70">Estimated Premium</h3>
-      <p class="text-[13px] opacity-50">Based on {{policyData.premiumFrequency}} payment cycle</p>
-    </div>
-    <div class="text-right">
-      <span class="text-4xl font-black">₹{{ calculateTotalPremium() | number:'1.2-2' }}</span>
-      <p class="text-[9px] font-bold uppercase tracking-tighter mt-1 italic opacity-60">* Includes 18% GST & Risk Surcharges</p>
-    </div>
-  </div>
-</div>
 
     <div *ngIf="step === 3" class="p-12 space-y-12 animate-in slide-in-from-right duration-500">
       <div class="border-b dark:border-gray-700 pb-4 transition-colors">
@@ -209,39 +213,38 @@ Cancel
         <div class="space-y-2"><label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Nominee
             Name</label><input [(ngModel)]="n.NomineeName"
             class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-2xl border-none text-sm">
-            <p *ngIf="isSubmitted && !n.NomineeName"
-   class="text-[9px] text-red-400 font-bold">
-  ⚠️ Required
-</p>
-          </div>
+          <p *ngIf="isSubmitted && !n.NomineeName" class="text-[9px] text-red-400 font-bold">
+            ⚠️ Required
+          </p>
+        </div>
 
         <div class="space-y-2"><label
             class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Relationship</label><input
             [(ngModel)]="n.RelationshipToPolicyHolder"
             class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-2xl border-none text-sm">
-          <p *ngIf="isSubmitted && !n.RelationshipToPolicyHolder"
-   class="text-[9px] text-red-400 font-bold">
-  ⚠️ Required
-</p>
-</div>
+          <p *ngIf="isSubmitted && !n.RelationshipToPolicyHolder" class="text-[9px] text-red-400 font-bold">
+            ⚠️ Required
+          </p>
+        </div>
         <div class="space-y-2"><label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Contact
             No.</label><input [(ngModel)]="n.ContactNumber"
             class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-2xl border-none text-sm">
-          <p *ngIf="isSubmitted && !n.ContactNumber"
-   class="text-[9px] text-red-400 font-bold">
-  ⚠️ Required
-</p>
-<p *ngIf="isSubmitted && n.ContactNumber && n.ContactNumber.length !== 10"
-   class="text-[9px] text-red-500 font-bold">
-  ⚠️ Must be 10 digits
-</p></div>
+          <p *ngIf="isSubmitted && !n.ContactNumber" class="text-[9px] text-red-400 font-bold">
+            ⚠️ Required
+          </p>
+          <p *ngIf="isSubmitted && n.ContactNumber && n.ContactNumber.length !== 10"
+            class="text-[9px] text-red-500 font-bold">
+            ⚠️ Must be 10 digits
+          </p>
+        </div>
         <div class="space-y-2"><label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Share
             (%)</label><input [(ngModel)]="n.SharePercentage" type="number"
             class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-2xl border-none text-sm">
           <p *ngIf="isSubmitted && (!n.SharePercentage || n.SharePercentage <= 0)"
-   class="text-[9px] text-red-400 font-bold">
-  ⚠️ Required
-</p></div>
+            class="text-[9px] text-red-400 font-bold">
+            ⚠️ Required
+          </p>
+        </div>
       </div>
       <p *ngIf="getTotalNomineeShare() !== 100" class="text-xs text-red-500 dark:text-red-400 font-bold text-center">⚠️
         Total share must be 100% (Current: {{getTotalNomineeShare()}}%)</p>
@@ -262,7 +265,7 @@ Cancel
           <p class="text-4xl font-bold mb-10">{{selectedPlan.planName}}</p>
           <div class="grid grid-cols-2 gap-y-10 border-t border-white/20 pt-10 text-xs uppercase font-black">
             <div><label class="opacity-60 block mb-1">Term</label>
-              <p class="text-xl">{{policyData.termYears}} Yrs</p>
+              <p class="text-xl">{{ isWholeLifePlan ? 'Lifelong' : policyData.termYears + ' Yrs' }}</p>
             </div>
             <div><label class="opacity-60 block mb-1">Billing</label>
               <p class="text-xl">{{policyData.premiumFrequency}}</p>
@@ -301,57 +304,49 @@ Cancel
       </div>
     </div>
 
-<!-- In the bottom nav div, between the draft status and Continue button -->
-<div class="p-10 bg-gray-50 dark:bg-gray-900/50 border-t dark:border-gray-700 
+    <!-- In the bottom nav div, between the draft status and Continue button -->
+    <div class="p-10 bg-gray-50 dark:bg-gray-900/50 border-t dark:border-gray-700 
             flex justify-between items-center mt-auto print:hidden transition-colors">
-  
-  <!-- Back Button -->
-  <button *ngIf="step > 1" (click)="prevStep()"
-    class="px-10 py-4 bg-white dark:bg-gray-800 border-2 dark:border-gray-700 
+
+      <!-- Back Button -->
+      <button *ngIf="step > 1" (click)="prevStep()" class="px-10 py-4 bg-white dark:bg-gray-800 border-2 dark:border-gray-700 
            font-black text-[13px] uppercase rounded-2xl text-gray-400 
            hover:bg-gray-100 transition-all">
-    Back
-  </button>
+        Back
+      </button>
 
-  <div class="flex-1"></div>
+      <div class="flex-1"></div>
 
-  <!-- Draft Status Indicator -->
-  <div class="flex items-center gap-4">
-    <div *ngIf="isSavingDraft" 
-         class="flex items-center gap-2 text-[13px] text-gray-400 uppercase font-black">
-      <div class="w-2 h-2 bg-amber-400 rounded-full animate-ping"></div>
-      Saving Draft...
-    </div>
-    <span *ngIf="!isSavingDraft && draftId" 
-          class="text-[13px] text-green-500 font-black uppercase">
-      ✓ Progress Saved
-    </span>
+      <!-- Draft Status Indicator -->
+      <div class="flex items-center gap-4">
+        <div *ngIf="isSavingDraft" class="flex items-center gap-2 text-[13px] text-gray-400 uppercase font-black">
+          <div class="w-2 h-2 bg-amber-400 rounded-full animate-ping"></div>
+          Saving Draft...
+        </div>
+        <span *ngIf="!isSavingDraft && draftId" class="text-[13px] text-green-500 font-black uppercase">
+          ✓ Progress Saved
+        </span>
 
-    <button (click)="saveOrUpdateDraft()"
-            [disabled]="isSavingDraft"
-            class="px-8 py-4 border-2 border-[#75013f] text-[#75013f] 
+        <button (click)="saveOrUpdateDraft()" [disabled]="isSavingDraft" class="px-8 py-4 border-2 border-[#75013f] text-[#75013f] 
                    rounded-2xl font-black text-[13px] uppercase 
                    hover:bg-[#75013f] hover:text-white transition-all
                    disabled:opacity-40 disabled:cursor-not-allowed">
-      {{ isSavingDraft ? 'Saving...' : '💾 Save Draft' }}
-    </button>
-  </div>
+          {{ isSavingDraft ? 'Saving...' : '💾 Save Draft' }}
+        </button>
+      </div>
 
-  <!-- Continue / Submit -->
-  <div class="ml-4">
-    <button *ngIf="step < 4" (click)="nextStep()"
-      class="px-12 py-4 bg-[#75013f] text-white font-black text-[13px] 
+      <!-- Continue / Submit -->
+      <div class="ml-4">
+        <button *ngIf="step < 4" (click)="nextStep()" class="px-12 py-4 bg-[#75013f] text-white font-black text-[13px] 
              uppercase rounded-2xl shadow-xl transition-all">
-      Continue &rarr;
-    </button>
-    <button *ngIf="step === 4" (click)="submit()"
-            [disabled]="processing"
-            class="px-16 py-5 bg-[#fe3082] text-white font-black text-[13px] 
+          Continue &rarr;
+        </button>
+        <button *ngIf="step === 4" (click)="submit()" [disabled]="processing" class="px-16 py-5 bg-[#fe3082] text-white font-black text-[13px] 
                    uppercase rounded-3xl shadow-2xl disabled:opacity-30 transition-all">
-      {{ processing ? 'Processing...' : 'Finalize & Purchase' }}
-    </button>
-  </div>
+          {{ processing ? 'Processing...' : 'Finalize & Purchase' }}
+        </button>
+      </div>
 
-</div>
+    </div>
   </div>
 </div>

@@ -38,7 +38,16 @@ export class AdminPlans implements OnInit {
     minNominees: 1,
     maxNominees: 5,
     commissionRate: 10,
-    isActive: true
+    isActive: true,
+    hasDeathBenefit: true,
+    hasBonus: false,
+    hasLoanFacility: false,
+    coverageIncreasing: false,
+    coverageIncreaseRate: 0,
+    coverageUntilAge: 0,
+    loanEligibleAfterYears: 0,
+    maxLoanPercentage: 0,
+    loanInterestRate: 0
   };
 
   ngOnInit() { this.loadPlans(); }
@@ -63,7 +72,16 @@ export class AdminPlans implements OnInit {
       minAge: 18,
       isActive: true,
       minNominees: 1,
-      maxNominees: 5
+      maxNominees: 5,
+      hasDeathBenefit: true,
+      hasBonus: false,
+      hasLoanFacility: false,
+      coverageIncreasing: false,
+      coverageIncreaseRate: 0,
+      coverageUntilAge: 0,
+      loanEligibleAfterYears: 0,
+      maxLoanPercentage: 0,
+      loanInterestRate: 0
     };
     this.showModal = true;
   }

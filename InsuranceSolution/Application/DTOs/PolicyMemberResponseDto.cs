@@ -18,5 +18,7 @@ namespace Application.DTOs
         public string? DiseaseDescription { get; set; }
         public string Occupation { get; set; } = string.Empty;
         public bool IsPrimaryInsured { get; set; }
+        public decimal CurrentCoverageAmount { get; set; }
+        public int YearsActive { get; set; }
     }
 }

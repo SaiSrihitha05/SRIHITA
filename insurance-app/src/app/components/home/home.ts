@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +11,9 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './home.html'
 })
 export class Home {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   // Simple properties instead of signals
   name: string = '';
   email: string = '';
@@ -17,6 +22,11 @@ export class Home {
 
   isSubmitting: boolean = false;
   isSubmitted: boolean = false;
+  showExpertAlert: boolean = false;
+
+  toggleExpertAlert() {
+    this.showExpertAlert = !this.showExpertAlert;
+  }
 
   /* Life insurance specific benefits shown in the "Why Us" section */
   whyUsCards = [
@@ -47,5 +57,13 @@ export class Home {
       this.phone = '';
       this.message = '';
     }, 1500);
+  }
+
+  navigateToExplore() {
+    if (this.authService.isLoggedIn() && this.authService.getUserRole() === 'Customer') {
+      this.router.navigate(['/customer-dashboard/explore-plans']);
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 }

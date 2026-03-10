@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Threading.Tasks;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -13,8 +11,8 @@ namespace Domain.Entities
         // The user-friendly name, e.g., "Term Life Protection"
         public string PlanName { get; set; } = string.Empty;
 
-        // Categorization for filtering (e.g., Retirement, Education, Health)
-        public string PlanType { get; set; } = string.Empty;
+        // Categorization for filtering (e.g., TermLife, Endowment, Savings, WholeLife, Others)
+        public PlanCategory PlanType { get; set; }
 
         // A detailed explanation of what the plan offers
         public string Description { get; set; } = string.Empty;
@@ -58,5 +56,19 @@ namespace Domain.Entities
 
         // The percentage of premium that goes to the sales agent
         public decimal CommissionRate { get; set; }
+
+
+        public bool HasDeathBenefit { get; set; } = true;
+        public bool HasBonus { get; set; } = false;
+        public bool HasLoanFacility { get; set; } = false;
+        public bool CoverageIncreasing { get; set; } = false;
+        public decimal CoverageIncreaseRate { get; set; } = 0;
+        public int CoverageUntilAge { get; set; } = 0;
+        public int LoanEligibleAfterYears { get; set; } = 0;
+        public decimal MaxLoanPercentage { get; set; } = 0;
+        public decimal LoanInterestRate { get; set; } = 0;
+
+        public decimal BonusRate { get; set; } = 0;
+        public decimal TerminalBonusRate { get; set; } = 0;
     }
 }

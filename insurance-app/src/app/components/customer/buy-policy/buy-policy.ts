@@ -24,6 +24,8 @@ export class BuyPolicy implements OnInit {
   draftId: number | null = null;
   isSavingDraft = false;
   processing: boolean = false;
+  today: string = '';
+  yesterday: string = '';
 
   // Section 1: Basic Config (Matching PolicyService.cs logic)
   numMembers: number = 1;
@@ -37,12 +39,29 @@ export class BuyPolicy implements OnInit {
   members: any[] = [];
   nominees: any[] = [];
 
-  // Files for [FromForm]
   identityProof: File | null = null;
   incomeProof: File | null = null;
   memberDocuments: File[] = [];
 
+  get isWholeLifePlan(): boolean {
+    return this.selectedPlan?.planType === 'WholeLife';
+  }
+
   ngOnInit() {
+    const now = new Date();
+    // Helper to get local date string YYYY-MM-DD
+    const toLocaleISO = (d: Date) => {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    this.today = toLocaleISO(now);
+    const yest = new Date(now);
+    yest.setDate(now.getDate() - 1);
+    this.yesterday = toLocaleISO(yest);
+
     const planIdParam = this.route.snapshot.queryParams['planId'];
     const draftIdParam = this.route.snapshot.queryParams['draftId'];
 
@@ -57,7 +76,9 @@ export class BuyPolicy implements OnInit {
   loadPlan(planId: number) {
     this.planService.getPlanById(planId).subscribe(plan => {
       this.selectedPlan = plan;
-      if (!this.policyData.termYears) {
+      if (this.isWholeLifePlan) {
+        this.policyData.termYears = plan.maxTermYears;
+      } else if (!this.policyData.termYears) {
         this.policyData.termYears = plan.minTermYears;
       }
       this.syncMembers();
@@ -76,11 +97,10 @@ export class BuyPolicy implements OnInit {
           this.loadPlan(this.planId);
         }
 
-        // Restore policy data
         this.policyData.startDate = draft.startDate
-          ? new Date(draft.startDate).toISOString().split('T')[0]
+          ? draft.startDate.split('T')[0]
           : '';
-        this.policyData.termYears = draft.termYears || this.selectedPlan.minTermYears;
+        this.policyData.termYears = draft.termYears || (this.isWholeLifePlan ? this.selectedPlan?.maxTermYears : this.selectedPlan?.minTermYears);
         this.policyData.premiumFrequency = draft.premiumFrequency || 'Monthly';
 
         // Restore members
@@ -90,7 +110,7 @@ export class BuyPolicy implements OnInit {
             MemberName: m.memberName,
             RelationshipToCustomer: m.relationshipToCustomer,
             DateOfBirth: m.dateOfBirth
-              ? new Date(m.dateOfBirth).toISOString().split('T')[0]
+              ? m.dateOfBirth.split('T')[0]
               : '',
             Gender: m.gender,
             CoverageAmount: m.coverageAmount,
@@ -196,12 +216,12 @@ export class BuyPolicy implements OnInit {
     this.isSavingDraft = false;
     if (err.status === 400 && err.error.errors) {
       console.error("VALIDATION ERRORS:", err.error.errors);
-      
+
     }
   }
   goBack() {
-  this.router.navigate(['/customer-dashboard/explore-plans']);
-}
+    this.router.navigate(['/customer-dashboard/explore-plans']);
+  }
 
   saveAndExit() {
     this.isSavingDraft = true;
@@ -340,7 +360,7 @@ export class BuyPolicy implements OnInit {
   printProof() { window.print(); }
 
   submit() {
-    this.processing = true; 
+    this.processing = true;
     const fd = new FormData();
 
     // The backend SubmitDraft endpoint uses these specific keys

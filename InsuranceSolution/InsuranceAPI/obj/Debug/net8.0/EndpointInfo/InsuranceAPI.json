@@ -414,6 +414,161 @@
         }
       }
     },
+    "/api/Loans/apply": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLoanDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLoanDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApplyLoanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loans/repay": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepayLoanDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepayLoanDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepayLoanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loans/my-loans": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loans/{id}": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loans/outstanding/{policyId}": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "parameters": [
+          {
+            "name": "policyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loans/all": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Loans/by-policy/{policyId}": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "parameters": [
+          {
+            "name": "policyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Notifications": {
       "get": {
         "tags": [
@@ -742,7 +897,7 @@
             "name": "PlanType",
             "in": "query",
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/PlanCategory"
             }
           },
           {
@@ -781,6 +936,74 @@
             "in": "query",
             "schema": {
               "type": "boolean"
+            }
+          },
+          {
+            "name": "HasDeathBenefit",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "HasBonus",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "HasLoanFacility",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CoverageIncreasing",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "MaxLoanInterestRate",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MinMaxLoanPercentage",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "MaxLoanEligibleAfterYears",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MinCoverageUntilAge",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MinCoverageIncreaseRate",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "double"
             }
           }
         ],
@@ -1439,6 +1662,19 @@
   },
   "components": {
     "schemas": {
+      "ApplyLoanDto": {
+        "required": [
+          "policyAssignmentId"
+        ],
+        "type": "object",
+        "properties": {
+          "policyAssignmentId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "AssignAgentDto": {
         "required": [
           "agentId"
@@ -1577,8 +1813,7 @@
             "type": "string"
           },
           "planType": {
-            "minLength": 1,
-            "type": "string"
+            "$ref": "#/components/schemas/PlanCategory"
           },
           "description": {
             "minLength": 1,
@@ -1658,6 +1893,38 @@
             "minimum": 0,
             "type": "number",
             "format": "double"
+          },
+          "hasDeathBenefit": {
+            "type": "boolean"
+          },
+          "hasBonus": {
+            "type": "boolean"
+          },
+          "hasLoanFacility": {
+            "type": "boolean"
+          },
+          "coverageIncreasing": {
+            "type": "boolean"
+          },
+          "coverageIncreaseRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "coverageUntilAge": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanEligibleAfterYears": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxLoanPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "loanInterestRate": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -1689,6 +1956,16 @@
           }
         },
         "additionalProperties": false
+      },
+      "PlanCategory": {
+        "enum": [
+          "TermLife",
+          "Endowment",
+          "Savings",
+          "WholeLife",
+          "Others"
+        ],
+        "type": "string"
       },
       "PolicyMemberDto": {
         "required": [
@@ -1851,6 +2128,25 @@
         },
         "additionalProperties": false
       },
+      "RepayLoanDto": {
+        "required": [
+          "amount",
+          "policyLoanId"
+        ],
+        "type": "object",
+        "properties": {
+          "policyLoanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "amount": {
+            "minimum": 0.01,
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "ResetPasswordDto": {
         "required": [
           "newPassword",
@@ -1920,8 +2216,7 @@
             "type": "string"
           },
           "planType": {
-            "minLength": 1,
-            "type": "string"
+            "$ref": "#/components/schemas/PlanCategory"
           },
           "description": {
             "minLength": 1,
@@ -2002,6 +2297,38 @@
           "commissionRate": {
             "maximum": 100,
             "minimum": 0,
+            "type": "number",
+            "format": "double"
+          },
+          "hasDeathBenefit": {
+            "type": "boolean"
+          },
+          "hasBonus": {
+            "type": "boolean"
+          },
+          "hasLoanFacility": {
+            "type": "boolean"
+          },
+          "coverageIncreasing": {
+            "type": "boolean"
+          },
+          "coverageIncreaseRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "coverageUntilAge": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanEligibleAfterYears": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxLoanPercentage": {
+            "type": "number",
+            "format": "double"
+          },
+          "loanInterestRate": {
             "type": "number",
             "format": "double"
           }

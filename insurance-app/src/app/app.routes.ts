@@ -55,7 +55,10 @@ export const routes: Routes = [
         path: 'profile',
         loadComponent: () => import('./components/admin/admin-profile/admin-profile').then(m => m.AdminProfile)
       },
-
+      {
+        path: 'loans',
+        loadComponent: () => import('./components/admin/admin-loans/admin-loans').then(m => m.AdminLoans)
+      }
     ]
   },
   {
@@ -135,6 +138,10 @@ export const routes: Routes = [
       {
         path: 'file-claim',
         component: FileClaim
+      },
+      {
+        path: 'my-loans',
+        loadComponent: () => import('./components/customer/my-loans/my-loans').then(m => m.MyLoans)
       }
     ]
   },

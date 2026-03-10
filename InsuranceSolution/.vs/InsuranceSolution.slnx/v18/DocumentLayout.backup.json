@@ -3,12 +3,84 @@
   "WorkspaceRootPath": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\domain\\enums\\commissionstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|solutionrelative:domain\\enums\\commissionstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|solutionrelative:insuranceapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\services\\dashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\services\\dashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\backgroundservices\\lapsepolicyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|solutionrelative:insuranceapi\\backgroundservices\\lapsepolicyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\interfaceadapters\\controllers\\claimscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|solutionrelative:insuranceapi\\interfaceadapters\\controllers\\claimscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application.tests\\services\\claimservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|solutionrelative:application.tests\\services\\claimservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application.tests\\services\\authservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|solutionrelative:application.tests\\services\\authservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\services\\policyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\services\\policyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\dtos\\policymemberdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\dtos\\policymemberdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\domain\\entities\\plan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\plan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\services\\claimservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\services\\claimservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\services\\loanservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\services\\loanservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5872AEB3-BAA3-FE31-B0EB-0FB6DBEDCF83}|Infrastructure\\Infrastructure.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\infrastructure\\repositories\\planrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5872AEB3-BAA3-FE31-B0EB-0FB6DBEDCF83}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\repositories\\planrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application.tests\\services\\planservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|solutionrelative:application.tests\\services\\planservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5872AEB3-BAA3-FE31-B0EB-0FB6DBEDCF83}|Infrastructure\\Infrastructure.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\infrastructure\\repositories\\loanrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5872AEB3-BAA3-FE31-B0EB-0FB6DBEDCF83}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\repositories\\loanrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\interfaceadapters\\controllers\\loanscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|solutionrelative:insuranceapi\\interfaceadapters\\controllers\\loanscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\domain\\enums\\loanstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|solutionrelative:domain\\enums\\loanstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\domain\\entities\\policyloan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\policyloan.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\domain\\entities\\policyassignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\policyassignment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\dtos\\policyresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\dtos\\policyresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\domain\\enums\\commissionstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E528BBC3-1C26-8C35-F682-23718816ADCD}|Domain\\Domain.csproj|solutionrelative:domain\\enums\\commissionstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\interfaceadapters\\controllers\\policycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -35,28 +107,12 @@
       "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\dtos\\authresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\backgroundservices\\lapsepolicyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|solutionrelative:insuranceapi\\backgroundservices\\lapsepolicyservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\services\\dashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\services\\dashboardservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\dtos\\admindashboarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\dtos\\admindashboarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application\\services\\claimservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F80C4E72-27A0-12B5-0634-DD5C11CFB0C1}|Application\\Application.csproj|solutionrelative:application\\services\\claimservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\backgroundservices\\maturityprocessingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|solutionrelative:insuranceapi\\backgroundservices\\maturityprocessingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\application.tests\\services\\authservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{05AE52A1-FFAB-468D-A157-2C6EFB3D6001}|Application.Tests\\Application.Tests.csproj|solutionrelative:application.tests\\services\\authservicetests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{1DC42797-7249-6771-9DC8-827C325A1D25}|InsuranceAPI\\InsuranceAPI.csproj|d:\\angularpractice\\hartfordassignments\\capstone\\insurancesolution\\insuranceapi\\interfaceadapters\\controllers\\planscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -95,6 +151,243 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\Program.cs",
+              "RelativeDocumentMoniker": "InsuranceAPI\\Program.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\Program.cs",
+              "RelativeToolTip": "InsuranceAPI\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T14:53:04.621Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ClaimsController.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\ClaimsController.cs",
+              "RelativeDocumentMoniker": "InsuranceAPI\\InterfaceAdapters\\Controllers\\ClaimsController.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\ClaimsController.cs",
+              "RelativeToolTip": "InsuranceAPI\\InterfaceAdapters\\Controllers\\ClaimsController.cs",
+              "ViewState": "AgIAAEQAAAAAAAAAAADwvxAAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T05:25:38.34Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ClaimServiceTests.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\ClaimServiceTests.cs",
+              "RelativeDocumentMoniker": "Application.Tests\\Services\\ClaimServiceTests.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\ClaimServiceTests.cs",
+              "RelativeToolTip": "Application.Tests\\Services\\ClaimServiceTests.cs",
+              "ViewState": "AgIAAEAAAAAAAAAAAAAQwFUAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T05:14:51.742Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AuthServiceTests.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\AuthServiceTests.cs",
+              "RelativeDocumentMoniker": "Application.Tests\\Services\\AuthServiceTests.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\AuthServiceTests.cs",
+              "RelativeToolTip": "Application.Tests\\Services\\AuthServiceTests.cs",
+              "ViewState": "AgIAACQAAAAAAAAAAAAjwCEAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T20:02:25.914Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DashboardService.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\DashboardService.cs",
+              "RelativeDocumentMoniker": "Application\\Services\\DashboardService.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\DashboardService.cs",
+              "RelativeToolTip": "Application\\Services\\DashboardService.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAMUBAABGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T05:42:42.44Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "LapsePolicyService.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
+              "RelativeDocumentMoniker": "InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
+              "RelativeToolTip": "InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T11:20:16.291Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PolicyService.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\PolicyService.cs",
+              "RelativeDocumentMoniker": "Application\\Services\\PolicyService.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\PolicyService.cs",
+              "RelativeToolTip": "Application\\Services\\PolicyService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAowAcAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T05:24:45.25Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "PolicyMemberDto.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\PolicyMemberDto.cs",
+              "RelativeDocumentMoniker": "Application\\DTOs\\PolicyMemberDto.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\PolicyMemberDto.cs",
+              "RelativeToolTip": "Application\\DTOs\\PolicyMemberDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T14:03:55.975Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Plan.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Entities\\Plan.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\Plan.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Entities\\Plan.cs",
+              "RelativeToolTip": "Domain\\Entities\\Plan.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T07:16:38.203Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ClaimService.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\ClaimService.cs",
+              "RelativeDocumentMoniker": "Application\\Services\\ClaimService.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\ClaimService.cs",
+              "RelativeToolTip": "Application\\Services\\ClaimService.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAAwG8BAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T03:48:52.286Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "LoanService.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\LoanService.cs",
+              "RelativeDocumentMoniker": "Application\\Services\\LoanService.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\LoanService.cs",
+              "RelativeToolTip": "Application\\Services\\LoanService.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAqwBwAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T09:28:03.761Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "PlanRepository.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\Repositories\\PlanRepository.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Repositories\\PlanRepository.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\Repositories\\PlanRepository.cs",
+              "RelativeToolTip": "Infrastructure\\Repositories\\PlanRepository.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAAwDQAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T11:55:48.79Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "PlanServiceTests.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\PlanServiceTests.cs",
+              "RelativeDocumentMoniker": "Application.Tests\\Services\\PlanServiceTests.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\PlanServiceTests.cs",
+              "RelativeToolTip": "Application.Tests\\Services\\PlanServiceTests.cs",
+              "ViewState": "AgIAAN0BAAAAAAAAAAAUwOYBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T11:54:48.699Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "LoanRepository.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\Repositories\\LoanRepository.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Repositories\\LoanRepository.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Infrastructure\\Repositories\\LoanRepository.cs",
+              "RelativeToolTip": "Infrastructure\\Repositories\\LoanRepository.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAA1wBYAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T10:55:36.93Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "LoanStatus.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Enums\\LoanStatus.cs",
+              "RelativeDocumentMoniker": "Domain\\Enums\\LoanStatus.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Enums\\LoanStatus.cs",
+              "RelativeToolTip": "Domain\\Enums\\LoanStatus.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAAwAkAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T10:17:30.79Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "PolicyLoan.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Entities\\PolicyLoan.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\PolicyLoan.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Entities\\PolicyLoan.cs",
+              "RelativeToolTip": "Domain\\Entities\\PolicyLoan.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAhwBgAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T10:17:09.57Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "PolicyAssignment.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Entities\\PolicyAssignment.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\PolicyAssignment.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Entities\\PolicyAssignment.cs",
+              "RelativeToolTip": "Domain\\Entities\\PolicyAssignment.cs",
+              "ViewState": "AgIAADEAAAAAAAAAAIAywDYAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T09:53:07.795Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "LoansController.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\LoansController.cs",
+              "RelativeDocumentMoniker": "InsuranceAPI\\InterfaceAdapters\\Controllers\\LoansController.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\LoansController.cs",
+              "RelativeToolTip": "InsuranceAPI\\InterfaceAdapters\\Controllers\\LoansController.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAIAzwCMAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T09:27:46.693Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "PolicyResponseDto.cs",
+              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\PolicyResponseDto.cs",
+              "RelativeDocumentMoniker": "Application\\DTOs\\PolicyResponseDto.cs",
+              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\PolicyResponseDto.cs",
+              "RelativeToolTip": "Application\\DTOs\\PolicyResponseDto.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAAA6wB8AAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-08T09:34:58.526Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
               "Title": "CommissionStatus.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Domain\\Enums\\CommissionStatus.cs",
               "RelativeDocumentMoniker": "Domain\\Enums\\CommissionStatus.cs",
@@ -102,12 +395,11 @@
               "RelativeToolTip": "Domain\\Enums\\CommissionStatus.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T06:42:09.463Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-08T06:42:09.463Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 22,
               "Title": "SaveDraftDto.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\SaveDraftDto.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\SaveDraftDto.cs",
@@ -119,7 +411,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 21,
               "Title": "NotificationService.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\NotificationService.cs",
               "RelativeDocumentMoniker": "Application\\Services\\NotificationService.cs",
@@ -131,7 +423,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 20,
               "Title": "PolicyController.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\PolicyController.cs",
               "RelativeDocumentMoniker": "InsuranceAPI\\InterfaceAdapters\\Controllers\\PolicyController.cs",
@@ -143,20 +435,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "PolicyService.cs",
-              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\PolicyService.cs",
-              "RelativeDocumentMoniker": "Application\\Services\\PolicyService.cs",
-              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\PolicyService.cs",
-              "RelativeToolTip": "Application\\Services\\PolicyService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAJAAAABBAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T05:24:45.25Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 23,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\appsettings.json",
               "RelativeDocumentMoniker": "InsuranceAPI\\appsettings.json",
@@ -168,7 +447,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 25,
               "Title": "AuthResponseDto.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\AuthResponseDto.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\AuthResponseDto.cs",
@@ -180,7 +459,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 24,
               "Title": "EmailService.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\EmailService.cs",
               "RelativeDocumentMoniker": "Application\\Services\\EmailService.cs",
@@ -192,31 +471,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "DashboardService.cs",
-              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\DashboardService.cs",
-              "RelativeDocumentMoniker": "Application\\Services\\DashboardService.cs",
-              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\DashboardService.cs",
-              "RelativeToolTip": "Application\\Services\\DashboardService.cs",
-              "ViewState": "AgIAAEUAAAAAAAAAAAAlwFAAAAAaAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T05:42:42.44Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "LapsePolicyService.cs",
-              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
-              "RelativeDocumentMoniker": "InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
-              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
-              "RelativeToolTip": "InsuranceAPI\\BackgroundServices\\LapsePolicyService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T11:20:16.291Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 26,
               "Title": "AdminDashboardDto.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\DTOs\\AdminDashboardDto.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\AdminDashboardDto.cs",
@@ -228,19 +483,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "ClaimService.cs",
-              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\ClaimService.cs",
-              "RelativeDocumentMoniker": "Application\\Services\\ClaimService.cs",
-              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Services\\ClaimService.cs",
-              "RelativeToolTip": "Application\\Services\\ClaimService.cs",
-              "ViewState": "AgIAAFQBAAAAAAAAAAApwF0BAABBAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T03:48:52.286Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 27,
               "Title": "MaturityProcessingService.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\BackgroundServices\\MaturityProcessingService.cs",
               "RelativeDocumentMoniker": "InsuranceAPI\\BackgroundServices\\MaturityProcessingService.cs",
@@ -252,19 +495,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "AuthServiceTests.cs",
-              "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\AuthServiceTests.cs",
-              "RelativeDocumentMoniker": "Application.Tests\\Services\\AuthServiceTests.cs",
-              "ToolTip": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application.Tests\\Services\\AuthServiceTests.cs",
-              "RelativeToolTip": "Application.Tests\\Services\\AuthServiceTests.cs",
-              "ViewState": "AgIAAMEAAAAAAAAAAAAswJ4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T20:02:25.914Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 28,
               "Title": "PlansController.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\PlansController.cs",
               "RelativeDocumentMoniker": "InsuranceAPI\\InterfaceAdapters\\Controllers\\PlansController.cs",
@@ -276,7 +507,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 29,
               "Title": "AuthController.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\InsuranceAPI\\InterfaceAdapters\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "InsuranceAPI\\InterfaceAdapters\\Controllers\\AuthController.cs",
@@ -288,7 +519,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 30,
               "Title": "NotFoundException.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Exceptions\\NotFoundException.cs",
               "RelativeDocumentMoniker": "Application\\Exceptions\\NotFoundException.cs",
@@ -300,7 +531,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 31,
               "Title": "ConflictException.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Exceptions\\ConflictException.cs",
               "RelativeDocumentMoniker": "Application\\Exceptions\\ConflictException.cs",
@@ -312,7 +543,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 32,
               "Title": "BadRequestException.cs",
               "DocumentMoniker": "D:\\angularpractice\\HartfordAssignments\\capstone\\InsuranceSolution\\Application\\Exceptions\\BadRequestException.cs",
               "RelativeDocumentMoniker": "Application\\Exceptions\\BadRequestException.cs",

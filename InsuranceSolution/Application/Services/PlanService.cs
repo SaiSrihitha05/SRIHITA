@@ -81,7 +81,16 @@ namespace Application.Services
                 MaxPolicyMembersAllowed = dto.MaxPolicyMembersAllowed,
                 CreatedAt = DateTime.UtcNow,
                 IsActive = true,
-                CommissionRate = dto.CommissionRate
+                CommissionRate = dto.CommissionRate,
+                HasDeathBenefit = dto.HasDeathBenefit,
+                HasBonus = dto.HasBonus,
+                HasLoanFacility = dto.HasLoanFacility,
+                CoverageIncreasing = dto.CoverageIncreasing,
+                CoverageIncreaseRate = dto.CoverageIncreaseRate,
+                CoverageUntilAge = dto.CoverageUntilAge,
+                LoanEligibleAfterYears = dto.LoanEligibleAfterYears,
+                MaxLoanPercentage = dto.MaxLoanPercentage,
+                LoanInterestRate = dto.LoanInterestRate
             };
 
             await _planRepository.AddAsync(plan);
@@ -125,6 +134,15 @@ namespace Application.Services
             plan.MaxPolicyMembersAllowed = dto.MaxPolicyMembersAllowed;
             plan.IsActive = dto.IsActive;
             plan.CommissionRate = dto.CommissionRate;
+            plan.HasDeathBenefit = dto.HasDeathBenefit;
+            plan.HasBonus = dto.HasBonus;
+            plan.HasLoanFacility = dto.HasLoanFacility;
+            plan.CoverageIncreasing = dto.CoverageIncreasing;
+            plan.CoverageIncreaseRate = dto.CoverageIncreaseRate;
+            plan.CoverageUntilAge = dto.CoverageUntilAge;
+            plan.LoanEligibleAfterYears = dto.LoanEligibleAfterYears;
+            plan.MaxLoanPercentage = dto.MaxLoanPercentage;
+            plan.LoanInterestRate = dto.LoanInterestRate;
 
             _planRepository.Update(plan);
             await _planRepository.SaveChangesAsync();
@@ -163,7 +181,15 @@ namespace Application.Services
             CreatedAt = plan.CreatedAt,
             IsActive = plan.IsActive,
             CommissionRate = plan.CommissionRate,
-
+            HasDeathBenefit = plan.HasDeathBenefit,
+            HasBonus = plan.HasBonus,
+            HasLoanFacility = plan.HasLoanFacility,
+            CoverageIncreasing = plan.CoverageIncreasing,
+            CoverageIncreaseRate = plan.CoverageIncreaseRate,
+            CoverageUntilAge = plan.CoverageUntilAge,
+            LoanEligibleAfterYears = plan.LoanEligibleAfterYears,
+            MaxLoanPercentage = plan.MaxLoanPercentage,
+            LoanInterestRate = plan.LoanInterestRate
         };
         public async Task<IEnumerable<PlanResponseDto>> GetFilteredPlansAsync(
             PlanFilterDto filter, string role)
@@ -174,10 +200,8 @@ namespace Application.Services
             if (role == "Customer")
                 plans = plans.Where(p => p.IsActive);
 
-            if (!plans.Any())
-                throw new NotFoundException("No plans found matching the given filters");
-
-            return plans.Select(MapToDto);
+            var result = plans.Select(MapToDto).ToList();
+            return result;
         }
     }
 }

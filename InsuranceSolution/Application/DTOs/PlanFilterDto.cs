@@ -1,19 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Enums;
 
 namespace Application.DTOs
 {
     public class PlanFilterDto
     {
-        public string? PlanType { get; set; }
+        public PlanCategory? PlanType { get; set; }
         public int? Age { get; set; }                        // filters plans where MinAge <= Age <= MaxAge
         public decimal? CoverageAmount { get; set; }         // filters plans where Min <= Amount <= Max
         public int? TermYears { get; set; }                  // filters plans where MinTerm <= Years <= MaxTerm
         public bool? HasMaturityBenefit { get; set; }
         public bool? IsReturnOfPremium { get; set; }
+        public bool? HasDeathBenefit { get; set; }
+        public bool? HasBonus { get; set; }
+        public bool? HasLoanFacility { get; set; }
+        public bool? CoverageIncreasing { get; set; }
+
+        public decimal? MaxLoanInterestRate { get; set; }
+        public decimal? MinMaxLoanPercentage { get; set; }
+        public int? MaxLoanEligibleAfterYears { get; set; }
+        public int? MinCoverageUntilAge { get; set; }
+        public decimal? MinCoverageIncreaseRate { get; set; }
     }
 }
 

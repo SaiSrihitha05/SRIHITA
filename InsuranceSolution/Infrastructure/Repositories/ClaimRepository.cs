@@ -29,6 +29,7 @@ namespace Infrastructure.Repositories
         public async Task<InsuranceClaim?> GetByIdWithDetailsAsync(int id) =>
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.Plan)
                 .Include(c => c.PolicyMember)
                 .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
@@ -37,6 +38,7 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<InsuranceClaim>> GetAllAsync() =>
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.Plan)
                 .Include(c => c.PolicyMember)
                 .Include(c => c.ClaimsOfficer)
                 .OrderByDescending(c => c.FiledDate)
@@ -55,6 +57,7 @@ namespace Infrastructure.Repositories
             int officerId) =>
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.Plan)
                 .Include(c => c.PolicyMember)
                 .Include(c => c.Documents)
                 .Where(c => c.ClaimsOfficerId == officerId)
@@ -65,6 +68,7 @@ namespace Infrastructure.Repositories
             int customerId) =>
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.Plan)
                 .Include(c => c.PolicyMember)
                 .Include(c => c.Documents)
                 .Where(c => c.PolicyAssignment!.CustomerId == customerId)

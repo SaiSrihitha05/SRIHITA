@@ -186,11 +186,17 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal?>("BalanceAfter")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("InstallmentsPaid")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("InterestPaid")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("InvoiceNumber")
                         .IsRequired()
@@ -206,6 +212,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("PolicyAssignmentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PolicyLoanId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("PrincipalPaid")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -217,6 +229,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PolicyAssignmentId");
+
+                    b.HasIndex("PolicyLoanId");
 
                     b.ToTable("Payments");
                 });
@@ -232,8 +246,20 @@ namespace Infrastructure.Migrations
                     b.Property<decimal>("BaseRate")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("BonusRate")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("CommissionRate")
                         .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("CoverageIncreaseRate")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<bool>("CoverageIncreasing")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("CoverageUntilAge")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -245,6 +271,15 @@ namespace Infrastructure.Migrations
                     b.Property<int>("GracePeriodDays")
                         .HasColumnType("int");
 
+                    b.Property<bool>("HasBonus")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasDeathBenefit")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasLoanFacility")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("HasMaturityBenefit")
                         .HasColumnType("bit");
 
@@ -254,11 +289,20 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsReturnOfPremium")
                         .HasColumnType("bit");
 
+                    b.Property<int>("LoanEligibleAfterYears")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("LoanInterestRate")
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<int>("MaxAge")
                         .HasColumnType("int");
 
                     b.Property<decimal>("MaxCoverageAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("MaxLoanPercentage")
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<int>("MaxNominees")
                         .HasColumnType("int");
@@ -285,9 +329,11 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PlanType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("PlanType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TerminalBonusRate")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -360,6 +406,57 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("PolicyAssignments");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PolicyLoan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ClosedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("InterestRate")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<decimal>("LoanAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("LoanDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("OutstandingBalance")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PolicyAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalInterestPaid")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("PolicyAssignmentId");
+
+                    b.ToTable("PolicyLoans");
                 });
 
             modelBuilder.Entity("Domain.Entities.PolicyMember", b =>
@@ -504,11 +601,11 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 3, 5, 10, 25, 23, 193, DateTimeKind.Utc).AddTicks(915),
+                            CreatedAt = new DateTime(2026, 3, 8, 16, 43, 58, 277, DateTimeKind.Utc).AddTicks(7781),
                             Email = "admin@insurance.com",
                             IsActive = true,
                             Name = "System Admin",
-                            PasswordHash = "$2a$11$JvtWl/8zsawuMC/hRmhya.yY.uMlrpSratbLxcKUBV9G3TWOzI1KC",
+                            PasswordHash = "$2a$11$jAm8IK5QtRCvZy5xtHi7r.AEYa4jd2akWMnxR8VoAEINOKShgtsCS",
                             Phone = "9999999999",
                             Role = "Admin"
                         });
@@ -579,12 +676,19 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Payment", b =>
                 {
                     b.HasOne("Domain.Entities.PolicyAssignment", "PolicyAssignment")
-                        .WithMany()
+                        .WithMany("Payments")
                         .HasForeignKey("PolicyAssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.PolicyLoan", "PolicyLoan")
+                        .WithMany("Payments")
+                        .HasForeignKey("PolicyLoanId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("PolicyAssignment");
+
+                    b.Navigation("PolicyLoan");
                 });
 
             modelBuilder.Entity("Domain.Entities.PolicyAssignment", b =>
@@ -611,6 +715,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PolicyLoan", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PolicyAssignment", "PolicyAssignment")
+                        .WithMany("Loans")
+                        .HasForeignKey("PolicyAssignmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("PolicyAssignment");
                 });
 
             modelBuilder.Entity("Domain.Entities.PolicyMember", b =>
@@ -644,9 +767,18 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("Documents");
 
+                    b.Navigation("Loans");
+
+                    b.Navigation("Payments");
+
                     b.Navigation("PolicyMembers");
 
                     b.Navigation("PolicyNominees");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PolicyLoan", b =>
+                {
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }
