@@ -1,0 +1,533 @@
+<div class="space-y-8 font-lato">
+  <div class="flex justify-between items-end">
+    <div>
+      <h1 class="text-3xl font-bold text-[#75013f] dark:text-pink-300">Protection Plans</h1>
+      <p class="text-gray-500 dark:text-gray-400">Discover coverage that fits your lifestyle and financial goals.</p>
+    </div>
+    <button *ngIf="compareList.length > 0" (click)="showCompareModal = true"
+      class="px-6 py-3 bg-[#fe3082] text-white rounded-2xl font-bold text-xs shadow-lg animate-bounce flex items-center gap-2">
+      Compare ({{compareList.length}}) Plans <span>⚖️</span>
+    </button>
+  </div>
+
+  <div
+    class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 space-y-8 transition-colors duration-300">
+
+    <div class="flex flex-wrap gap-8 items-start">
+      <!-- Plan Type -->
+      <div class="flex-1 min-w-[200px] space-y-3">
+        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">
+          Plan Category
+        </label>
+        <select [(ngModel)]="filters.planType" (ngModelChange)="applyFilter()" class="w-full p-4 bg-[#f5f2ef]/50 dark:bg-gray-700 rounded-2xl border-none 
+                     text-sm dark:text-gray-100 outline-none focus:ring-2 focus:ring-[#75013f]/20">
+          <option value="" class="dark:bg-gray-800 text-gray-900 dark:text-white">All Categories</option>
+          <option value="TermLife" class="dark:bg-gray-800 text-gray-900 dark:text-white">Term Life</option>
+          <option value="Endowment" class="dark:bg-gray-800 text-gray-900 dark:text-white">Endowment</option>
+          <option value="Savings" class="dark:bg-gray-800 text-gray-900 dark:text-white">Savings</option>
+          <option value="WholeLife" class="dark:bg-gray-800 text-gray-900 dark:text-white">Whole Life</option>
+          <option value="Others" class="dark:bg-gray-800 text-gray-900 dark:text-white">Others</option>
+        </select>
+      </div>
+
+      <!-- Age Slider -->
+      <div class="flex-1 min-w-[200px] space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Min Entry Age
+          </label>
+          <span class="text-xs font-bold text-[#75013f] dark:text-pink-400">{{ filters.age || 'Any' }}</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.age" (ngModelChange)="applyFilter()" min="0" max="100" step="1"
+          class="w-full accent-[#75013f] dark:accent-pink-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+      <!-- Coverage Slider -->
+      <div class="flex-1 min-w-[250px] space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Coverage Amount
+          </label>
+          <span class="text-xs font-bold text-[#75013f] dark:text-pink-400">{{ (filters.coverageAmount | number) ||
+            'Any'
+            }}</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.coverageAmount" (ngModelChange)="applyFilter()" min="0" max="5000000"
+          step="50000"
+          class="w-full accent-[#75013f] dark:accent-pink-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+      <!-- Term Slider -->
+      <div class="flex-1 min-w-[200px] space-y-3">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Policy Term
+          </label>
+          <span class="text-xs font-bold text-[#75013f] dark:text-pink-400">{{ filters.termYears || 'Any' }} Yrs</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.termYears" (ngModelChange)="applyFilter()" min="5" max="50" step="1"
+          class="w-full accent-[#75013f] dark:accent-pink-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+    </div>
+
+    <!-- Checkbox Benefits Group -->
+    <div class="pt-4 border-t border-gray-50 dark:border-gray-700/50">
+      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1 block mb-4">
+        Include Plan Benefits
+      </label>
+      <div class="flex flex-wrap gap-x-8 gap-y-4">
+        <label
+          class="flex items-center gap-3 cursor-pointer group hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 px-3 py-2 rounded-xl transition-all">
+          <input type="checkbox" [(ngModel)]="filters.hasMaturityBenefit" (ngModelChange)="applyFilter()"
+            class="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-[#fe3082] focus:ring-[#fe3082] accent-[#fe3082]" />
+          <span
+            class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Maturity
+            Benefit</span>
+        </label>
+
+        <label
+          class="flex items-center gap-3 cursor-pointer group hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 px-3 py-2 rounded-xl transition-all">
+          <input type="checkbox" [(ngModel)]="filters.isReturnOfPremium" (ngModelChange)="applyFilter()"
+            class="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-[#fe3082] focus:ring-[#fe3082] accent-[#fe3082]" />
+          <span
+            class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Return
+            of Premium</span>
+        </label>
+
+        <label
+          class="flex items-center gap-3 cursor-pointer group hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 px-3 py-2 rounded-xl transition-all">
+          <input type="checkbox" [(ngModel)]="filters.hasDeathBenefit" (ngModelChange)="applyFilter()"
+            class="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-[#fe3082] focus:ring-[#fe3082] accent-[#fe3082]" />
+          <span
+            class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Death
+            Benefit</span>
+        </label>
+
+        <label
+          class="flex items-center gap-3 cursor-pointer group hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 px-3 py-2 rounded-xl transition-all">
+          <input type="checkbox" [(ngModel)]="filters.hasBonus" (ngModelChange)="applyFilter()"
+            class="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-[#fe3082] focus:ring-[#fe3082] accent-[#fe3082]" />
+          <span
+            class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Bonus
+            & Profits</span>
+        </label>
+
+        <label
+          class="flex items-center gap-3 cursor-pointer group hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 px-3 py-2 rounded-xl transition-all">
+          <input type="checkbox" [(ngModel)]="filters.hasLoanFacility" (ngModelChange)="applyFilter()"
+            class="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-[#fe3082] focus:ring-[#fe3082] accent-[#fe3082]" />
+          <span
+            class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Loan
+            Facility</span>
+        </label>
+
+        <label
+          class="flex items-center gap-3 cursor-pointer group hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 px-3 py-2 rounded-xl transition-all">
+          <input type="checkbox" [(ngModel)]="filters.coverageIncreasing" (ngModelChange)="applyFilter()"
+            class="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-[#fe3082] focus:ring-[#fe3082] accent-[#fe3082]" />
+          <span
+            class="text-sm font-bold text-gray-600 dark:text-gray-300 group-hover:text-[#75013f] dark:group-hover:text-pink-300 transition-colors">Increasing
+            Cover</span>
+        </label>
+
+        <div class="ml-auto">
+          <button (click)="resetFilters()"
+            class="px-8 py-3 bg-[#fe3082]/10 text-[#fe3082] dark:text-pink-300 rounded-2xl font-bold text-xs hover:bg-[#fe3082] hover:text-white transition-all">
+            Reset All Filters
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Numeric Filters (Only shown if relevant checkboxes are checked or just always available) -->
+    <div
+      class="pt-8 border-t border-gray-50 dark:border-gray-700/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      *ngIf="filters.hasLoanFacility || filters.coverageIncreasing">
+
+      <!-- Loan Interest Rate -->
+      <div class="space-y-3" *ngIf="filters.hasLoanFacility">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Max Loan Interest Rate
+          </label>
+          <span class="text-xs font-bold text-blue-600 tracking-tight">{{ filters.maxLoanInterestRate || 'Any'
+            }}%</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.maxLoanInterestRate" (ngModelChange)="applyFilter()" min="0" max="20"
+          step="0.5"
+          class="w-full accent-blue-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+      <!-- Loan Wait Period -->
+      <div class="space-y-3" *ngIf="filters.hasLoanFacility">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Max Loan Wait Period
+          </label>
+          <span class="text-xs font-bold text-blue-600 tracking-tight">{{ filters.maxLoanEligibleAfterYears || 'Any' }}
+            Yrs</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.maxLoanEligibleAfterYears" (ngModelChange)="applyFilter()" min="0"
+          max="10" step="1"
+          class="w-full accent-blue-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+      <!-- Max Loan % -->
+      <div class="space-y-3" *ngIf="filters.hasLoanFacility">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Min Loan Percentage
+          </label>
+          <span class="text-xs font-bold text-blue-600 tracking-tight">{{ filters.minMaxLoanPercentage || 'Any'
+            }}%</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.minMaxLoanPercentage" (ngModelChange)="applyFilter()" min="0" max="100"
+          step="5"
+          class="w-full accent-blue-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+      <!-- Coverage Increase Rate -->
+      <div class="space-y-3" *ngIf="filters.coverageIncreasing">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Min Growth Rate
+          </label>
+          <span class="text-xs font-bold text-purple-600 tracking-tight">{{ filters.minCoverageIncreaseRate || 'Any'
+            }}%</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.minCoverageIncreaseRate" (ngModelChange)="applyFilter()" min="0"
+          max="25" step="0.5"
+          class="w-full accent-purple-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+      <!-- Coverage Until Age -->
+      <div class="space-y-3" *ngIf="filters.coverageIncreasing">
+        <div class="flex justify-between items-center px-1">
+          <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+            Min Coverage Until Age
+          </label>
+          <span class="text-xs font-bold text-purple-600 tracking-tight">{{ filters.minCoverageUntilAge || 'Any' }}
+            Yrs</span>
+        </div>
+        <input type="range" [(ngModel)]="filters.minCoverageUntilAge" (ngModelChange)="applyFilter()" min="0" max="100"
+          step="1"
+          class="w-full accent-purple-600 h-2 bg-gray-100 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer" />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Categorized Sections -->
+  <div *ngFor="let group of groupedPlans" class="space-y-6 pt-10 first:pt-0">
+    <!-- Category Header -->
+    <div class="border-b border-gray-100 dark:border-gray-700 pb-4">
+      <h2 class="text-2xl font-black text-[#75013f] dark:text-pink-300 flex items-center gap-3">
+        <span class="w-2 h-8 bg-[#fe3082] rounded-full"></span>
+        {{ group.title }}
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 max-w-3xl italic">
+        {{ group.description }}
+      </p>
+    </div>
+
+    <!-- Category Plans Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
+      <div *ngFor="let plan of group.plans"
+        class="bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col hover:shadow-xl dark:hover:shadow-gray-900/40 transition-all duration-300 relative group">
+
+        <button (click)="toggleCompare(plan)"
+          [class]="isComparing(plan) ? 'bg-[#fe3082] text-white border-[#fe3082]' : 'bg-white dark:bg-gray-700 text-gray-400 dark:text-gray-400 border-gray-100 dark:border-gray-600'"
+          class="absolute top-6 right-6 w-10 h-10 rounded-full border shadow-sm flex items-center justify-center text-xs transition-all hover:scale-110 z-10">
+          {{ isComparing(plan) ? '✓' : '+' }}
+        </button>
+
+        <div class="p-8 pb-4">
+          <div class="flex justify-between items-start mb-4">
+            <span
+              class="px-3 py-1 bg-[#fe3082] dark:bg-pink-600 text-white text-[10px] font-bold rounded-full uppercase tracking-widest">
+              {{ plan.planType }}
+            </span>
+            <div class="flex gap-2">
+              <span *ngIf="plan.hasMaturityBenefit" title="Maturity Payout"
+                class="text-green-500 dark:text-green-400 text-lg">💰</span>
+              <span *ngIf="plan.hasLoanFacility" title="Loan Available"
+                class="text-blue-500 dark:text-blue-400 text-lg">🏦</span>
+              <span *ngIf="plan.coverageIncreasing" title="Increasing Cover"
+                class="text-purple-500 dark:text-purple-400 text-lg">📈</span>
+            </div>
+          </div>
+          <h3 class="text-xl font-bold text-[#75013f] dark:text-pink-300 leading-tight">{{ plan.planName }}</h3>
+        </div>
+
+        <div class="px-8 flex-1">
+          <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-6 italic">"{{ plan.description }}"</p>
+
+          <div class="space-y-4 pb-8 border-b border-gray-50 dark:border-gray-700">
+            <div class="flex justify-between text-xs">
+              <span class="text-gray-400 dark:text-gray-500 font-medium">Sum Assured</span>
+              <span class="font-black text-gray-800 dark:text-gray-100">₹{{ plan.minCoverageAmount | number }} - ₹{{
+                plan.maxCoverageAmount | number }}</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-gray-400 dark:text-gray-500 font-medium">Entry Age</span>
+              <span class="font-bold text-gray-800 dark:text-gray-100">{{ plan.minAge }} - {{ plan.maxAge }} Yrs</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-gray-400 dark:text-gray-500 font-medium">Nominees</span>
+              <span class="font-bold text-[#fe3082] dark:text-pink-400">{{ plan.minNominees }} to {{ plan.maxNominees }}
+                Person(s)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-8 pt-6 flex gap-3">
+          <button (click)="viewDetails(plan)"
+            class="flex-1 py-3 border-2 border-[#75013f] dark:border-pink-700 text-[#75013f] dark:text-pink-300 rounded-2xl font-bold text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            View Details
+          </button>
+          <button [routerLink]="['/customer-dashboard/buy-policy']" [queryParams]="{ planId: plan.id }"
+            class="flex-1 py-3 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-bold text-xs hover:bg-[#3b001f] dark:hover:bg-pink-600 transition-all shadow-lg shadow-[#75013f]/20">
+            Buy Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State for No Matching Plans -->
+  <div *ngIf="groupedPlans.length === 0"
+    class="py-24 flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in slide-in-from-bottom-10 duration-700">
+    <div
+      class="w-32 h-32 bg-[#75013f]/5 dark:bg-gray-800 rounded-full flex items-center justify-center text-6xl shadow-inner border border-[#75013f]/10 dark:border-gray-700">
+      🔎
+    </div>
+    <div class="space-y-4 max-w-md">
+      <h3 class="text-3xl font-black text-[#75013f] dark:text-pink-300 tracking-tight">No policies found</h3>
+      <p class="text-gray-500 dark:text-gray-400 font-medium italic px-6 leading-relaxed">
+        "Your current filter criteria are a bit too specific. Try adjusting the sliders or removing some benefit
+        requirements."
+      </p>
+    </div>
+    <button (click)="resetFilters()"
+      class="px-12 py-5 bg-[#75013f] dark:bg-pink-700 text-white rounded-[2.5rem] font-black text-sm hover:bg-[#fe3082] hover:scale-105 transition-all shadow-2xl shadow-[#75013f]/20 active:scale-95">
+      Reset All Filters & Show All Plans
+    </button>
+  </div>
+</div>
+
+<div *ngIf="showDetailsModal && selectedPlan"
+  class="fixed inset-0 w-screen h-screen z-[10000] flex items-center justify-center bg-[#3b001f]/80 dark:bg-black/90 backdrop-blur-xl p-4 md:p-10 transition-colors duration-300">
+  <div
+    class="bg-white dark:bg-gray-900 w-full max-w-6xl rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-white/20 dark:border-gray-800 animate-in fade-in zoom-in duration-300">
+
+    <div
+      class="p-8 md:p-10 bg-[#f5f2ef] dark:bg-gray-800 flex justify-between items-start border-b border-gray-100 dark:border-gray-700 transition-colors">
+      <div>
+        <div class="flex items-center gap-3 mb-1">
+          <span
+            class="px-3 py-1 bg-[#fe3082] dark:bg-pink-600 text-white text-[10px] font-bold rounded-full uppercase tracking-tighter">
+            {{ selectedPlan.planType }}
+          </span>
+          <span class="text-xs font-bold text-gray-400 dark:text-gray-500">PLAN ID: #{{ selectedPlan.id }}</span>
+        </div>
+        <h2 class="text-2xl md:text-2xl font-bold text-[#75013f] dark:text-pink-300">{{ selectedPlan.planName }}</h2>
+        <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-2xl text-sm italic">"{{ selectedPlan.description }}"</p>
+      </div>
+      <button (click)="closeDetails()"
+        class="w-12 h-12 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center text-gray-400 dark:text-gray-300 hover:text-red-500 hover:rotate-90 transition-all duration-300 text-3xl">
+        &times;
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-8 md:p-12">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+
+        <div class="space-y-6">
+          <h4
+            class="text-xs font-black text-[#75013f] dark:text-pink-400 uppercase tracking-widest border-b border-[#75013f]/10 dark:border-pink-900/30 pb-2">
+            Financials & Rates</h4>
+          <div class="grid grid-cols-1 gap-4">
+            <div
+              class="p-6 bg-[#f5f2ef]/30 dark:bg-gray-800/50 rounded-3xl border border-gray-100 dark:border-gray-700 transition-colors">
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Coverage Range</p>
+              <p class="text-xl font-bold text-gray-800 dark:text-gray-100">₹{{ selectedPlan.minCoverageAmount | number
+                }} - ₹{{ selectedPlan.maxCoverageAmount | number }}</p>
+            </div>
+            <div
+              class="p-6 bg-[#f5f2ef]/30 dark:bg-gray-800/50 rounded-3xl border border-gray-100 dark:border-gray-700 transition-colors">
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Base Premium Rate</p>
+              <p class="text-xl font-bold text-[#fe3082] dark:text-pink-400">{{ selectedPlan.baseRate }}% <span
+                  class="text-xs text-gray-400 dark:text-gray-500 font-normal">/ Annual</span></p>
+            </div>
+            <div
+              class="p-6 bg-[#f5f2ef]/30 dark:bg-gray-800/50 rounded-3xl border border-gray-100 dark:border-gray-700 transition-colors">
+              <p class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase">Agent Commission</p>
+              <p class="text-xl font-bold text-gray-800 dark:text-gray-100">{{ selectedPlan.commissionRate }}%</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <h4
+            class="text-xs font-black text-[#75013f] dark:text-pink-400 uppercase tracking-widest border-b border-[#75013f]/10 dark:border-pink-900/30 pb-2">
+            Eligibility & Terms</h4>
+          <div class="space-y-2">
+            <div
+              class="flex justify-between items-center py-4 border-b border-gray-50 dark:border-gray-800 transition-colors">
+              <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Entry Age Range</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ selectedPlan.minAge }} to {{
+                selectedPlan.maxAge }} Years</span>
+            </div>
+            <div
+              class="flex justify-between items-center py-4 border-b border-gray-50 dark:border-gray-800 transition-colors">
+              <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Policy Term</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ selectedPlan.minTermYears }} to {{
+                selectedPlan.maxTermYears }} Years</span>
+            </div>
+            <div
+              class="flex justify-between items-center py-4 border-b border-gray-50 dark:border-gray-800 transition-colors">
+              <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Max Family Members</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ selectedPlan.maxPolicyMembersAllowed
+                }} Person(s)</span>
+            </div>
+            <div
+              class="flex justify-between items-center py-4 border-b border-gray-50 dark:border-gray-800 transition-colors">
+              <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Coverage Until Age</span>
+              <span class="text-sm font-bold text-gray-800 dark:text-gray-200">
+                {{ selectedPlan.coverageUntilAge > 0 ? 'Up to age ' + selectedPlan.coverageUntilAge : 'Fixed Policy
+                Term' }}
+              </span>
+            </div>
+            <div class="flex justify-between items-center py-4">
+              <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Grace Period</span>
+              <span
+                class="text-sm font-bold text-orange-600 dark:text-orange-400 px-3 py-1 bg-orange-50 dark:bg-orange-900/30 rounded-full transition-colors">{{
+                selectedPlan.gracePeriodDays }} Days</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <h4 class="text-xs font-black text-[#75013f] uppercase tracking-widest border-b border-[#75013f]/10 pb-2">Plan
+            Benefits</h4>
+          <div class="space-y-4">
+            <div *ngFor="let benefit of getBenefitList(selectedPlan)"
+              class="flex items-start gap-4 p-5 rounded-3xl border transition-all duration-300"
+              [class.bg-green-50]="benefit.available" [class.dark:bg-green-900/20]="benefit.available"
+              [class.border-green-100]="benefit.available" [class.dark:border-green-900/40]="benefit.available"
+              [class.opacity-40]="!benefit.available">
+              <span class="text-2xl mt-1">{{ benefit.available ? '✓' : '✕' }}</span>
+              <div>
+                <p class="text-sm font-bold" [class.text-green-800]="benefit.available"
+                  [class.dark:text-green-400]="benefit.available">{{ benefit.label }}</p>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{{ benefit.desc }}</p>
+              </div>
+            </div>
+
+            <!-- Detailed Loan/Coverage Breakdowns -->
+            <div *ngIf="selectedPlan.hasLoanFacility"
+              class="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-900/30 space-y-3">
+              <p
+                class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest flex items-center gap-2">
+                <span>🏦</span> Loan Eligibility
+              </p>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500">Wait Period</p>
+                  <p class="text-xs font-bold text-blue-800 dark:text-blue-300">{{selectedPlan.loanEligibleAfterYears}}
+                    Years</p>
+                </div>
+                <div>
+                  <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500">Interest Rate</p>
+                  <p class="text-xs font-bold text-blue-800 dark:text-blue-300">{{selectedPlan.loanInterestRate}}% / Yr
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="selectedPlan.coverageIncreasing"
+              class="p-5 bg-purple-50 dark:bg-purple-900/20 rounded-3xl border border-purple-100 dark:border-purple-900/30 space-y-3">
+              <p
+                class="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest flex items-center gap-2">
+                <span>📈</span> Growth Benefit
+              </p>
+              <div>
+                <p class="text-[9px] font-bold text-gray-400 dark:text-gray-500">Annual Increase</p>
+                <p class="text-xs font-bold text-purple-800 dark:text-purple-300">{{selectedPlan.coverageIncreaseRate}}%
+                  of Base Coverage</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div
+      class="p-8 md:p-10 bg-gray-50 dark:bg-gray-800 border-t dark:border-gray-700 flex flex-col md:flex-row gap-4 transition-colors">
+      <button (click)="closeDetails()"
+        class="flex-1 py-5 bg-white dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-300 rounded-3xl font-bold hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-700 dark:hover:text-white transition-all flex items-center justify-center gap-2">
+        <span>&larr;</span> Back to Explorer
+      </button>
+      <button [routerLink]="['/customer-dashboard/buy-policy']" [queryParams]="{ planId: selectedPlan.id }"
+        class="flex-[2] py-5 bg-[#75013f] dark:bg-pink-700 text-white rounded-3xl font-bold hover:bg-[#3b001f] dark:hover:bg-pink-600 shadow-xl shadow-[#75013f]/30 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2">
+        Proceed to Purchase <span>&rarr;</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showCompareModal"
+  class="fixed inset-0 z-[10001] flex items-center justify-center bg-[#3b001f]/90 dark:bg-black/95 backdrop-blur-md p-4 md:p-10 transition-colors duration-300">
+  <div
+    class="bg-white dark:bg-gray-900 w-full max-w-5xl rounded-[3.5rem] p-10 overflow-hidden relative shadow-2xl animate-in zoom-in duration-300 border border-white/10 dark:border-gray-800">
+    <button (click)="showCompareModal = false"
+      class="absolute top-8 right-10 text-4xl text-gray-300 hover:text-red-500 transition-colors">&times;</button>
+
+    <div class="mb-10">
+      <h2 class="text-3xl font-bold text-[#75013f] dark:text-pink-300">Compare Your Choices</h2>
+      <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Side-by-side analysis of your selected protection plans.
+      </p>
+    </div>
+
+    <div class="overflow-x-auto">
+      <div class="grid min-w-[600px]" [style.grid-template-columns]="'repeat(' + (compareList.length + 1) + ', 1fr)'">
+        <div
+          class="space-y-8 font-black text-[#75013f] dark:text-pink-400 text-[10px] uppercase tracking-widest pt-14 pr-4 border-r border-gray-50 dark:border-gray-800 transition-colors">
+          <div class="h-12 flex items-center">Category</div>
+          <div class="h-12 flex items-center">Max Sum Assured</div>
+          <div class="h-12 flex items-center">Max Nominees</div>
+          <div class="h-12 flex items-center">Return of Premium</div>
+          <div class="h-12 flex items-center">Base Rate</div>
+        </div>
+
+        <div *ngFor="let p of compareList" class="text-center px-4 space-y-8">
+          <div
+            class="h-14 mb-2 flex flex-col items-center justify-center bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl p-4 transition-colors">
+            <span class="text-xs font-black text-[#75013f] dark:text-pink-300 truncate w-full">{{p.planName}}</span>
+          </div>
+          <div class="h-12 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">{{p.planType}}
+          </div>
+          <div class="h-12 flex items-center justify-center text-sm font-black text-gray-800 dark:text-gray-100">
+            ₹{{p.maxCoverageAmount | number}}</div>
+          <div class="h-12 flex items-center justify-center text-sm text-gray-500 dark:text-gray-400">{{p.maxNominees}}
+            Persons</div>
+          <div class="h-12 flex items-center justify-center text-sm">
+            <span
+              [class]="p.isReturnOfPremium ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'">{{p.isReturnOfPremium
+              ? '✓ Available' : '✕ No'}}</span>
+          </div>
+          <div class="h-12 flex items-center justify-center text-sm font-bold text-[#fe3082] dark:text-pink-400">
+            {{p.baseRate}}% / Yr</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 flex justify-center">
+      <button (click)="showCompareModal = false"
+        class="px-10 py-4 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-2xl font-bold text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
+        Close Comparison
+      </button>
+    </div>
+  </div>
+</div>

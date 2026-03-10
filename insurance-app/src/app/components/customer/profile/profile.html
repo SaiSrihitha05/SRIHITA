@@ -1,0 +1,87 @@
+<div class="max-w-5xl mx-auto space-y-10 font-lato pb-20 px-4 md:px-8">
+
+  <div class="flex justify-between items-center">
+    <div>
+      <h1 class="text-3xl font-black text-[#75013f] dark:text-pink-300">Account Settings</h1>
+      <p class="text-gray-500 dark:text-gray-400 font-medium">Manage your personal information and contact details.</p>
+    </div>
+    <button (click)="toggleEdit()"
+      class="px-6 py-3 border-2 border-[#75013f] dark:border-pink-700 text-[#75013f] dark:text-pink-300 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#75013f] dark:hover:bg-pink-600 hover:text-white transition-all">
+      {{ isEditMode ? 'Cancel' : 'Edit Profile' }}
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#75013f]"></div>
+  </div>
+
+  <div *ngIf="!loading && userProfile"
+    class="bg-white dark:bg-gray-800 rounded-[3rem] shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+
+    <div class="h-32 bg-[#75013f] dark:bg-pink-900/50 relative">
+      <div
+        class="absolute -bottom-12 left-12 w-24 h-24 bg-[#fe3082] dark:bg-pink-600 rounded-3xl shadow-xl flex items-center justify-center text-white text-3xl font-black">
+        {{ userProfile.name?.charAt(0) }}
+      </div>
+    </div>
+
+    <div class="pt-20 px-12 pb-12 space-y-12">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Full
+            Name</label>
+          <div *ngIf="!isEditMode" class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ userProfile.name }}
+          </div>
+          <input *ngIf="isEditMode" [(ngModel)]="editData.name"
+            class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-2xl border-none outline-none focus:ring-2 focus:ring-[#75013f]/20 font-bold">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Email
+            Address</label>
+          <div class="text-lg font-bold text-gray-500 dark:text-gray-400">{{ userProfile.email }}</div>
+          <p class="text-[9px] text-gray-400 dark:text-gray-500 italic">Email cannot be changed for security reasons.
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Phone
+            Number</label>
+          <div *ngIf="!isEditMode" class="text-lg font-bold text-gray-800 dark:text-gray-100">{{ userProfile.phone ||
+            'Not provided' }}</div>
+          <input *ngIf="isEditMode" [(ngModel)]="editData.phone"
+            class="w-full p-4 bg-gray-50 dark:bg-gray-700 dark:text-white rounded-2xl border-none outline-none focus:ring-2 focus:ring-[#75013f]/20 font-bold">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Account
+            Role</label>
+          <div class="flex items-center gap-2">
+            <span
+              class="px-3 py-1 bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 rounded-lg text-[10px] font-black uppercase transition-colors">
+              {{ userProfile.role }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="isEditMode" class="pt-8 border-t dark:border-gray-700 flex justify-end gap-4 transition-colors">
+        <button (click)="toggleEdit()"
+          class="px-8 py-4 text-gray-400 dark:text-gray-500 font-black text-[10px] uppercase tracking-widest hover:text-gray-600 dark:hover:text-gray-300">
+          Discard
+        </button>
+        <button (click)="saveProfile()" [disabled]="saving"
+          class="px-10 py-4 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-[#75013f]/20 hover:scale-105 transition-all">
+          {{ saving ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+
+</div>

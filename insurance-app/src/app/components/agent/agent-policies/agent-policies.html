@@ -1,0 +1,101 @@
+<!-- Policy Verification Dashboard for Insurance Agents -->
+<div class="p-6 font-lato">
+  <div class="mb-8 transition-colors">
+    <h1 class="text-2xl font-bold text-[#75013f] dark:text-pink-300">Assigned Policy Verifications</h1>
+    <p class="text-gray-500 dark:text-gray-400 text-sm">Review documents and update policy status for your assigned
+      customers</p>
+  </div>
+
+  <div
+    class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300">
+    <table class="w-full text-left">
+      <thead class="bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700 transition-colors">
+        <tr class="text-[#75013f] dark:text-pink-300 text-xs font-bold uppercase">
+          <th class="px-6 py-4">Policy / Customer</th>
+          <th class="px-6 py-4">Premium</th>
+          <th class="px-6 py-4">Current Status</th>
+          <th class="px-6 py-4">Verification</th>
+          <th class="px-6 py-4 text-right">Update Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+        <tr *ngFor="let policy of policies" class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-all">
+          <td class="px-6 py-4">
+            <p class="font-bold text-gray-800 dark:text-gray-100">{{ policy.policyNumber }}</p>
+            <p class="text-xs text-gray-400 dark:text-gray-500">{{ policy.customerName }}</p>
+          </td>
+          <td class="px-6 py-4">
+            <p class="font-semibold dark:text-gray-100">₹{{ policy.totalPremiumAmount | number }}</p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase">{{ policy.premiumFrequency }}</p>
+          </td>
+          <td class="px-6 py-4">
+            <span
+              [class]="'px-2 py-1 rounded text-[10px] font-bold transition-all ' + 
+              (policy.status === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400')">
+              {{ policy.status }}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <button (click)="viewPolicyDetails(policy)"
+              class="text-[#75013f] dark:text-pink-400 text-xs font-bold hover:underline transition-colors">
+              View Documents & Members
+            </button>
+          </td>
+          <td class="px-6 py-4 text-right">
+            <!-- Action drop-down for agent verification tasks -->
+            <select [disabled]="policy.status === 'Closed'" [(ngModel)]="policy.status"
+              (change)="onUpdateStatus(policy)" name="status-{{policy.id}}"
+              class="text-xs p-2 border dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 dark:text-gray-100 outline-none focus:border-[#fe3082] dark:focus:border-pink-500 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+              <option *ngFor="let opt of statusOptions" [value]="opt">{{ opt }}</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Detailed Verification Modal Overlay -->
+  <div *ngIf="showDetailsModal && selectedPolicy"
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-all">
+    <div
+      class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-3xl shadow-2xl p-8 max-h-[85vh] overflow-y-auto border dark:border-gray-700 transition-colors duration-300">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-[#75013f] dark:text-pink-300">Policy Verification: {{
+          selectedPolicy.policyNumber }}</h2>
+        <button (click)="showDetailsModal = false"
+          class="text-gray-400 dark:text-gray-500 hover:text-red-500 text-2xl transition-all">&times;</button>
+      </div>
+
+      <div class="mb-8">
+        <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-4 border-b dark:border-gray-700 pb-2">Insured Members
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div *ngFor="let member of selectedPolicy.members"
+            class="p-4 bg-[#f5f2ef] dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700 transition-colors">
+            <p class="font-bold dark:text-gray-100">{{ member.memberName }} ({{ member.relationshipToCustomer }})</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Gender: {{ member.gender }} | Occ: {{ member.occupation
+              }}</p>
+            <p class="text-sm font-bold text-[#75013f] dark:text-pink-400 mt-1">Coverage: ₹{{ member.coverageAmount |
+              number }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-4 border-b dark:border-gray-700 pb-2">Customer
+          Documents</h3>
+        <div class="flex flex-wrap gap-4">
+          <a *ngFor="let doc of selectedPolicy.documents" [href]="'https://localhost:7027/' + doc.filePath"
+            target="_blank"
+            class="p-4 border dark:border-gray-700 rounded-xl hover:border-[#75013f] dark:hover:border-pink-500 hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 transition-all flex items-center gap-3 group">
+            <span class="text-2xl group-hover:scale-110 transition-transform">📄</span>
+            <div>
+              <p class="text-xs font-bold text-[#75013f] dark:text-pink-300">{{ doc.documentCategory }}</p>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500">Click to view file</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

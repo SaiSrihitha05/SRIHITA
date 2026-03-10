@@ -1,0 +1,34 @@
+﻿
+> test_results.txt:32:    
+ at Application.Services.C
+laimService.FileClaimAsync
+(Int32 customerId, 
+FileClaimDto dto) in d:\an
+gularpractice\HartfordAssi
+gnments\capstone\Insurance
+Solution\Application\Servi
+ces\ClaimService.cs:line 
+102
+  test_results.txt:33:   
+at Application.Tests.Servi
+ces.ClaimServiceTests.File
+ClaimAsync_ShouldCreateCla
+im_WhenDataIsValid() in d:
+\angularpractice\HartfordA
+ssignments\capstone\Insura
+nceSolution\Application.Te
+sts\Services\ClaimServiceT
+ests.cs:line 137
+  test_results.txt:34:--- 
+End of stack trace from 
+previous location ---
+  test_results.txt:35:
+  test_results.txt:36:Fail
+ed!  - Failed:     1, 
+Passed:    78, Skipped:   
+  0, Total:    79, 
+Duration: 5 s - 
+Application.Tests.dll 
+(net8.0)
+
+

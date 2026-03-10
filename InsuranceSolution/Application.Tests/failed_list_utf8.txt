@@ -1,0 +1,7 @@
+﻿Failed Application.Tests.Services.ClaimServiceTests.FileClaimAsync_ShouldThrowForbidden_WhenCustomerDoesNotOwnPolicy [6 ms]
+Failed Application.Tests.Services.ClaimServiceTests.AssignClaimsOfficerAsync_ShouldSucceed_WhenOfficerIsValid [8 ms]
+Failed Application.Tests.Services.ClaimServiceTests.GetMyClaimsAsync_ShouldReturnOnlyCustomerClaims [132 ms]
+Failed Application.Tests.Services.ClaimServiceTests.ProcessClaimAsync_ShouldClosePolicy_WhenClaimApproved [11 ms]
+Failed Application.Tests.Services.ClaimServiceTests.FileClaimAsync_ShouldThrowBadRequest_WhenPolicyLapsed [4 ms]
+Failed Application.Tests.Services.ClaimServiceTests.ProcessClaimAsync_ShouldUpdateStatusAndNotifyCustomer [6 ms]
+Failed Application.Tests.Services.ClaimServiceTests.AssignClaimsOfficerAsync_ShouldThrowBadRequest_WhenUserIsNotOfficer [5 ms]

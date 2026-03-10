@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# Angular / Node
+node_modules/
+dist/
+
+# OS
+*.log
+
+# Visual Studio temporary files
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.sln.docstates
+
+# Angular/Node dependencies
+node_modules/
+dist/
+.angular/
+
+# OS files
+.DS_Store
+Thumbs.db
