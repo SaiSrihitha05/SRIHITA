@@ -9,20 +9,20 @@ namespace Application.Services
 {
     public interface IClaimService
     {
-        Task<ClaimResponseDto> FileClaimAsync(int customerId, FileClaimDto dto);                    // Customer
+        Task<ClaimResponseDto> FileClaimAsync(int customerId, FileClaimDto dto);                    
 
-        Task<IEnumerable<ClaimResponseDto>> GetMyClaimsAsync(int customerId);                                      // Customer
+        Task<IEnumerable<ClaimResponseDto>> GetMyClaimsAsync(int customerId);                                      
 
-        Task<IEnumerable<ClaimResponseDto>> GetAllClaimsAsync(); // Admin
+        Task<IEnumerable<ClaimResponseDto>> GetAllClaimsAsync(); 
 
-        Task<IEnumerable<ClaimResponseDto>> GetMyAssignedClaimsAsync(int officerId);                                       // ClaimsOfficer
+        Task<IEnumerable<ClaimResponseDto>> GetMyAssignedClaimsAsync(int officerId);                                       
 
         Task<ClaimResponseDto> GetClaimByIdAsync(int id);
 
-        Task AssignClaimsOfficerAsync(int claimId, AssignClaimsOfficerDto dto);            // Admin
+        Task AssignClaimsOfficerAsync(int claimId, AssignClaimsOfficerDto dto);         
 
-        Task<ClaimResponseDto> ProcessClaimAsync(int claimId, int officerId, ProcessClaimDto dto);    // ClaimsOfficer
+        Task<ClaimResponseDto> ProcessClaimAsync(int claimId, int officerId, ProcessClaimDto dto);    
 
-        Task ProcessMaturityClaimsAsync();                        // Background
+        Task ProcessMaturityClaimsAsync();                      
     }
 }

@@ -73,8 +73,6 @@ namespace Application.Services
             // Total amount = premium * total installments
             var totalAmount = policy.TotalPremiumAmount * totalInstallments;
 
-            // Simulate payment gateway success
-            // In real scenario this is where you'd call Razorpay/Stripe API
             var transactionRef = GenerateTransactionReference();
 
             var payment = new Payment
@@ -149,7 +147,6 @@ namespace Application.Services
             // Ensure the DTO returns immediately regardless of email status
             return MapToDto(payment, policy.PolicyNumber, policy.NextDueDate);
         }
-        // PaymentService.cs — private helper
         private static DateTime CalculateNextDueDate(
             DateTime currentDueDate,
             PremiumFrequency frequency,
@@ -213,7 +210,6 @@ namespace Application.Services
             return GeneratePdfBytes(payment);
         }
 
-        // ── Private Helpers ───────────────────────────────────
 
         private static string GenerateTransactionReference() =>
             $"TXN{DateTime.UtcNow:yyyyMMddHHmmss}{Guid.NewGuid().ToString()[..6].ToUpper()}";

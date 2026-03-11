@@ -18,11 +18,11 @@ namespace Application.Services
             List<IFormFile> customerDocuments,
             List<IFormFile> memberDocuments);
         Task<PolicyResponseDto> GetPolicyByIdAsync(int id);
-        Task<IEnumerable<PolicyResponseDto>> GetAllPoliciesAsync();           // Admin
-        Task<IEnumerable<PolicyResponseDto>> GetMyPoliciesAsync(int customerId); // Customer
-        Task<IEnumerable<PolicyResponseDto>> GetAgentPoliciesAsync(int agentId); // Agent
-        Task UpdatePolicyStatusAsync(int id, UpdatePolicyStatusDto dto);      // Agent
-        Task AssignAgentAsync(int id, AssignAgentDto dto);                    // Admin
+        Task<IEnumerable<PolicyResponseDto>> GetAllPoliciesAsync();           
+        Task<IEnumerable<PolicyResponseDto>> GetMyPoliciesAsync(int customerId); 
+        Task<IEnumerable<PolicyResponseDto>> GetAgentPoliciesAsync(int agentId); 
+        Task UpdatePolicyStatusAsync(int id, UpdatePolicyStatusDto dto);      
+        Task AssignAgentAsync(int id, AssignAgentDto dto);                    
         Task<(byte[] fileBytes, string fileName, string contentType)>
     DownloadDocumentAsync(int documentId, int userId, string role);
         Task CancelPendingPolicyAsync(int policyId, int customerId);

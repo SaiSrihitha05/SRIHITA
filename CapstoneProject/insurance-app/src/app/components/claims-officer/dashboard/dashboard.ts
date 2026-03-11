@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
   imports: [CommonModule],
   templateUrl: './dashboard.html'
 })
-export class Dashboard implements OnInit {
+export class ClaimsOfficerDashboard implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 

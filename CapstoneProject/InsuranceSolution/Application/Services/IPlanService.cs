@@ -9,12 +9,12 @@ namespace Application.Services
 {
     public interface IPlanService
     {
-        Task<IEnumerable<PlanResponseDto>> GetAllPlansAsync();      // Admin - all plans
-        Task<IEnumerable<PlanResponseDto>> GetActivePlansAsync();   // Customer - active only
-        Task<PlanResponseDto> GetPlanByIdAsync(int id,string role);             // Admin + Customer
-        Task<PlanResponseDto> CreatePlanAsync(CreatePlanDto dto);   // Admin only
-        Task<PlanResponseDto> UpdatePlanAsync(int id, UpdatePlanDto dto); // Admin only
-        Task DeletePlanAsync(int id);                               // Admin only
+        Task<IEnumerable<PlanResponseDto>> GetAllPlansAsync();      
+        Task<IEnumerable<PlanResponseDto>> GetActivePlansAsync();  
+        Task<PlanResponseDto> GetPlanByIdAsync(int id,string role);             
+        Task<PlanResponseDto> CreatePlanAsync(CreatePlanDto dto);   
+        Task<PlanResponseDto> UpdatePlanAsync(int id, UpdatePlanDto dto); 
+        Task DeletePlanAsync(int id);                             
         Task<IEnumerable<PlanResponseDto>> GetFilteredPlansAsync(
             PlanFilterDto filter, string role);  
     }

@@ -20,14 +20,14 @@ namespace Application.DTOs
         [Required]
         public ClaimType ClaimType { get; set; }
 
-        // For death claims (Optional now as they are fetched from policy)
+        // For death claims
         public string? DeathCertificateNumber { get; set; }
         public string? NomineeName { get; set; }
         public string? NomineeContact { get; set; }
 
         public string? Remarks { get; set; }
 
-        // Supporting documents (death certificate, medical records etc.)
+        // Supporting documents (death certificate, medical records)
         public List<IFormFile>? Documents { get; set; }
     }
 }

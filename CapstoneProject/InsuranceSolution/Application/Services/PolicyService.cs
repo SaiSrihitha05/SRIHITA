@@ -1,4 +1,3 @@
-// Application/Services/PolicyService.cs
 using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces;
@@ -66,13 +65,13 @@ namespace Application.Services
                 throw new BadRequestException(
                     "Policy start date cannot be more than 1 year in the future");
 
-            // -- Validate TermYears against plan ------------------
+            // Validate TermYears against plan 
             if (dto.TermYears < plan.MinTermYears || dto.TermYears > plan.MaxTermYears)
                 throw new BadRequestException(
                     $"Term years must be between {plan.MinTermYears} " +
                     $"and {plan.MaxTermYears} years for this plan");
 
-            // -- EndDate auto calculated from TermYears ------------
+            // EndDate auto calculated from TermYears 
             var endDate = dto.StartDate.AddYears(dto.TermYears);
 
             // Validate member count against plan limit
@@ -116,7 +115,7 @@ namespace Application.Services
                 throw new BadRequestException(
                     $"Nominee share percentages must total 100. Current total: {totalShare}");
 
-            // -- Nominee count validation --------------------------
+            // Nominee count validation 
             if (nominees.Count < plan.MinNominees)
                 throw new BadRequestException(
                     $"This plan requires at least {plan.MinNominees} nominee(s). " +
@@ -144,7 +143,7 @@ namespace Application.Services
             {
                 PolicyNumber = await _policyRepository.GeneratePolicyNumberAsync(),
                 CustomerId = customerId,
-                AgentId = null,         // default until admin assigns
+                AgentId = null,         
                 PlanId = dto.PlanId,
                 StartDate = dto.StartDate,
                 TermYears = dto.TermYears,
@@ -185,7 +184,6 @@ namespace Application.Services
                     customerDocuments, policy.Id, customerId);
 
             // Save member documents for non-primary members
-            // Folder: uploads/policies/{policyId}/members/{memberId}/
             if (memberDocuments != null && memberDocuments.Any())
             {
                 var nonPrimaryMembers = policy.PolicyMembers
@@ -230,7 +228,6 @@ namespace Application.Services
             return policies.Select(MapToDto);
         }
 
-        // Inject INotificationService and IEmailService and IUserRepository
         public async Task UpdatePolicyStatusAsync(int id, UpdatePolicyStatusDto dto)
         {
             var policy = await _policyRepository.GetByIdWithDetailsAsync(id);
@@ -282,15 +279,12 @@ namespace Application.Services
             await _policyRepository.SaveChangesAsync();
         }
 
-        //  Private Helpers 
-
-        // -- Customer Documents --------------------------------
+        // Customer Documents 
         private async Task SaveCustomerDocumentsAsync(
             List<IFormFile> files,
             int policyId,
             int uploadedByUserId)
         {
-            // Folder structure: uploads/policies/{policyId}/customer/
             var folderPath = Path.Combine(
                 _environment.WebRootPath,
                 "uploads", "policies",
@@ -331,15 +325,13 @@ namespace Application.Services
             await _documentRepository.SaveChangesAsync();
         }
 
-        // -- Member Documents ----------------------------------
+        // Member Documents
         private async Task SaveMemberDocumentsAsync(
             List<IFormFile> files,
             int policyId,
             List<PolicyMember> nonPrimaryMembers,
             int uploadedByUserId)
         {
-            // Distribute files evenly across non-primary members
-            // Each non-primary member gets one identity proof document
             for (int i = 0; i < nonPrimaryMembers.Count && i < files.Count; i++)
             {
                 var member = nonPrimaryMembers[i];
@@ -391,7 +383,7 @@ namespace Application.Services
         {
             var annualPremium = (coverageAmount / 1000) * baseRate;
 
-            var age = CalculateAge(dateOfBirth);  // reuse static age helper
+            var age = CalculateAge(dateOfBirth);  
 
             var ageFactor = age switch
             {
@@ -439,7 +431,6 @@ namespace Application.Services
             if (document == null)
                 throw new NotFoundException("Document", documentId);
 
-            // Customers can only download their own documents
             if (role == "Customer")
             {
                 var policy = await _policyRepository
@@ -540,7 +531,6 @@ namespace Application.Services
                 IsPrimaryInsured = m.IsPrimaryInsured
             }).ToList() ?? new();
 
-            // Set bonus details for the primary insured if applicable
             var primaryMember = p.PolicyMembers?.FirstOrDefault(m => m.IsPrimaryInsured);
             if (primaryMember != null)
             {
@@ -559,11 +549,11 @@ namespace Application.Services
             if (policy.CustomerId != customerId)
                 throw new ForbiddenException("You can only cancel your own policies");
 
-            // Strict validation: Only Pending policies can be cancelled by the user
+            // Only Pending policies can be cancelled by the user
             if (policy.Status != PolicyStatus.Pending)
                 throw new BadRequestException($"Cannot cancel policy with status: {policy.Status}");
 
-            policy.Status = PolicyStatus.Cancelled; // Or create a 'Cancelled' status in your Enum
+            policy.Status = PolicyStatus.Cancelled;
 
             _policyRepository.Update(policy);
             await _policyRepository.SaveChangesAsync();

@@ -33,7 +33,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./components/admin/dashboard/dashboard').then(m => m.Dashboard)
+        loadComponent: () => import('./components/admin/dashboard/dashboard').then(m => m.AdminDashboard)
       },
       {
         path: 'plans',
@@ -69,7 +69,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./components/agent/dashboard/dashboard').then(m => m.Dashboard)
+        loadComponent: () => import('./components/agent/dashboard/dashboard').then(m => m.AgentDashboard)
       },
       {
         path: 'my-policies',
@@ -87,7 +87,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { role: 'ClaimsOfficer' },
     children: [
-      { path: '', loadComponent: () => import('./components/claims-officer/dashboard/dashboard').then(m => m.Dashboard) },
+      { path: '', loadComponent: () => import('./components/claims-officer/dashboard/dashboard').then(m => m.ClaimsOfficerDashboard) },
       { path: 'my-claims', loadComponent: () => import('./components/claims-officer/claims-officer-claims/claims-officer-claims').then(m => m.ClaimsOfficerClaims) },
       { path: 'profile', loadComponent: () => import('./components/claims-officer/profile/profile').then(m => m.ClaimsOfficerProfile) }
     ]
@@ -100,7 +100,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadComponent: () => import('./components/customer/dashboard/dashboard').then(m => m.Dashboard)
+        loadComponent: () => import('./components/customer/dashboard/dashboard').then(m => m.CustomerDashboard)
       },
       {
         path: 'notifications',

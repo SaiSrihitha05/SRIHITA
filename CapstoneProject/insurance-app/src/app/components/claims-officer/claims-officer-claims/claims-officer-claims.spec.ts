@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 
 describe('ClaimsOfficerClaims', () => {
   let component: ClaimsOfficerClaims;
@@ -99,10 +99,11 @@ describe('ClaimsOfficerClaims', () => {
     expect(window.alert).toHaveBeenCalledWith('Settlement amount is required when approving or settling a claim');
   });
 
-  it('should call processClaim and reload data on success', () => {
-    spyOn(window, 'alert');
+  it('should call processClaim and navigate on success', () => {
+    const router = TestBed.inject(Router);
+    const navSpy = spyOn(router, 'navigate').and.returnValue(Promise.resolve(true));
+
     mockClaimService.processClaim.and.returnValue(of({}));
-    const reloadSpy = spyOn(component, 'loadMyClaims');
 
     component.selectedClaim = { id: 1 };
     component.processForm = {
@@ -118,8 +119,9 @@ describe('ClaimsOfficerClaims', () => {
       remarks: 'Looks good',
       settlementAmount: 4500
     });
-    expect(window.alert).toHaveBeenCalled();
-    expect(reloadSpy).toHaveBeenCalled();
+
+    // Check that we navigate instead of alerting
+    expect(navSpy).toHaveBeenCalledWith(['/claims-officer-dashboard/my-claims']);
   });
 
   it('should return false in canProcess for Settled or Rejected claims', () => {

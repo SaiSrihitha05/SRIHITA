@@ -85,11 +85,11 @@ namespace Application.Services
                 .Take(5)
                 .ToList();
 
-            // ── Agent Performance ─────────────────────────────────
+            // Agent Performance 
             var agentPerformance = GetAgentPerformanceAsync(
                 allPolicies.ToList(), agents.ToList());
 
-            // ── Monthly Policy Growth ─────────────────────────────
+            // Monthly Policy Growth 
             var monthlyPolicyGrowth = allPolicies
                 .Where(p => p.CreatedAt >= DateTime.UtcNow.AddMonths(-12))
                 .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
@@ -105,7 +105,7 @@ namespace Application.Services
                 .OrderBy(m => m.Year).ThenBy(m => m.Month)
                 .ToList();
 
-            // ── Revenue by Plan Type ──────────────────────────────
+            // Revenue by Plan Type 
             var revenueByPlan = allPayments
                 .GroupBy(p => new
                 {
@@ -122,7 +122,7 @@ namespace Application.Services
                 .OrderByDescending(r => r.TotalRevenue)
                 .ToList();
 
-            // ── Claim Approval Rate ───────────────────────────────
+            // Claim Approval Rate 
             var settledCount = allClaims.Count(c => c.Status == ClaimStatus.Settled);
             var rejectedCount = allClaims.Count(c => c.Status == ClaimStatus.Rejected);
             var approvalRate = (settledCount + rejectedCount) > 0
@@ -311,7 +311,6 @@ namespace Application.Services
                 .Where(p => p.CommissionStatus == CommissionStatus.Paid).ToList();
 
             // Commission with threshold logic
-            // e.g. if sold > 10 policies → 1.5x commission rate
             var baseCommission = paidPolicies.Sum(p =>
                 p.TotalPremiumAmount * (p.Plan?.CommissionRate ?? 0) / 100);
 
@@ -462,7 +461,7 @@ namespace Application.Services
             };
         }
 
-        // ── Private Mappers ───────────────────────────────────
+        // Private Mappers 
         private static PolicyResponseDto MapPolicyToDto(PolicyAssignment p) => new()
         {
             Id = p.Id,

@@ -6,12 +6,12 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-agent-dashboard',
   standalone: true,
   imports: [CommonModule, BaseChartDirective],
   templateUrl: './dashboard.html'
 })
-export class Dashboard implements OnInit {
+export class AgentDashboard implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);

@@ -10,7 +10,7 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
   imports: [CommonModule, BaseChartDirective],
   templateUrl: './dashboard.html'
 })
-export class Dashboard implements OnInit {
+export class CustomerDashboard implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 

@@ -24,8 +24,6 @@ namespace Application.DTOs
         public DateTime CreatedAt { get; set; }
         public bool IsActive { get; set; }
         public decimal CommissionRate { get; set; }
-
-        // ✅ NEW FIELDS
         public bool HasDeathBenefit { get; set; }
         public bool HasBonus { get; set; }
         public bool HasLoanFacility { get; set; }

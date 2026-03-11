@@ -1,0 +1,181 @@
+[32m10 03 2026 22:50:21.131:INFO [karma-server]: [39mKarma v6.4.4 server started at http://localhost:9876/
+[32m10 03 2026 22:50:21.134:INFO [launcher]: [39mLaunching browsers ChromeHeadless with concurrency unlimited
+[32m10 03 2026 22:50:21.173:INFO [launcher]: [39mStarting browser ChromeHeadless
+[32m10 03 2026 22:50:23.728:INFO [Chrome Headless 145.0.0.0 (Windows 10)]: [39mConnected on socket Qi2Wq3ZxpMuGxZ6dAAAB with id 13346696
+Chrome Headless 145.0.0.0 (Windows 10): Executed 0 of 213[32m SUCCESS[39m (0 secs / 0 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 1 of 213[32m SUCCESS[39m (0 secs / 0.019 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 2 of 213[32m SUCCESS[39m (0 secs / 0.022 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 3 of 213[32m SUCCESS[39m (0 secs / 0.027 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 4 of 213[32m SUCCESS[39m (0 secs / 0.031 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 5 of 213[32m SUCCESS[39m (0 secs / 0.035 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 6 of 213[32m SUCCESS[39m (0 secs / 0.038 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 7 of 213[32m SUCCESS[39m (0 secs / 0.042 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 8 of 213[32m SUCCESS[39m (0 secs / 0.046 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 9 of 213[32m SUCCESS[39m (0 secs / 0.049 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 10 of 213[32m SUCCESS[39m (0 secs / 0.052 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 11 of 213[32m SUCCESS[39m (0 secs / 0.055 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 12 of 213[32m SUCCESS[39m (0 secs / 0.152 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) ForgotPassword should call authService.forgotPassword and navigate on success FAILED[39m
+	Error: <toHaveBeenCalledWith> : Expected a spy, but got Function.
+	Usage: expect(<spyObj>).toHaveBeenCalledWith(...arguments)
+	    at <Jasmine>
+	    at UserContext.apply (src/app/components/auth/forgot-password/forgot-password.spec.ts:45:29)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:158)
+	    at _ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:956:33)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:46)
+	    at _ZoneImpl.run (node_modules/zone.js/fesm2015/zone.js:127:35)
+	    at runInTestZone (node_modules/zone.js/fesm2015/zone-testing.js:192:30)
+	    at UserContext.<anonymous> (node_modules/zone.js/fesm2015/zone-testing.js:199:16)
+Chrome Headless 145.0.0.0 (Windows 10): Executed 13 of 213[31m (1 FAILED)[39m (0 secs / 0.17 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 14 of 213[31m (1 FAILED)[39m (0 secs / 0.181 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 15 of 213[31m (1 FAILED)[39m (0 secs / 0.188 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 16 of 213[31m (1 FAILED)[39m (0 secs / 0.275 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) AgentPolicies should reload policies if status update is cancelled via prompt FAILED[39m
+	Error: <toHaveBeenCalled> : Expected a spy, but got Function.
+	Usage: expect(<spyObj>).toHaveBeenCalled()
+	    at <Jasmine>
+	    at UserContext.apply (src/app/components/agent/agent-policies/agent-policies.spec.ts:65:50)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:158)
+	    at _ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:956:33)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:46)
+	    at _ZoneImpl.run (node_modules/zone.js/fesm2015/zone.js:127:35)
+	    at runInTestZone (node_modules/zone.js/fesm2015/zone-testing.js:192:30)
+Chrome Headless 145.0.0.0 (Windows 10): Executed 17 of 213[31m (2 FAILED)[39m (0 secs / 0.285 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 18 of 213[31m (2 FAILED)[39m (0 secs / 0.292 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 19 of 213[31m (2 FAILED)[39m (0 secs / 0.302 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 20 of 213[31m (2 FAILED)[39m (0 secs / 0.324 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 21 of 213[31m (2 FAILED)[39m (0 secs / 0.379 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) AdminUsers should call createAgent when submitting in Agent tab FAILED[39m
+	Expected spy createAgent to have been called with:
+	  [ Object({ name: '', email: '', password: '', phone: '' }) ]
+	but actual calls were:
+	  [ Object({ name: 'New Agent', email: 'a@a.com', password: '123', phone: '123' }) ].
+	
+	Call 0:
+	  Expected $[0].name = 'New Agent' to equal ''.
+	  Expected $[0].email = 'a@a.com' to equal ''.
+	  Expected $[0].password = '123' to equal ''.
+	  Expected $[0].phone = '123' to equal ''.
+	Error: Expected spy createAgent to have been called with:
+	  [ Object({ name: '', email: '', password: '', phone: '' }) ]
+	but actual calls were:
+	  [ Object({ name: 'New Agent', email: 'a@a.com', password: '123', phone: '123' }) ].
+	Call 0:
+	  Expected $[0].name = 'New Agent' to equal ''.
+	  Expected $[0].email = 'a@a.com' to equal ''.
+	  Expected $[0].password = '123' to equal ''.
+	  Expected $[0].phone = '123' to equal ''.
+	    at <Jasmine>
+	    at UserContext.apply (src/app/components/admin/admin-users/admin-users.spec.ts:64:37)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:158)
+	    at _ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:956:33)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:46)
+Chrome Headless 145.0.0.0 (Windows 10): Executed 22 of 213[31m (3 FAILED)[39m (0 secs / 0.387 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 23 of 213[31m (3 FAILED)[39m (0 secs / 0.393 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 24 of 213[31m (3 FAILED)[39m (0 secs / 0.397 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 25 of 213[31m (3 FAILED)[39m (0 secs / 0.402 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 26 of 213[31m (3 FAILED)[39m (0 secs / 0.407 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 27 of 213[31m (3 FAILED)[39m (0 secs / 0.416 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 28 of 213[31m (3 FAILED)[39m (0 secs / 0.429 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 29 of 213[31m (3 FAILED)[39m (0 secs / 0.432 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 30 of 213[31m (3 FAILED)[39m (0 secs / 0.435 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 31 of 213[31m (3 FAILED)[39m (0 secs / 0.44 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 32 of 213[31m (3 FAILED)[39m (0 secs / 0.456 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 33 of 213[31m (3 FAILED)[39m (0 secs / 0.459 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 34 of 213[31m (3 FAILED)[39m (0 secs / 0.462 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 35 of 213[31m (3 FAILED)[39m (0 secs / 0.468 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 36 of 213[31m (3 FAILED)[39m (0 secs / 0.486 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 37 of 213[31m (3 FAILED)[39m (0 secs / 0.49 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 38 of 213[31m (3 FAILED)[39m (0 secs / 0.496 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 39 of 213[31m (3 FAILED)[39m (0 secs / 0.5 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 40 of 213[31m (3 FAILED)[39m (0 secs / 0.503 secs)
+[1A[2KERROR: [36m'Registration failed', Object{error: Object{message: 'Failed'}}[39m
+Chrome Headless 145.0.0.0 (Windows 10): Executed 40 of 213[31m (3 FAILED)[39m (0 secs / 0.503 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 41 of 213[31m (3 FAILED)[39m (0 secs / 0.562 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) Register should call authService.register and navigate on success FAILED[39m
+	Error: <toHaveBeenCalledWith> : Expected a spy, but got Function.
+	Usage: expect(<spyObj>).toHaveBeenCalledWith(...arguments)
+	    at <Jasmine>
+	    at UserContext.apply (src/app/components/register/register.spec.ts:60:29)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:158)
+	    at _ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:956:33)
+	    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:360:46)
+	    at _ZoneImpl.run (node_modules/zone.js/fesm2015/zone.js:127:35)
+	    at runInTestZone (node_modules/zone.js/fesm2015/zone-testing.js:192:30)
+	    at UserContext.<anonymous> (node_modules/zone.js/fesm2015/zone-testing.js:199:16)
+Chrome Headless 145.0.0.0 (Windows 10): Executed 42 of 213[31m (4 FAILED)[39m (0 secs / 0.569 secs)
+[1A[2KERROR: [36m'Registration failed', Object{status: 409}[39m
+Chrome Headless 145.0.0.0 (Windows 10): Executed 42 of 213[31m (4 FAILED)[39m (0 secs / 0.569 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 43 of 213[31m (4 FAILED)[39m (0 secs / 0.579 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 44 of 213[31m (4 FAILED)[39m (0 secs / 0.585 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 45 of 213[31m (4 FAILED)[39m (0 secs / 0.592 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 46 of 213[31m (4 FAILED)[39m (0 secs / 0.61 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 47 of 213[31m (4 FAILED)[39m (0 secs / 0.634 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 48 of 213[31m (4 FAILED)[39m (0 secs / 0.637 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 49 of 213[31m (4 FAILED)[39m (0 secs / 0.641 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 50 of 213[31m (4 FAILED)[39m (0 secs / 0.644 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 51 of 213[31m (4 FAILED)[39m (0 secs / 0.651 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 52 of 213[31m (4 FAILED)[39m (0 secs / 0.695 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 53 of 213[31m (4 FAILED)[39m (0 secs / 0.702 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 54 of 213[31m (4 FAILED)[39m (0 secs / 0.707 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 55 of 213[31m (4 FAILED)[39m (0 secs / 0.713 secs)
+[1A[2KLOG: [36m'Navigation successful'[39m
+Chrome Headless 145.0.0.0 (Windows 10): Executed 55 of 213[31m (4 FAILED)[39m (0 secs / 0.713 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 56 of 213[31m (4 FAILED)[39m (0 secs / 0.72 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 57 of 213[31m (4 FAILED)[39m (0 secs / 0.727 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 58 of 213[31m (4 FAILED)[39m (0 secs / 0.735 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 59 of 213[31m (4 FAILED)[39m (0 secs / 0.751 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 60 of 213[31m (4 FAILED)[39m (0 secs / 0.757 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 61 of 213[31m (4 FAILED)[39m (0 secs / 0.764 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 62 of 213[31m (4 FAILED)[39m (0 secs / 0.769 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 63 of 213[31m (4 FAILED)[39m (0 secs / 0.784 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 64 of 213[31m (4 FAILED)[39m (0 secs / 0.788 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 65 of 213[31m (4 FAILED)[39m (0 secs / 0.791 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 66 of 213[31m (4 FAILED)[39m (0 secs / 0.793 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 67 of 213[31m (4 FAILED)[39m (0 secs / 0.796 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 68 of 213[31m (4 FAILED)[39m (0 secs / 0.798 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 69 of 213[31m (4 FAILED)[39m (0 secs / 0.8 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 70 of 213[31m (4 FAILED)[39m (0 secs / 0.88 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 71 of 213[31m (4 FAILED)[39m (0 secs / 0.892 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 72 of 213[31m (4 FAILED)[39m (0 secs / 0.9 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 73 of 213[31m (4 FAILED)[39m (0 secs / 0.912 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 74 of 213[31m (4 FAILED)[39m (0 secs / 0.925 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 75 of 213[31m (4 FAILED)[39m (0 secs / 0.969 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 76 of 213[31m (4 FAILED)[39m (0 secs / 0.992 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 77 of 213[31m (4 FAILED)[39m (0 secs / 1.014 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 78 of 213[31m (4 FAILED)[39m (0 secs / 1.033 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) ERROR[39m
+  An error was thrown in afterAll
+  Error: NG0303: Can't bind to 'ngIf' since it isn't a known property of 'div' (used in the 'Dashboard' component template).
+  If the 'ngIf' is an Angular control flow directive, please make sure that either the 'NgIf' directive or the 'CommonModule' is included in the '@Component.imports' of this component.
+  error properties: Object({ code: 303 })
+      at reportUnknownPropertyError (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:2835:11)
+      at handleUnknownPropertyError (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:2831:3)
+      at setDomProperty (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5171:7)
+      at setPropertyAndInputs (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5156:3)
+      at ????property (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:14055:5)
+      at templateFn (ng:///Dashboard.js:213:21)
+      at executeTemplate (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5090:5)
+      at refreshView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5760:7)
+      at detectChangesInView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5900:5)
+      at detectChangesInViewWhileDirty (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5709:5)
+  Error: NG0303: Can't bind to 'ngIf' since it isn't a known property of 'div' (used in the 'Dashboard' component template).
+  If the 'ngIf' is an Angular control flow directive, please make sure that either the 'NgIf' directive or the 'CommonModule' is included in the '@Component.imports' of this component.
+  error properties: Object({ code: 303 })
+      at reportUnknownPropertyError (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:2835:11)
+      at handleUnknownPropertyError (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:2831:3)
+      at setDomProperty (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5171:7)
+      at setPropertyAndInputs (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5156:3)
+      at ????property (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:14055:5)
+      at templateFn (ng:///Dashboard.js:213:21)
+      at executeTemplate (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5090:5)
+      at refreshView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5760:7)
+      at detectChangesInView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5900:5)
+      at detectChangesInViewWhileDirty (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5709:5)
+Chrome Headless 145.0.0.0 (Windows 10): Executed 78 of 213[31m (4 FAILED)[39m[31m ERROR[39m (0 secs / 1.033 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 78 of 213[31m (4 FAILED)[39m[31m ERROR[39m (1.127 secs / 1.033 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 79 of 213[31m (4 FAILED)[39m[31m ERROR[39m (1.127 secs / 1.045 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) ERROR[39m
+  Disconnected , because no message in 30000 ms.
+Chrome Headless 145.0.0.0 (Windows 10): Executed 79 of 213[31m (4 FAILED)[39m[31m DISCONNECTED[39m (31.154 secs / 1.045 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 79 of 213[31m (4 FAILED)[39m[31m DISCONNECTED[39m (31.154 secs / 1.045 secs)

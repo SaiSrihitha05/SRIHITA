@@ -12,7 +12,7 @@ namespace Application.Services
         Task<PaymentResponseDto> MakePaymentAsync(int customerId, CreatePaymentDto dto);
         Task<IEnumerable<PaymentResponseDto>> GetMyPaymentsAsync(int customerId);
         Task<IEnumerable<PaymentResponseDto>> GetPaymentsByPolicyAsync(int policyId);
-        Task<IEnumerable<PaymentResponseDto>> GetAllPaymentsAsync();  // Admin
+        Task<IEnumerable<PaymentResponseDto>> GetAllPaymentsAsync();  
         Task<byte[]> GenerateInvoicePdfAsync(int paymentId, int customerId);
     }
 }

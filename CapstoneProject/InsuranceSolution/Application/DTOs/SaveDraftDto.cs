@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// Application/DTOs/SaveDraftDto.cs
 namespace Application.DTOs
 {
     public class SaveDraftDto

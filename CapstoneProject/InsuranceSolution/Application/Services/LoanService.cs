@@ -54,7 +54,7 @@ namespace Application.Services
             if (existingLoan != null)
                 throw new BadRequestException("An active loan already exists on this policy. Please repay it before applying for a new loan.");
 
-            // Calculate surrender value: Total Premiums Paid × 30%
+            // Calculate surrender value - Total Premiums Paid × 30%
             var totalPaid = policy.Payments?.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount) ?? 0;
             var surrenderValue = totalPaid * 0.30m;
 
@@ -78,7 +78,7 @@ namespace Application.Services
             };
 
             await _loanRepository.AddAsync(loan);
-            await _loanRepository.SaveChangesAsync(); // Save first to get loan.Id
+            await _loanRepository.SaveChangesAsync();
 
             await _notificationService.CreateNotificationAsync(
                 userId: customerId,
@@ -120,12 +120,12 @@ namespace Application.Services
             var payment = new Payment
             {
                 PolicyAssignmentId = loan.PolicyAssignmentId,
-                PolicyLoanId = loan.Id, // ✅ LINK TO LOAN
+                PolicyLoanId = loan.Id, 
                 Amount = dto.Amount,
-                PrincipalPaid = principalPaid, // ✅ LOAN DETAIL
-                InterestPaid = interestPaid,   // ✅ LOAN DETAIL
-                BalanceAfter = Math.Round(loan.OutstandingBalance - principalPaid, 2), // ✅ LOAN DETAIL
-                InstallmentsPaid = 0, // 0 for loan repayment
+                PrincipalPaid = principalPaid, 
+                InterestPaid = interestPaid,   
+                BalanceAfter = Math.Round(loan.OutstandingBalance - principalPaid, 2), 
+                InstallmentsPaid = 0,
                 PaymentDate = DateTime.UtcNow,
                 PaymentMethod = "Loan Repayment",
                 TransactionReference = $"LOAN-REPAY-{loan.Id}-{DateTime.UtcNow.Ticks}",
@@ -211,7 +211,6 @@ namespace Application.Services
                 Status = loan.Status.ToString(),
                 LoanDate = loan.LoanDate,
                 ClosedDate = loan.ClosedDate,
-                // ✅ FETCH HISTORY FROM PAYMENTS TABLE
                 Repayments = loan.Payments?
                     .OrderByDescending(p => p.PaymentDate)
                     .Select(p => new LoanRepaymentDto
