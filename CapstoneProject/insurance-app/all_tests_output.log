@@ -1,8 +1,0 @@
-﻿[32m04 03 2026 10:09:24.305:INFO [karma-server]: [39mKarma v6.4.4 server started at http://localhost:9876/
-[32m04 03 2026 10:09:24.308:INFO [launcher]: [39mLaunching browsers ChromeHeadless with concurrency unlimited
-[91m04 03 2026 10:09:24.309:ERROR [karma-server]: [39mError: Found 1 load error
-    at Server.<anonymous> (D:\angularpractice\HartfordAssignments\capstone\insurance-app\node_modules\karma\lib\server.js:243:26)
-    at Object.onceWrapper (node:events:633:28)
-    at Server.emit (node:events:531:35)
-    at emitListeningNT (node:net:1983:10)
-    at process.processTicksAndRejections (node:internal/process/task_queues:89:21)
