@@ -5,13 +5,14 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-admin-dashboard',
+  standalone: true,
   imports: [CommonModule, BaseChartDirective],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 
-export class Dashboard implements OnInit {
+export class AdminDashboard implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
 

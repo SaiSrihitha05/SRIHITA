@@ -8,6 +8,7 @@ namespace Application.DTOs
 {
     public class AgentPerformanceDto
     {
+        //for admin to review the agent performance
         public int AgentId { get; set; }
         public string AgentName { get; set; } = string.Empty;
         public int PoliciesSold { get; set; }

@@ -51,7 +51,7 @@ namespace Application.Services
             _policyService = policyService;
         }
 
-        // ── Scenario A — Customer files Death Claim ───────────
+        // Customer files Death Claim 
         public async Task<ClaimResponseDto> FileClaimAsync(
             int customerId, FileClaimDto dto)
         {
@@ -65,7 +65,7 @@ namespace Application.Services
                 throw new ForbiddenException(
                     "You can only file claims for your own policies");
 
-            // ── Policy status checks ──────────────────────────────
+            // Policy status checks 
             if (policy.Status == PolicyStatus.Lapsed)
                 throw new BadRequestException(
                     "Claims cannot be filed on a lapsed policy.");
@@ -82,13 +82,13 @@ namespace Application.Services
                 throw new BadRequestException(
                     "Claims can only be filed for active policies");
 
-            // ── Maturity claim block ──────────────────────────────
+            //  Maturity claim block 
             if (dto.ClaimType == ClaimType.Maturity)
                 throw new BadRequestException(
                     "Maturity claims are processed automatically " +
                     "by the system when policy end date is reached");
 
-            // ── Payment check ─────────────────────────────────────
+            // Payment check 
             var hasPaid = await _paymentRepository
                 .HasAnyCompletedPaymentAsync(dto.PolicyAssignmentId);
 
@@ -96,7 +96,7 @@ namespace Application.Services
                 throw new BadRequestException(
                     "At least one premium must be paid before filing a claim");
 
-            // ── Grace period check ────────────────────────────────
+            //  Grace period check 
             if (DateTime.UtcNow > policy.NextDueDate
                     .AddDays(policy.Plan!.GracePeriodDays))
                 throw new BadRequestException(
@@ -110,7 +110,7 @@ namespace Application.Services
                 throw new BadRequestException(
                     "Cannot file a claim after policy end date");
 
-            // ── Member validation ─────────────────────────────────
+            //  Member validation 
             var member = policy.PolicyMembers?
                 .FirstOrDefault(m => m.Id == dto.PolicyMemberId);
 
@@ -118,8 +118,7 @@ namespace Application.Services
                 throw new BadRequestException(
                     "Policy member does not belong to this policy");
 
-            // If primary insured is dying, all other active claims
-            // on other members should be resolved first
+            // If primary insured is dying, all other active claims on other members should be resolved first
             if (member.IsPrimaryInsured)
             {
                 var otherActiveMembers = policy.PolicyMembers?
@@ -138,7 +137,7 @@ namespace Application.Services
                 }
             }
 
-            // ── Active claim check ────────────────────────────────
+            // Active claim check 
             var hasActiveClaim = await _claimRepository
                 .HasActiveclaimAsync(dto.PolicyMemberId);
 
@@ -146,7 +145,7 @@ namespace Application.Services
                 throw new ConflictException(
                     "An active claim already exists for this member");
 
-            // ── Death claim specific validations ──────────────────
+            // Death claim specific validations 
             if (dto.ClaimType == ClaimType.Death)
             {
                 if (string.IsNullOrWhiteSpace(dto.DeathCertificateNumber))
@@ -158,7 +157,7 @@ namespace Application.Services
                         "Supporting documents are required for death claims");
             }
 
-            // Auto-populate Nominee details from policy if not provided
+            // Automatically add Nominee details from policy if not provided
             var nomineeName = dto.NomineeName;
             var nomineeContact = dto.NomineeContact;
 
@@ -178,13 +177,10 @@ namespace Application.Services
                 }
             }
 
-            // ✅ Get current coverage (handles CoverageIncreasing)
             var currentCoverage = _policyService.GetCurrentCoverage(policy, member);
-
-            // ✅ Get bonus details (handles HasBonus)
             var bonusDetails = _policyService.GetBonusDetails(policy, member);
 
-            // ✅ Total claim = coverage + bonus
+            // Total claim = coverage + bonus
             var totalClaimAmount = Math.Round(currentCoverage + bonusDetails.TotalBonus, 2);
 
             var claim = new InsuranceClaim
@@ -234,7 +230,7 @@ namespace Application.Services
             return MapToDto(created!);
         }
 
-        // ── Admin assigns ClaimsOfficer ───────────────────────
+        // Admin assigns ClaimsOfficer 
         public async Task AssignClaimsOfficerAsync(
             int claimId, AssignClaimsOfficerDto dto)
         {
@@ -275,7 +271,7 @@ namespace Application.Services
                 paymentId: null);
         }
 
-        // ── ClaimsOfficer processes claim ─────────────────────
+        // ClaimsOfficer processes claim 
         public async Task<ClaimResponseDto> ProcessClaimAsync(
             int claimId, int officerId, ProcessClaimDto dto)
         {
@@ -283,8 +279,6 @@ namespace Application.Services
             if (claim == null)
                 throw new NotFoundException("Claim", claimId);
 
-            // Removed restrictive guard: "Status must be either Approved or Rejected"
-            // We now allow all statuses for full flexibility as requested.
 
             if (dto.Status == ClaimStatus.Approved || dto.Status == ClaimStatus.Settled)
             {
@@ -305,7 +299,6 @@ namespace Application.Services
                     policy.Status = PolicyStatus.Closed;
                     _policyRepository.Update(policy);
 
-                    // ✅ SYNC LOAN STATUS
                     if (dto.Status == ClaimStatus.Settled)
                     {
                         var activeLoan = await _loanRepository.GetActiveLoanByPolicyAsync(policy.Id);
@@ -330,12 +323,11 @@ namespace Application.Services
 
             _claimRepository.Update(claim);
 
-            // ── Save claim first, then policy and loan ──────────
-            await _claimRepository.SaveChangesAsync();      // ← claim saved
-            await _policyRepository.SaveChangesAsync();     // ← policy saved
-            await _loanRepository.SaveChangesAsync();       // ← loan saved
+            await _claimRepository.SaveChangesAsync();      
+            await _policyRepository.SaveChangesAsync();     
+            await _loanRepository.SaveChangesAsync();       
 
-            // ── Fetch fresh from DB after save ───────────────────
+            // Fetch fresh from DB after save 
             var updated = await _claimRepository.GetByIdWithDetailsAsync(claimId);
 
             // Notify and email
@@ -365,7 +357,7 @@ namespace Application.Services
             return MapToDto(updated!);
         }
 
-        // Maturity (Background Service) ────────
+        // Maturity (Background Service) 
         public async Task ProcessMaturityClaimsAsync()
         {
             var maturedPolicies = await _policyRepository
@@ -395,7 +387,7 @@ namespace Application.Services
 
                 if (hasActiveClaim) continue;
 
-                // 🎁 Calculate bonus details
+                // Calculate bonus details
                 var bonusDetails = _policyService.GetBonusDetails(policy, primaryMember);
                 var currentCoverage = _policyService.GetCurrentCoverage(policy, primaryMember);
 
@@ -433,7 +425,6 @@ namespace Application.Services
                 policy.Status = PolicyStatus.Matured;
                 _policyRepository.Update(policy);
 
-                // ✅ SYNC LOAN STATUS
                 if (activeLoan != null)
                 {
                     activeLoan.Status = LoanStatus.Adjusted;
@@ -466,7 +457,7 @@ namespace Application.Services
             }
         }
 
-        // ── Getters ───────────────────────────────────────────
+        // Getters 
         public async Task<IEnumerable<ClaimResponseDto>> GetAllClaimsAsync()
         {
             var claims = await _claimRepository.GetAllAsync();
@@ -496,7 +487,6 @@ namespace Application.Services
             return MapToDto(claim);
         }
 
-        // ── Private Helpers ───────────────────────────────────
         private async Task SaveClaimDocumentsAsync(
             List<IFormFile> files, int claimId, int uploadedByUserId)
         {
@@ -568,7 +558,6 @@ namespace Application.Services
                 }).ToList() ?? new()
             };
 
-            // Force calculation of Dynamic Benefits if Policy Assignment is loaded
             if (c.PolicyAssignment != null && c.PolicyMember != null)
             {
                 try

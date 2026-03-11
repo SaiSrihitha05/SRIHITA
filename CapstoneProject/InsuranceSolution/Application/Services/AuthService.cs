@@ -117,24 +117,23 @@ public class AuthService : IAuthService
         DateTime expiry = DateTime.UtcNow.AddHours(1);
 
         await _userRepository.UpdateResetTokenAsync(user.Id, token, expiry);
-        return token; // ← return token directly to frontend
+        return token; // return token directly to frontend
     }
     public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
     {
         var user = await _userRepository.GetUserByResetTokenAsync(dto.Token);
 
-        // 1. Validate user and token expiry
+        // Validate user and token expiry
         if (user == null || user.ResetTokenExpiry < DateTime.UtcNow)
             return false;
 
-        // 2. Hash new password and clear token fields
+        // Hash new password and clear token fields
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
         user.ResetToken = null;
         user.ResetTokenExpiry = null;
 
-        // 3. FIX: Use Update (sync) followed by SaveChangesAsync (async)
-        _userRepository.Update(user); // No 'await' here
-        await _userRepository.SaveChangesAsync(); // Persistent to DB
+        _userRepository.Update(user); 
+        await _userRepository.SaveChangesAsync(); 
 
         return true;
     }

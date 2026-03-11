@@ -7,13 +7,16 @@ namespace Application.DTOs
 {
     public class AgentDashboardDto
     {
+        //Stats for policies
         public int TotalAssignedPolicies { get; set; }
         public int PendingPolicies { get; set; }
         public int ActivePolicies { get; set; }
         public int RejectedPolicies { get; set; }
         public List<PolicyResponseDto> RecentAssignedPolicies { get; set; } = new();
-        public int AssignedCustomers { get; set; }       // ← missing
-        public decimal TotalCommissionEarned { get; set; } // ← missing
+        public int AssignedCustomers { get; set; }    
+        
+        //Commmission
+        public decimal TotalCommissionEarned { get; set; } 
         public decimal CurrentCommissionRate { get; set; }
         public bool IsBonusRateApplied { get; set; }
         public List<MonthlyPolicySoldDto> MonthlyPoliciesSold { get; set; } = new();

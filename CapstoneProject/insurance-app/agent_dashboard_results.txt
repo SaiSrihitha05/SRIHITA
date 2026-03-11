@@ -1,0 +1,24 @@
+﻿[32m11 03 2026 11:49:52.221:INFO [karma-server]: [39mKarma v6.4.4 server started at http://localhost:9876/
+[32m11 03 2026 11:49:52.223:INFO [launcher]: [39mLaunching browsers ChromeHeadless with concurrency unlimited
+[32m11 03 2026 11:49:52.240:INFO [launcher]: [39mStarting browser ChromeHeadless
+[32m11 03 2026 11:49:53.802:INFO [Chrome Headless 145.0.0.0 (Windows 10)]: [39mConnected on socket fEDrftQugC9WR8LuAAAB with id 25559605
+Chrome Headless 145.0.0.0 (Windows 10): Executed 0 of 3[32m SUCCESS[39m (0 secs / 0 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 1 of 3[32m SUCCESS[39m (0 secs / 0.177 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 2 of 3[32m SUCCESS[39m (0 secs / 0.207 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 3 of 3[32m SUCCESS[39m (0 secs / 0.236 secs)
+[1A[2K[31mChrome Headless 145.0.0.0 (Windows 10) ERROR[39m
+  An error was thrown in afterAll
+  TypeError: Cannot read properties of undefined (reading '0')
+      at templateFn (ng:///Dashboard.js:146:64)
+      at executeTemplate (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5090:5)
+      at refreshView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5760:7)
+      at detectChangesInView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5900:5)
+      at detectChangesInViewIfAttached (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5883:3)
+      at detectChangesInEmbeddedViews (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5854:7)
+      at refreshView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5781:5)
+      at detectChangesInView (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5900:5)
+      at detectChangesInViewWhileDirty (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5709:5)
+      at detectChangesInternal (http://localhost:9876/_karma_webpack_/webpack:/node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs:5698:5)
+Chrome Headless 145.0.0.0 (Windows 10): Executed 3 of 3[31m ERROR[39m (0 secs / 0.236 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 3 of 3[31m ERROR[39m (0.255 secs / 0.236 secs)
+[1A[2KChrome Headless 145.0.0.0 (Windows 10): Executed 3 of 3[31m ERROR[39m (0.259 secs / 0.236 secs)

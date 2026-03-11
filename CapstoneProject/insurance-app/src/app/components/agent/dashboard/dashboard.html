@@ -34,7 +34,8 @@
 
     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-orange-400">
       <p class="text-xs font-bold text-gray-400 uppercase">Recent Sales</p>
-      <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.monthlyPoliciesSold[0]?.policiesSold || 0
+      <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.monthlyPoliciesSold?.[0]?.policiesSold ||
+        0
         }}</p>
       <p class="text-[10px] text-orange-600 font-bold mt-1">Policies sold this month</p>
     </div>
@@ -61,7 +62,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Plan Mix -->
     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-      <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-6 text-center">Plan Distribution for Assigned Policies</h3>
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-6 text-center">Plan Distribution for Assigned Policies
+      </h3>
       <div class="h-[250px] flex items-center justify-center">
         <canvas baseChart [data]="planMixData" [options]="{responsive: true, plugins: {legend: {position: 'bottom'}}}"
           [type]="'pie'"></canvas>
@@ -100,7 +102,7 @@
         class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center">
         <h3 class="font-bold text-[#75013f] dark:text-pink-300">Latest Assignments</h3>
         <span class="text-[9px] bg-[#75013f]/10 text-[#75013f] px-2 py-0.5 rounded-full font-bold">Last {{
-          stats.recentAssignedPolicies.length }}</span>
+          stats.recentAssignedPolicies?.length || 0 }}</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
