@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -100,8 +100,8 @@ namespace Infrastructure.Repositories
             if (filter.MaxLoanEligibleAfterYears.HasValue)
                 query = query.Where(p => p.LoanEligibleAfterYears <= filter.MaxLoanEligibleAfterYears.Value);
 
-            if (filter.MinCoverageUntilAge.HasValue)
-                query = query.Where(p => p.CoverageUntilAge >= filter.MinCoverageUntilAge.Value);
+            if (filter.IsCoverageUntilAge.HasValue)
+                query = query.Where(p => p.IsCoverageUntilAge == filter.IsCoverageUntilAge.Value);
 
             if (filter.MinCoverageIncreaseRate.HasValue)
                 query = query.Where(p => p.CoverageIncreaseRate >= filter.MinCoverageIncreaseRate.Value);

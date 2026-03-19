@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Services;
 using Domain.Enums;
@@ -54,20 +54,26 @@ namespace InsuranceAPI.BackgroundServices
 
             foreach (var policy in duePolicies)
             {
+                var daysUntilDue = (policy.NextDueDate.Date - DateTime.UtcNow.Date).Days;
+                
+                // Only send at 7 days and 1 day marks
+                if (daysUntilDue != 7 && daysUntilDue != 1) continue;
+
                 var customer = await userRepo.GetByIdAsync(policy.CustomerId);
                 if (customer == null) continue;
 
                 _logger.LogInformation(
-                    "Sending reminder for policy {PolicyNumber}", policy.PolicyNumber);
+                    "Sending reminder for policy {PolicyNumber}, {Days} days left", 
+                    policy.PolicyNumber, daysUntilDue);
 
                 // In-app notification
                 await notificationService.CreateNotificationAsync(
                     userId: policy.CustomerId,
                     title: "Premium Due Soon",
-                    message: $"Your policy {policy.PolicyNumber} premium is due on {policy.NextDueDate:dd MMM yyyy}.",
+                    message: $"Your policy {policy.PolicyNumber} premium is due in {daysUntilDue} day(s) ({policy.NextDueDate:dd MMM yyyy}).",
                     type: NotificationType.PremiumReminder,
                     claimId: null,
-                    policyId: policy.Id,     // ← pass policy id here
+                    policyId: policy.Id,
                     paymentId: null);
 
                 // Email reminder

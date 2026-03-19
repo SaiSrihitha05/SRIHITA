@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -57,7 +57,8 @@ namespace Application.Services
                 Type = n.Type.ToString(),
                 IsRead = n.IsRead,
                 CreatedAt = n.CreatedAt,
-                PolicyAssignmentId = n.PolicyAssignmentId,
+                PolicyId = n.PolicyAssignmentId,
+                ClaimId = n.ClaimId,
                 PaymentId = n.PaymentId
             });
         }

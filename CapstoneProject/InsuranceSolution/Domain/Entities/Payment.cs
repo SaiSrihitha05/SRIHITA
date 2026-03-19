@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +34,9 @@ namespace Domain.Entities
 
         // Unique business invoice identifier for tax and receipt purposes
         public string InvoiceNumber { get; set; } = string.Empty;
+
+        // Distinguished between Premium Payment and Loan Repayment
+        public PaymentType PaymentType { get; set; }
 
         // ✅ LOAN REPAYMENT FIELDS
         public int? PolicyLoanId { get; set; }

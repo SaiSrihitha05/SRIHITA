@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,7 +14,8 @@ namespace Application.DTOs
         public string Type { get; set; } = string.Empty;
         public bool IsRead { get; set; }
         public DateTime CreatedAt { get; set; }
-        public int? PolicyAssignmentId { get; set; }
+        public int? PolicyId { get; set; }
+        public int? ClaimId { get; set; }
         public int? PaymentId { get; set; }
     }
 }

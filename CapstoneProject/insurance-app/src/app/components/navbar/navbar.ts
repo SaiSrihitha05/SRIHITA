@@ -29,7 +29,7 @@ export class Navbar implements OnInit {
     // Check initial scroll position
     this.onWindowScroll();
 
-    if (this.isLoggedIn && this.userRole === 'Customer') {
+    if (this.isLoggedIn) {
       this.notifyService.getUnreadCount().subscribe();
     }
   }
@@ -65,6 +65,26 @@ export class Navbar implements OnInit {
     if (role === 'Agent') return '/agent-dashboard/profile';
     if (role === 'ClaimsOfficer') return '/claims-officer-dashboard/profile';
     return '/customer-dashboard/profile';
+  }
+
+  get notificationLink(): string {
+    const role = this.userRole;
+    if (role === 'Admin') return '/admin-dashboard/notifications';
+    if (role === 'Agent') return '/agent-dashboard/notifications';
+    if (role === 'ClaimsOfficer') return '/claims-officer-dashboard/notifications';
+    return '/customer-dashboard/notifications';
+  }
+
+  get dashboardLink(): string {
+    const role = this.userRole;
+    if (role === 'Admin') return '/admin-dashboard';
+    if (role === 'Agent') return '/agent-dashboard';
+    if (role === 'ClaimsOfficer') return '/claims-officer-dashboard';
+    return '/customer-dashboard';
+  }
+
+  get isOnDashboard(): boolean {
+    return this.router.url.includes('dashboard');
   }
 
   logout() {

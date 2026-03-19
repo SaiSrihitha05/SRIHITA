@@ -9,14 +9,16 @@
 
     <!-- Urgent Alerts: Overdue or Due Soon -->
     <div *ngIf="stats.hasOverduePayment || stats.isPaymentDueSoon"
-      [class]="stats.hasOverduePayment ? 'bg-red-50 border-red-200 text-red-700' : 'bg-orange-50 border-orange-200 text-orange-700'"
-      class="p-4 rounded-2xl border flex items-center gap-4 animate-pulse">
+      (click)="navigateToPayment(stats.nextDuePolicyId)"
+      [class]="stats.hasOverduePayment ? 'bg-red-50 hover:bg-red-100 border-red-200 text-red-700' : 'bg-orange-50 hover:bg-orange-100 border-orange-200 text-orange-700'"
+      class="p-4 rounded-2xl border flex items-center gap-4 animate-pulse cursor-pointer hover:shadow-md transition-all active:scale-95">
       <div class="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-sm text-2xl">
         {{ stats.hasOverduePayment ? '⚠️' : '📅' }}
       </div>
       <div>
-        <p class="text-[10px] font-black uppercase tracking-widest">
+        <p class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
           {{ stats.hasOverduePayment ? 'Critical: Overdue' : 'Action Required' }}
+          <span class="text-[8px] bg-white/50 px-2 py-0.5 rounded-full">Pay Now ➔</span>
         </p>
         <p class="text-sm font-bold">
           ₹{{ stats.nextDueAmount | number }} {{ stats.hasOverduePayment ? 'was due on' : 'due on' }} {{

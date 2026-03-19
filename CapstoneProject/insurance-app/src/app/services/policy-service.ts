@@ -66,5 +66,9 @@ deleteDraft(id: number): Observable<any> {
 submitDraft(id: number, fd: FormData): Observable<any> {
   return this.http.post(`${this.baseUrl}/draft/${id}/submit`, fd);
 }
-  
+
+  downloadPolicyApplication(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/download-application`,
+      { responseType: 'blob' });
+  }
 }

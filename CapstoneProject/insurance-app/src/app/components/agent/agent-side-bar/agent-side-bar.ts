@@ -11,8 +11,10 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class AgentSideBar {
   navLinks = [
-    { label: 'Overview', icon: '📊', path: '/agent-dashboard' },
+    { label: 'Dashboard', icon: '🏠', path: '/agent-dashboard' },
     { label: 'Assigned Policies', icon: '🛡️', path: '/agent-dashboard/my-policies' },
+    { label: 'My Commissions', icon: '💰', path: '/agent-dashboard/commissions' },
+    { label: 'Explore Plans', icon: '🎯', path: '/agent-dashboard/explore-plans' },
     { label: 'Profile', icon: '👤', path: '/agent-dashboard/profile' }
   ];
 }

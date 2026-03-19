@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,6 +26,7 @@ namespace Application.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly ILoanRepository _loanRepository;
         private readonly IPolicyService _policyService;
+        private readonly ISystemConfigRepository _systemConfigRepository;
 
         public ClaimService(
             IClaimRepository claimRepository,
@@ -37,7 +38,8 @@ namespace Application.Services
             IWebHostEnvironment environment,
             IPaymentRepository paymentRepository,
             ILoanRepository loanRepository,
-            IPolicyService policyService)
+            IPolicyService policyService,
+            ISystemConfigRepository systemConfigRepository)
         {
             _claimRepository = claimRepository;
             _policyRepository = policyRepository;
@@ -49,6 +51,7 @@ namespace Application.Services
             _paymentRepository = paymentRepository;
             _loanRepository = loanRepository;
             _policyService = policyService;
+            _systemConfigRepository = systemConfigRepository;
         }
 
         // Customer files Death Claim 
@@ -112,34 +115,25 @@ namespace Application.Services
 
             //  Member validation 
             var member = policy.PolicyMembers?
-                .FirstOrDefault(m => m.Id == dto.PolicyMemberId);
+                .FirstOrDefault(m => m.Id == dto.ClaimForMemberId);
 
             if (member == null)
                 throw new BadRequestException(
                     "Policy member does not belong to this policy");
 
-            // If primary insured is dying, all other active claims on other members should be resolved first
-            if (member.IsPrimaryInsured)
+            // Prevent duplicate death claims or claims for inactive members
+            if (member.Status != MemberStatus.Active)
             {
-                var otherActiveMembers = policy.PolicyMembers?
-                    .Where(m => m.Id != member.Id)
-                    .ToList();
-
-                foreach (var otherMember in otherActiveMembers ?? new())
-                {
-                    var otherHasActiveClaim = await _claimRepository
-                        .HasActiveclaimAsync(otherMember.Id);
-
-                    if (otherHasActiveClaim)
-                        throw new BadRequestException(
-                            "Cannot file a claim for the primary insured while " +
-                            "other members have active pending claims");
-                }
+                var statusMsg = member.Status == MemberStatus.Deceased 
+                    ? "A death claim has already been settled for this policy member"
+                    : $"Cannot file claim for member with status: {member.Status}";
+                
+                throw new BadRequestException(statusMsg);
             }
 
             // Active claim check 
             var hasActiveClaim = await _claimRepository
-                .HasActiveclaimAsync(dto.PolicyMemberId);
+                .HasActiveclaimAsync(dto.ClaimForMemberId);
 
             if (hasActiveClaim)
                 throw new ConflictException(
@@ -157,24 +151,21 @@ namespace Application.Services
                         "Supporting documents are required for death claims");
             }
 
-            // Automatically add Nominee details from policy if not provided
-            var nomineeName = dto.NomineeName;
-            var nomineeContact = dto.NomineeContact;
+            // Automatically add Nominee details from policy
+            string? nomineeName = null;
+            string? nomineeContact = null;
 
-            if (dto.ClaimType == ClaimType.Death && string.IsNullOrWhiteSpace(nomineeName))
+            var nominees = policy.PolicyNominees?.ToList() ?? new();
+            if (nominees.Any())
             {
-                var nominees = policy.PolicyNominees?.ToList() ?? new();
-                if (nominees.Any())
-                {
-                    nomineeName = string.Join(", ", nominees.Select(n => $"{n.NomineeName} ({n.SharePercentage}%)"));
-                    nomineeContact = string.Join(", ", nominees.Select(n => n.ContactNumber).Distinct());
-                }
-                else
-                {
-                    // Fallback to customer if no nominees (though there should be)
-                    nomineeName = policy.Customer?.Name ?? "Policy Holder";
-                    nomineeContact = policy.Customer?.Phone ?? "N/A";
-                }
+                nomineeName = string.Join(", ", nominees.Select(n => $"{n.NomineeName} ({n.SharePercentage}%)"));
+                nomineeContact = string.Join(", ", nominees.Select(n => n.ContactNumber).Distinct());
+            }
+            else
+            {
+                // Fallback to customer if no nominees
+                nomineeName = policy.Customer?.Name ?? "Policy Holder";
+                nomineeContact = policy.Customer?.Phone ?? "N/A";
             }
 
             var currentCoverage = _policyService.GetCurrentCoverage(policy, member);
@@ -183,16 +174,38 @@ namespace Application.Services
             // Total claim = coverage + bonus
             var totalClaimAmount = Math.Round(currentCoverage + bonusDetails.TotalBonus, 2);
 
+            // Round Robin assignment for Claims Officer
+            int? assignedOfficerId = null;
+            var officers = (await _userRepository.GetByRoleAsync(UserRole.ClaimsOfficer))
+                            .Where(u => u.IsActive)
+                            .OrderBy(u => u.Id)
+                            .ToList();
+
+            if (officers.Any())
+            {
+                var config = await _systemConfigRepository.GetConfigAsync();
+                int nextIndex = (config.LastClaimsOfficerIndex + 1) % officers.Count;
+                assignedOfficerId = officers[nextIndex].Id;
+
+                config.LastClaimsOfficerIndex = nextIndex;
+                _systemConfigRepository.Update(config);
+                await _systemConfigRepository.SaveChangesAsync();
+            }
+
             var claim = new InsuranceClaim
             {
                 PolicyAssignmentId = dto.PolicyAssignmentId,
                 PolicyMemberId = member.Id,
-                ClaimsOfficerId = null,
+                ClaimForMemberId = member.Id,
+                ClaimsOfficerId = assignedOfficerId,
                 ClaimType = dto.ClaimType,
                 ClaimAmount = totalClaimAmount,
                 NomineeName = nomineeName ?? string.Empty,
                 NomineeContact = nomineeContact ?? string.Empty,
                 DeathCertificateNumber = dto.DeathCertificateNumber,
+                DateOfDeath = dto.DateOfDeath,
+                CauseOfDeath = dto.CauseOfDeath,
+                PlaceOfDeath = dto.PlaceOfDeath,
                 FiledDate = DateTime.UtcNow,
                 Status = ClaimStatus.Submitted,
                 Remarks = $"Coverage: ₹{currentCoverage:N2}" +
@@ -211,23 +224,62 @@ namespace Application.Services
                 await SaveClaimDocumentsAsync(
                     dto.Documents, claim.Id, customerId);
 
-            // Notify admin
+            // Notify Admin
             var admins = await _userRepository.GetByRoleAsync(UserRole.Admin);
             foreach (var admin in admins)
             {
                 await _notificationService.CreateNotificationAsync(
                     userId: admin.Id,
                     title: "New Claim Filed",
-                    message: $"A new {dto.ClaimType} claim has been filed " +
-                             $"for policy {policy.PolicyNumber}",
+                    message: $"A new {dto.ClaimType} claim has been filed for policy {policy.PolicyNumber}",
                     type: NotificationType.ClaimStatusUpdate,
-                    policyId: null,
+                    policyId: policy.Id,
+                    claimId: claim.Id,
+                    paymentId: null);
+            }
+
+            // Notify Agent if assigned
+            if (policy.AgentId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: policy.AgentId.Value,
+                    title: "Claim Filed for Assigned Policy",
+                    message: $"A new claim has been filed for policy {policy.PolicyNumber} managed by you.",
+                    type: NotificationType.ClaimStatusUpdate,
+                    policyId: policy.Id,
+                    claimId: claim.Id,
+                    paymentId: null);
+            }
+
+            // Notify Customer (Verify existing or Add)
+            var assignedOfficerName = assignedOfficerId.HasValue 
+                ? officers.FirstOrDefault(o => o.Id == assignedOfficerId.Value)?.Name ?? "an officer"
+                : "an officer";
+
+            await _notificationService.CreateNotificationAsync(
+                userId: customerId,
+                title: "Claim Submitted",
+                message: $"Your {dto.ClaimType} claim for policy {policy.PolicyNumber} has been received and is being processed by {assignedOfficerName}.",
+                type: NotificationType.ClaimStatusUpdate,
+                policyId: policy.Id,
+                claimId: claim.Id,
+                paymentId: null);
+
+            // Notify Claims Officer if assigned
+            if (claim.ClaimsOfficerId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: claim.ClaimsOfficerId.Value,
+                    title: "New Claim Assigned",
+                    message: $"A new {dto.ClaimType} claim for policy {policy.PolicyNumber} has been automatically assigned to you for review.",
+                    type: NotificationType.ClaimStatusUpdate,
+                    policyId: policy.Id,
                     claimId: claim.Id,
                     paymentId: null);
             }
 
             var created = await _claimRepository.GetByIdWithDetailsAsync(claim.Id);
-            return MapToDto(created!);
+            return await MapToDtoAsync(created!);
         }
 
         // Admin assigns ClaimsOfficer 
@@ -279,6 +331,13 @@ namespace Application.Services
             if (claim == null)
                 throw new NotFoundException("Claim", claimId);
 
+            if (claim.ClaimsOfficerId != officerId)
+                throw new ForbiddenException("You are not assigned to this claim");
+
+            // Update verification fields if provided
+            if (dto.DateOfDeath.HasValue) claim.DateOfDeath = dto.DateOfDeath;
+            if (!string.IsNullOrWhiteSpace(dto.CauseOfDeath)) claim.CauseOfDeath = dto.CauseOfDeath;
+            if (!string.IsNullOrWhiteSpace(dto.DeathCertificateNumber)) claim.DeathCertificateNumber = dto.DeathCertificateNumber;
 
             if (dto.Status == ClaimStatus.Approved || dto.Status == ClaimStatus.Settled)
             {
@@ -292,11 +351,61 @@ namespace Application.Services
 
                 claim.SettlementAmount = dto.SettlementAmount;
 
-                // Update policy status to Closed if settled/approved
-                var policy = await _policyRepository.GetByIdAsync(claim.PolicyAssignmentId);
+                // Process post-settlement policy & member status updates
+                var policy = await _policyRepository.GetByIdWithDetailsAsync(claim.PolicyAssignmentId);
                 if (policy != null)
                 {
-                    policy.Status = PolicyStatus.Closed;
+                    if (dto.Status == ClaimStatus.Settled)
+                    {
+                        var member = policy.PolicyMembers?.FirstOrDefault(m => m.Id == claim.ClaimForMemberId || m.Id == claim.PolicyMemberId);
+                        
+                        if (member != null && claim.ClaimType == ClaimType.Death)
+                        {
+                            // 1. Mark member deceased
+                            member.Status = MemberStatus.Deceased;
+                            
+                            // 2. Check remaining active members
+                            var remainingActive = policy.PolicyMembers?.Where(m => m.Status == MemberStatus.Active).ToList();
+                            
+                            if (remainingActive == null || !remainingActive.Any())
+                            {
+                                // All members deceased -> Policy closed completely
+                                policy.Status = PolicyStatus.Closed;
+                            }
+                            else
+                            {
+                                // 3. Auto-recalculate ongoing premium
+                                // Premium adjusts by removing the deceased member's share of the total coverage
+                                var totalCoverage = policy.PolicyMembers?.Sum(m => m.CoverageAmount) ?? 0;
+                                var deceasedCoverage = member.CoverageAmount;
+
+                                if (totalCoverage > 0 && totalCoverage > deceasedCoverage)
+                                {
+                                    var remainingPercentage = (totalCoverage - deceasedCoverage) / totalCoverage;
+                                    var oldPremium = policy.TotalPremiumAmount;
+                                    policy.TotalPremiumAmount = Math.Round(policy.TotalPremiumAmount * remainingPercentage, 2);
+
+                                    // Trigger premium update notification
+                                    if (policy.TotalPremiumAmount < oldPremium)
+                                    {
+                                    await _notificationService.CreateNotificationAsync(
+                                        userId: policy.CustomerId,
+                                        title: "Policy Premium Updated",
+                                        message: $"Your policy premium has been reduced to ₹{policy.TotalPremiumAmount:N2} following the settlement of claim #{claim.Id}. This change will reflect in your next installment.",
+                                        type: NotificationType.PolicyStatusUpdate,
+                                        policyId: policy.Id,
+                                        claimId: claim.Id,
+                                        paymentId: null);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Non-death claim (Maturity) -> fully closes policy
+                            policy.Status = PolicyStatus.Closed;
+                        }
+                    }
                     _policyRepository.Update(policy);
 
                     if (dto.Status == ClaimStatus.Settled)
@@ -318,43 +427,60 @@ namespace Application.Services
             }
 
             claim.Status = dto.Status;
-            claim.Remarks = dto.Remarks;
+            claim.OfficerRemarks = dto.Remarks;
             claim.ProcessedDate = DateTime.UtcNow;
 
             _claimRepository.Update(claim);
 
-            await _claimRepository.SaveChangesAsync();      
-            await _policyRepository.SaveChangesAsync();     
-            await _loanRepository.SaveChangesAsync();       
+            await _claimRepository.SaveChangesAsync();
+            
+            // Explicitly save related repositories if they were modified
+            if (dto.Status == ClaimStatus.Settled)
+            {
+                await _policyRepository.SaveChangesAsync();
+                await _loanRepository.SaveChangesAsync();
+            }
 
             // Fetch fresh from DB after save 
             var updated = await _claimRepository.GetByIdWithDetailsAsync(claimId);
 
-            // Notify and email
-            var customer = await _userRepository
-                .GetByIdAsync(claim.PolicyAssignment!.CustomerId);
+            try
+            {
+                // Notify customer (primary notification)
+                var customer = await _userRepository
+                    .GetByIdAsync(claim.PolicyAssignment!.CustomerId);
 
-            var statusMessage = claim.Status == ClaimStatus.Settled
-                ? $"Your claim has been approved. " +
-                  $"Settlement: ₹{claim.SettlementAmount:N2}"
-                : $"Your claim has been rejected. Remarks: {dto.Remarks}";
+                var statusMessage = claim.Status == ClaimStatus.Settled
+                    ? $"Your claim has been approved. " +
+                      $"Settlement: ₹{claim.SettlementAmount:N2}"
+                    : $"Your claim has been rejected. Remarks: {dto.Remarks}";
 
-            await _notificationService.CreateNotificationAsync(
-                userId: claim.PolicyAssignment.CustomerId,
-                title: $"Claim {claim.Status}",
-                message: statusMessage,
-                type: NotificationType.ClaimStatusUpdate,
-                policyId: null,
-                claimId: claim.Id,
-                paymentId: null);
+                await _notificationService.CreateNotificationAsync(
+                    userId: claim.PolicyAssignment.CustomerId,
+                    title: $"Claim {claim.Status}",
+                    message: statusMessage,
+                    type: NotificationType.ClaimStatusUpdate,
+                    policyId: null,
+                    claimId: claim.Id,
+                    paymentId: null);
 
-            await _emailService.SendPolicyStatusChangedAsync(
-                customer!.Email,
-                customer.Name,
-                claim.PolicyAssignment.PolicyNumber,
-                claim.Status.ToString());
+                // Notify Claims Officer (primary notification)
+                await _notificationService.CreateNotificationAsync(
+                    userId: officerId,
+                    title: "Claim Processed",
+                    message: $"You have successfully processed claim #{claim.Id}.",
+                    type: NotificationType.ClaimStatusUpdate,
+                    policyId: claim.PolicyAssignmentId,
+                    claimId: claim.Id,
+                    paymentId: null);
+            }
+            catch (Exception)
+            {
+                // Log exception if possible, but don't crash the request since DB is already updated
+                // _logger.LogError(ex, "Error sending notifications for claim process");
+            }
 
-            return MapToDto(updated!);
+            return await MapToDtoAsync(updated!);
         }
 
         // Maturity (Background Service) 
@@ -461,14 +587,24 @@ namespace Application.Services
         public async Task<IEnumerable<ClaimResponseDto>> GetAllClaimsAsync()
         {
             var claims = await _claimRepository.GetAllAsync();
-            return claims.Select(MapToDto);
+            var dtos = new List<ClaimResponseDto>();
+            foreach (var c in claims)
+            {
+                dtos.Add(await MapToDtoAsync(c));
+            }
+            return dtos;
         }
 
         public async Task<IEnumerable<ClaimResponseDto>> GetMyClaimsAsync(
             int customerId)
         {
             var claims = await _claimRepository.GetByCustomerIdAsync(customerId);
-            return claims.Select(MapToDto);
+            var dtos = new List<ClaimResponseDto>();
+            foreach (var c in claims)
+            {
+                dtos.Add(await MapToDtoAsync(c));
+            }
+            return dtos;
         }
 
         public async Task<IEnumerable<ClaimResponseDto>> GetMyAssignedClaimsAsync(
@@ -476,7 +612,12 @@ namespace Application.Services
         {
             var claims = await _claimRepository
                 .GetByClaimsOfficerIdAsync(officerId);
-            return claims.Select(MapToDto);
+            var dtos = new List<ClaimResponseDto>();
+            foreach (var c in claims)
+            {
+                dtos.Add(await MapToDtoAsync(c));
+            }
+            return dtos;
         }
 
         public async Task<ClaimResponseDto> GetClaimByIdAsync(int id)
@@ -484,7 +625,7 @@ namespace Application.Services
             var claim = await _claimRepository.GetByIdWithDetailsAsync(id);
             if (claim == null)
                 throw new NotFoundException("Claim", id);
-            return MapToDto(claim);
+            return await MapToDtoAsync(claim);
         }
 
         private async Task SaveClaimDocumentsAsync(
@@ -502,7 +643,8 @@ namespace Application.Services
 
             foreach (var file in files)
             {
-                var fileName = file?.FileName ?? "unknown.doc";
+                if (file == null) continue;
+                var fileName = file.FileName ?? "unknown.doc";
                 var ext = Path.GetExtension(fileName);
                 var uniqueName = $"ClaimDoc_{claimId}_{Guid.NewGuid()}{ext}";
                 var filePath = folderPath + "/" + uniqueName;
@@ -525,16 +667,76 @@ namespace Application.Services
             }
 
             await _documentRepository.SaveChangesAsync();
+
+            // Notify Claims Officer that documents were uploaded
+            var claim = await _claimRepository.GetByIdWithDetailsAsync(claimId);
+            if (claim != null && claim.ClaimsOfficerId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: claim.ClaimsOfficerId.Value,
+                    title: "New Claim Documents",
+                    message: $"New documents have been uploaded for claim #{claimId} (Policy: {claim.PolicyAssignment?.PolicyNumber}).",
+                    type: NotificationType.ClaimStatusUpdate,
+                    policyId: claim.PolicyAssignmentId,
+                    claimId: claimId,
+                    paymentId: null);
+            }
         }
 
-        private ClaimResponseDto MapToDto(InsuranceClaim c)
+        public async Task<(byte[] fileBytes, string fileName, string contentType)>
+            DownloadClaimDocumentAsync(int claimId, int documentId, int userId, string role)
+        {
+            var claim = await _claimRepository.GetByIdWithDetailsAsync(claimId);
+            if (claim == null)
+                throw new NotFoundException("Claim", claimId);
+
+            var document = await _documentRepository.GetByIdAsync(documentId);
+            if (document == null || document.ClaimId != claimId)
+                throw new NotFoundException("Document", documentId);
+
+            if (role == "Customer")
+            {
+                if (claim.PolicyAssignment?.CustomerId != userId)
+                    throw new ForbiddenException("You can only download documents for your own claims");
+            }
+            else if (role == "ClaimsOfficer")
+            {
+                if (claim.ClaimsOfficerId != userId)
+                    throw new ForbiddenException("You are not assigned to this claim");
+            }
+
+            var fullPath = Path.Combine(_environment.WebRootPath, document.FilePath);
+
+            if (!File.Exists(fullPath))
+                throw new NotFoundException("File not found on server", documentId);
+
+            var fileBytes = await File.ReadAllBytesAsync(fullPath);
+            var contentType = GetContentType(document.FileName);
+
+            return (fileBytes, document.FileName, contentType);
+        }
+
+        private static string GetContentType(string fileName)
+        {
+            var ext = Path.GetExtension(fileName).ToLower();
+            return ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                _ => "application/octet-stream"
+            };
+        }
+
+        private async Task<ClaimResponseDto> MapToDtoAsync(InsuranceClaim c)
         {
             var dto = new ClaimResponseDto
             {
                 Id = c.Id,
                 PolicyAssignmentId = c.PolicyAssignmentId,
                 PolicyNumber = c.PolicyAssignment?.PolicyNumber ?? string.Empty,
-                PolicyMemberId = c.PolicyMemberId,
+                ClaimForMemberId = c.ClaimForMemberId > 0 ? c.ClaimForMemberId : c.PolicyMemberId,
                 PolicyMemberName = c.PolicyMember?.MemberName ?? string.Empty,
                 ClaimsOfficerId = c.ClaimsOfficerId,
                 ClaimsOfficerName = c.ClaimsOfficer?.Name,
@@ -542,9 +744,13 @@ namespace Application.Services
                 NomineeName = c.NomineeName,
                 NomineeContact = c.NomineeContact,
                 DeathCertificateNumber = c.DeathCertificateNumber,
+                DateOfDeath = c.DateOfDeath,
+                CauseOfDeath = c.CauseOfDeath,
+                PlaceOfDeath = c.PlaceOfDeath,
                 FiledDate = c.FiledDate,
                 Status = c.Status.ToString(),
                 Remarks = c.Remarks,
+                OfficerRemarks = c.OfficerRemarks,
                 SettlementAmount = c.SettlementAmount,
                 ProcessedDate = c.ProcessedDate,
                 CreatedAt = c.CreatedAt,
@@ -557,6 +763,72 @@ namespace Application.Services
                     UploadedAt = d.UploadedAt
                 }).ToList() ?? new()
             };
+
+            if (c.PolicyAssignment != null)
+            {
+                dto.CustomerName = c.PolicyAssignment.Customer?.Name ?? string.Empty;
+                dto.CustomerEmail = c.PolicyAssignment.Customer?.Email ?? string.Empty;
+                dto.CustomerPhone = c.PolicyAssignment.Customer?.Phone ?? string.Empty;
+
+                dto.PlanName = c.PolicyAssignment.Plan?.PlanName ?? string.Empty;
+                dto.PolicyStatus = c.PolicyAssignment.Status.ToString();
+                dto.PolicyStartDate = c.PolicyAssignment.StartDate;
+                dto.PolicyTerm = c.PolicyAssignment.TermYears;
+                
+                dto.TotalPolicyCoverage = c.PolicyAssignment.PolicyMembers?.Sum(m => m.CoverageAmount) ?? 0;
+                dto.RemainingCoverage = c.PolicyAssignment.PolicyMembers?
+                    .Where(m => m.Status == MemberStatus.Active)
+                    .Sum(m => m.CoverageAmount) ?? 0;
+
+                // Payment Info
+                var completedPayments = c.PolicyAssignment.Payments?
+                    .Where(p => p.Status == PaymentStatus.Completed)
+                    .OrderByDescending(p => p.PaymentDate)
+                    .ToList();
+                
+                dto.LastPaymentDate = completedPayments?.FirstOrDefault()?.PaymentDate;
+                dto.TotalPaymentsCount = completedPayments?.Count ?? 0;
+                dto.PremiumAmount = c.PolicyAssignment.TotalPremiumAmount;
+                dto.NextDueDate = c.PolicyAssignment.NextDueDate;
+
+                // Members
+                dto.AllMembers = c.PolicyAssignment.PolicyMembers?.Select(m => new PolicyMemberResponseDto
+                {
+                    Id = m.Id,
+                    MemberName = m.MemberName,
+                    RelationshipToCustomer = m.RelationshipToCustomer,
+                    DateOfBirth = m.DateOfBirth,
+                    Gender = m.Gender,
+                    CoverageAmount = m.CoverageAmount,
+                    IsSmoker = m.IsSmoker,
+                    HasPreExistingDiseases = m.HasPreExistingDiseases,
+                    DiseaseDescription = m.DiseaseDescription,
+                    Occupation = m.Occupation,
+                    IsPrimaryInsured = m.IsPrimaryInsured,
+                    Status = m.Status.ToString()
+                }).ToList() ?? new();
+
+                // Nominees
+                dto.AllNominees = c.PolicyAssignment.PolicyNominees?.Select(n => new PolicyNomineeResponseDto
+                {
+                    Id = n.Id,
+                    NomineeName = n.NomineeName,
+                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
+                    ContactNumber = n.ContactNumber,
+                    SharePercentage = n.SharePercentage
+                }).ToList() ?? new();
+            }
+
+            if (c.PolicyMember != null)
+            {
+                dto.MemberRelationship = c.PolicyMember.RelationshipToCustomer;
+                dto.MemberDob = c.PolicyMember.DateOfBirth;
+                dto.MemberStatus = c.PolicyMember.Status.ToString();
+                
+                // Age calculation
+                dto.MemberAge = DateTime.Now.Year - c.PolicyMember.DateOfBirth.Year;
+                if (c.PolicyMember.DateOfBirth.Date > DateTime.Now.AddYears(-dto.MemberAge)) dto.MemberAge--;
+            }
 
             if (c.PolicyAssignment != null && c.PolicyMember != null)
             {
@@ -594,19 +866,24 @@ namespace Application.Services
             }
 
             // Loan Info
-            var activeLoan = _loanRepository.GetActiveLoanByPolicyAsync(c.PolicyAssignmentId).GetAwaiter().GetResult();
+            var activeLoan = await _loanRepository.GetActiveLoanByPolicyAsync(c.PolicyAssignmentId);
             dto.OutstandingLoanAmount = Math.Round(activeLoan?.OutstandingBalance ?? 0, 2);
             dto.NetSettlementAmount = Math.Round(dto.ClaimAmount - dto.OutstandingLoanAmount, 2);
 
             // Calculate settlement breakdown if settled
-            if (c.Status == ClaimStatus.Settled && c.SettlementAmount > 0 && c.PolicyAssignment?.PolicyNominees != null)
+            if (c.Status == ClaimStatus.Settled && (c.SettlementAmount ?? 0) > 0)
             {
-                dto.SettlementBreakdown = c.PolicyAssignment.PolicyNominees.Select(n => new ClaimNomineeSettlementDto
+                // Ensure nominees are loaded
+                var policy = await _policyRepository.GetByIdWithDetailsAsync(c.PolicyAssignmentId);
+                if (policy?.PolicyNominees != null)
                 {
-                    NomineeName = n.NomineeName,
-                    SharePercentage = n.SharePercentage,
-                    SettlementAmount = Math.Round((c.SettlementAmount.Value * n.SharePercentage) / 100, 2)
-                }).ToList();
+                    dto.SettlementBreakdown = policy.PolicyNominees.Select(n => new ClaimNomineeSettlementDto
+                    {
+                        NomineeName = n.NomineeName,
+                        SharePercentage = n.SharePercentage,
+                        SettlementAmount = Math.Round((c.SettlementAmount!.Value * n.SharePercentage) / 100, 2)
+                    }).ToList();
+                }
             }
 
             return dto;

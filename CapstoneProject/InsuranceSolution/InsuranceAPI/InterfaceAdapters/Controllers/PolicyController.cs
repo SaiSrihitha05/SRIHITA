@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Exceptions;
 using Application.Services;
 using Domain.Enums;
@@ -128,7 +128,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         //  Admin + Agent + Customer 
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Agent,Customer")]
+        [Authorize(Roles = "Admin,Agent,Customer,ClaimsOfficer")]
         public async Task<IActionResult> GetPolicyById(int id)
         {
             var result = await _policyService.GetPolicyByIdAsync(id);
@@ -154,6 +154,19 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
             var customerId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             await _policyService.CancelPendingPolicyAsync(id, customerId);
             return Ok(new { message = "Policy cancelled successfully" });
+        }
+
+        [HttpGet("{id}/download-application")]
+        [Authorize(Roles = "Admin,Customer,Agent")]
+        public async Task<IActionResult> GetPolicyApplicationPdf(int id)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var (fileBytes, fileName) =
+                await _policyService.GeneratePolicyApplicationPdfAsync(id, customerId);
+
+            return File(fileBytes, "application/pdf", fileName);
         }
         // Save new draft
         [HttpPost("draft")]

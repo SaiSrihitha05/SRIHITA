@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,17 +10,10 @@ namespace Application.DTOs
 {
     public class PolicyMemberDto
     {
-        [Required]
-        public string MemberName { get; set; } = string.Empty;
-
-        [Required]
-        public string RelationshipToCustomer { get; set; } = string.Empty;
-
-        [Required]
-        public DateTime DateOfBirth { get; set; }
-
-        [Required]
-        public string Gender { get; set; } = string.Empty;
+        public string? MemberName { get; set; }
+        public string? RelationshipToCustomer { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? Gender { get; set; }
 
         [Range(0.01, double.MaxValue)]
         public decimal CoverageAmount { get; set; }
@@ -29,8 +22,7 @@ namespace Application.DTOs
         public bool HasPreExistingDiseases { get; set; }
         public string? DiseaseDescription { get; set; }
 
-        [Required]
-        public string Occupation { get; set; } = string.Empty;
+        public string? Occupation { get; set; }
 
         public bool IsPrimaryInsured { get; set; }
         public List<IFormFile>? MemberDocuments { get; set; }

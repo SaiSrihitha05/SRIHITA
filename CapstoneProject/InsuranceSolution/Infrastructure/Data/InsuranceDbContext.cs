@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -25,9 +25,19 @@ namespace Infrastructure.Data
         public DbSet<PolicyNominee> PolicyNominees { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<PolicyLoan> PolicyLoans { get; set; }
+        public DbSet<SystemConfig> SystemConfigs { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<SystemConfig>().HasData(new SystemConfig
+            {
+                Id = 1,
+                LastClaimsOfficerIndex = -1,
+                LastAgentAssignmentIndex = -1,
+                UpdatedAt = DateTime.UtcNow
+            });
+
             var admin = new User
             {
                 Id = 1,
@@ -80,6 +90,11 @@ namespace Infrastructure.Data
             builder.Entity<Payment>()
                 .Property(p => p.Status)
                 .HasConversion<string>();
+
+            builder.Entity<Payment>()
+                .Property(p => p.PaymentType)
+                .HasConversion<string>()
+                .HasDefaultValue(PaymentType.PremiumPayment);
 
             builder.Entity<Notification>()
                 .Property(n => n.Type)

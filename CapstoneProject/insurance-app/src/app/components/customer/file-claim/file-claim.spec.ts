@@ -1,81 +1,91 @@
-import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FileClaim } from './file-claim';
 import { ClaimService } from '../../../services/claim-service';
 import { PolicyService } from '../../../services/policy-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef } from '@angular/core';
 
 describe('FileClaim', () => {
-  let component: FileClaim;
-  let fixture: ComponentFixture<FileClaim>;
-  let policyService: PolicyService;
-  let claimService: ClaimService;
-  let router: Router;
+    let component: FileClaim;
+    let fixture: ComponentFixture<FileClaim>;
+    let mockClaimService: any;
+    let mockPolicyService: any;
+    let mockRouter: any;
 
-  const mockRoute = {
-    snapshot: { queryParams: { policyId: '101' } }
-  };
+    const mockPolicies: any[] = [
+        { id: 101, status: 'Active', planName: 'Plan A', policyNumber: 'POL101', members: [{ id: 1, name: 'User 1', status: 'Active', coverageAmount: 500000 }] },
+        { id: 102, status: 'Active', planName: 'Plan B', policyNumber: 'POL102', members: [{ id: 2, name: 'User 2', status: 'Active', coverageAmount: 1000000 }] }
+    ];
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [FileClaim, FormsModule],
-      providers: [
-        PolicyService,
-        ClaimService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: ActivatedRoute, useValue: mockRoute },
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } }
-      ]
-    }).compileComponents();
+    const mockClaims: any[] = [];
 
-    fixture = TestBed.createComponent(FileClaim);
-    component = fixture.componentInstance;
-    policyService = TestBed.inject(PolicyService);
-    claimService = TestBed.inject(ClaimService);
-    router = TestBed.inject(Router);
-  });
+    beforeEach(async () => {
+        mockClaimService = jasmine.createSpyObj('ClaimService', ['getMyClaims', 'fileClaim']);
+        mockPolicyService = jasmine.createSpyObj('PolicyService', ['getMyPolicies', 'getPolicyById']);
+        mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
-  it('should create and load policy details', () => {
-    const mockPolicy = {
-      id: 101,
-      members: [{ id: 1, isPrimaryInsured: true, coverageAmount: 500000 }],
-      bonusDetails: { totalBonus: 10000 },
-      planHasBonus: true
-    };
-    spyOn(policyService, 'getPolicyById').and.returnValue(of(mockPolicy));
+        mockPolicyService.getMyPolicies.and.returnValue(of(mockPolicies));
+        mockClaimService.getMyClaims.and.returnValue(of(mockClaims));
 
-    component.ngOnInit();
+        await TestBed.configureTestingModule({
+            imports: [FileClaim, FormsModule],
+            providers: [
+                { provide: ClaimService, useValue: mockClaimService },
+                { provide: PolicyService, useValue: mockPolicyService },
+                { provide: Router, useValue: mockRouter },
+                {
+                    provide: ActivatedRoute,
+                    useValue: {
+                        snapshot: { queryParams: {} }
+                    }
+                },
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                ChangeDetectorRef
+            ]
+        }).compileComponents();
 
-    expect(policyService.getPolicyById).toHaveBeenCalledWith(101);
-    expect(component.policy).toEqual(mockPolicy);
-    expect(component.totalClaimAmount).toBe(510000);
-  });
+        fixture = TestBed.createComponent(FileClaim);
+        component = fixture.componentInstance;
+    });
 
-  it('should redirect if no policyId in route', () => {
-    TestBed.inject(ActivatedRoute).snapshot.queryParams = {};
-    spyOn(window, 'alert');
+    it('should create', () => {
+        fixture.detectChanges();
+        expect(component).toBeTruthy();
+    });
 
-    component.ngOnInit();
+    it('should load policies on init', () => {
+        fixture.detectChanges();
+        expect(mockPolicyService.getMyPolicies).toHaveBeenCalled();
+        expect(component.allPolicies.length).toBe(2);
+    });
 
-    expect(window.alert).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/customer-dashboard/my-policies']);
-  });
+    it('should auto-select policy if only one is eligible', () => {
+        // Mock only one eligible policy
+        const singlePolicy = [mockPolicies[0]];
+        mockPolicyService.getMyPolicies.and.returnValue(of(singlePolicy));
+        mockPolicyService.getPolicyById.and.returnValue(of(singlePolicy[0]));
+        
+        fixture.detectChanges();
+        
+        expect(component.selectedPolicyId).toBe(101);
+        expect(mockPolicyService.getPolicyById).toHaveBeenCalledWith(101);
+    });
 
-  it('should validate form based on claim type (Death requires cert)', () => {
-    component.claimData.claimType = 'Death';
-    component.claimData.policyMemberId = 1;
-    component.claimData.deathCertificateNumber = '';
+    it('should validate Death claim requiring certificate', () => {
+        fixture.detectChanges();
+        component.claimData.claimForMemberId = 1;
+        component.claimData.claimType = 'Death';
+        component.claimData.deathCertificateNumber = '';
+        
+        expect(component.isClaimValid()).toBeFalse();
 
-    expect(component.isClaimValid()).toBeFalse();
-
-    component.claimData.deathCertificateNumber = 'DC123';
-    component.selectedFiles = [new File([''], 'doc.pdf')];
-    expect(component.isClaimValid()).toBeTrue();
-  });
-
- 
+        component.claimData.deathCertificateNumber = 'DC123';
+        component.selectedFiles = [new File([''], 'test.pdf')];
+        expect(component.isClaimValid()).toBeTrue();
+    });
 });

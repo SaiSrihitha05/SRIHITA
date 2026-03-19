@@ -8,8 +8,7 @@
       <h1 class="text-2xl font-bold text-[#75013f] dark:text-pink-300">Insurance Plans</h1>
       <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Manage actuarial plan templates</p>
     </div>
-    <button (click)="openCreateModal()"
-      class="bg-[#75013f] dark:bg-pink-700 text-white px-6 py-2.5 rounded-xl font-bold
+    <button (click)="openCreateModal()" class="bg-[#75013f] dark:bg-pink-700 text-white px-6 py-2.5 rounded-xl font-bold
              hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-md shadow-[#75013f]/20 active:scale-95">
       + Add New Plan
     </button>
@@ -30,8 +29,7 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
-        <tr *ngFor="let plan of plans"
-            class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-all">
+        <tr *ngFor="let plan of plans" class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-all">
           <td class="px-6 py-4 font-bold dark:text-gray-100 text-sm">{{ plan.planName }}</td>
           <td class="px-6 py-4 dark:text-gray-300 text-sm">{{ plan.planType }}</td>
           <td class="px-6 py-4">
@@ -63,8 +61,7 @@
   <!-- ═══════════════════════════════════════════════════════ -->
   <!-- MODAL                                                  -->
   <!-- ═══════════════════════════════════════════════════════ -->
-  <div *ngIf="showModal"
-    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div *ngIf="showModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-3xl shadow-2xl
                 overflow-hidden max-h-[92vh] flex flex-col border dark:border-gray-700 transition-colors duration-300">
 
@@ -77,12 +74,11 @@
           </h2>
           <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
             {{ isViewOnly
-              ? 'Read-only view of all actuarial parameters'
-              : 'Required fields marked ✱ — errors appear after you leave each field' }}
+            ? 'Read-only view of all actuarial parameters'
+            : 'Required fields marked *' }}
           </p>
         </div>
-        <button (click)="showModal = false"
-          class="text-gray-400 hover:text-red-500 text-3xl leading-none transition-all w-9 h-9
+        <button (click)="showModal = false" class="text-gray-400 hover:text-red-500 text-3xl leading-none transition-all w-9 h-9
                  flex items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/20">
           &times;
         </button>
@@ -106,17 +102,15 @@
             <!-- Plan Name -->
             <div class="md:col-span-2">
               <label class="field-label">
-                Plan Name <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Plan Name <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input name="planName"
-                [(ngModel)]="currentPlan.planName"
-                [disabled]="isViewOnly"
-                (blur)="touch('planName')"
+              <input name="planName" [(ngModel)]="currentPlan.planName" [disabled]="isViewOnly"
+                (ngModelChange)="touch('planName')"
                 [class.!border-red-400]="showErr('planName') && getError('planName')"
                 [class.!border-green-400]="showErr('planName') && !getError('planName')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                 placeholder="e.g. Elite Shield Term Life">
-              <p *ngIf="showErr('planName') && getError('planName')" class="err-msg">
+              <p *ngIf="showErr('planName') && getError('planName')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('planName') }}
               </p>
             </div>
@@ -124,12 +118,10 @@
             <!-- Plan Type -->
             <div>
               <label class="field-label">
-                Category <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Category <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <select name="planType"
-                [(ngModel)]="currentPlan.planType"
-                [disabled]="isViewOnly"
-                (blur)="touch('planType')"
+              <select name="planType" [(ngModel)]="currentPlan.planType" [disabled]="isViewOnly"
+                (ngModelChange)="touch('planType')"
                 [class.!border-red-400]="showErr('planType') && getError('planType')"
                 [class.!border-green-400]="showErr('planType') && !getError('planType')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
@@ -143,7 +135,7 @@
                 <option value="Pension">Pension</option>
                 <option value="Others">Others</option>
               </select>
-              <p *ngIf="showErr('planType') && getError('planType')" class="err-msg">
+              <p *ngIf="showErr('planType') && getError('planType')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('planType') }}
               </p>
             </div>
@@ -151,18 +143,15 @@
             <!-- Description -->
             <div class="md:col-span-3">
               <label class="field-label">
-                Description <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Description <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <textarea name="description"
-                [(ngModel)]="currentPlan.description"
-                rows="2"
-                [disabled]="isViewOnly"
-                (blur)="touch('description')"
+              <textarea name="description" [(ngModel)]="currentPlan.description" rows="2" [disabled]="isViewOnly"
+                (ngModelChange)="touch('description')"
                 [class.!border-red-400]="showErr('description') && getError('description')"
                 [class.!border-green-400]="showErr('description') && !getError('description')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                 placeholder="Brief plan description (minimum 10 characters)..."></textarea>
-              <p *ngIf="showErr('description') && getError('description')" class="err-msg">
+              <p *ngIf="showErr('description') && getError('description')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('description') }}
               </p>
             </div>
@@ -177,22 +166,48 @@
           <h3 class="text-[10px] font-black text-[#75013f] dark:text-pink-400 uppercase tracking-widest mb-3">
             Actuarial Rates & Age Limits
           </h3>
+          <div class="mb-4">
+            <label class="toggle-label font-bold text-[#75013f] dark:text-pink-400">
+              <input type="checkbox" name="isCoverageUntilAge" [(ngModel)]="currentPlan.isCoverageUntilAge"
+                [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-5 h-5">
+              <span>Whole Life / Coverage Until Age (100 Yrs)</span>
+            </label>
+            <p class="text-[10px] text-gray-400 italic mt-1 ml-7">
+              If enabled, policy terms (Min/Max years) will be hidden.
+            </p>
+
+            <!-- Target Coverage Age Input (Conditional) -->
+            <div *ngIf="currentPlan.isCoverageUntilAge" class="mt-4 ml-7 w-full md:w-1/3">
+              <label class="field-label-sm !text-[#75013f] dark:!text-pink-400">
+                Target Coverage Age <span *ngIf="!isViewOnly" class="text-red-500">*</span>
+              </label>
+              <input type="number" name="coverageUntilAge" [(ngModel)]="currentPlan.coverageUntilAge"
+                [disabled]="isViewOnly" (ngModelChange)="touch('coverageUntilAge')"
+                [class.!border-red-400]="showErr('coverageUntilAge') && getError('coverageUntilAge')"
+                [class.!border-green-400]="showErr('coverageUntilAge') && !getError('coverageUntilAge')"
+                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                placeholder="e.g. 100">
+              <p *ngIf="showErr('coverageUntilAge') && getError('coverageUntilAge')"
+                class="err-msg !text-[10px] !text-red-500">
+                {{ getError('coverageUntilAge') }}
+              </p>
+            </div>
+          </div>
+
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
             <!-- Base Rate -->
             <div>
               <label class="field-label-sm">
-                Base Rate (%) <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Base Rate (%) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" step="0.01" name="baseRate"
-                [(ngModel)]="currentPlan.baseRate"
-                [disabled]="isViewOnly"
-                (blur)="touch('baseRate')"
+              <input type="number" step="0.01" name="baseRate" [(ngModel)]="currentPlan.baseRate"
+                [disabled]="isViewOnly" (ngModelChange)="touch('baseRate')"
                 [class.!border-red-400]="showErr('baseRate') && getError('baseRate')"
                 [class.!border-green-400]="showErr('baseRate') && !getError('baseRate')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                 placeholder="0.01">
-              <p *ngIf="showErr('baseRate') && getError('baseRate')" class="err-msg">
+              <p *ngIf="showErr('baseRate') && getError('baseRate')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('baseRate') }}
               </p>
             </div>
@@ -200,17 +215,15 @@
             <!-- Commission Rate -->
             <div>
               <label class="field-label-sm">
-                Commission (%) <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Commission (%) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="commissionRate"
-                [(ngModel)]="currentPlan.commissionRate"
-                [disabled]="isViewOnly"
-                (blur)="touch('commissionRate')"
+              <input type="number" name="commissionRate" [(ngModel)]="currentPlan.commissionRate"
+                [disabled]="isViewOnly" (ngModelChange)="touch('commissionRate')"
                 [class.!border-red-400]="showErr('commissionRate') && getError('commissionRate')"
                 [class.!border-green-400]="showErr('commissionRate') && !getError('commissionRate')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                 placeholder="10">
-              <p *ngIf="showErr('commissionRate') && getError('commissionRate')" class="err-msg">
+              <p *ngIf="showErr('commissionRate') && getError('commissionRate')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('commissionRate') }}
               </p>
             </div>
@@ -218,16 +231,14 @@
             <!-- Min Age -->
             <div>
               <label class="field-label-sm">
-                Min Age <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Min Age <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="minAge"
-                [(ngModel)]="currentPlan.minAge"
-                [disabled]="isViewOnly"
-                (blur)="touchPair('minAge','maxAge')"
+              <input type="number" name="minAge" [(ngModel)]="currentPlan.minAge" [disabled]="isViewOnly"
+                (ngModelChange)="touchPair('minAge','maxAge')"
                 [class.!border-red-400]="showErr('minAge') && getError('minAge')"
                 [class.!border-green-400]="showErr('minAge') && !getError('minAge')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('minAge') && getError('minAge')" class="err-msg">
+              <p *ngIf="showErr('minAge') && getError('minAge')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('minAge') }}
               </p>
             </div>
@@ -235,16 +246,14 @@
             <!-- Max Age -->
             <div>
               <label class="field-label-sm">
-                Max Age <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Max Age <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="maxAge"
-                [(ngModel)]="currentPlan.maxAge"
-                [disabled]="isViewOnly"
-                (blur)="touchPair('minAge','maxAge')"
+              <input type="number" name="maxAge" [(ngModel)]="currentPlan.maxAge" [disabled]="isViewOnly"
+                (ngModelChange)="touchPair('minAge','maxAge')"
                 [class.!border-red-400]="showErr('maxAge') && getError('maxAge')"
                 [class.!border-green-400]="showErr('maxAge') && !getError('maxAge')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('maxAge') && getError('maxAge')" class="err-msg">
+              <p *ngIf="showErr('maxAge') && getError('maxAge')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('maxAge') }}
               </p>
             </div>
@@ -253,75 +262,70 @@
         </div>
 
         <!-- ══ SECTION 3 : Coverage + Term ════════════════════ -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6
-                    bg-[#f5f2ef]/60 dark:bg-gray-900/40 p-5 rounded-2xl">
+        <div class="space-y-6 bg-[#f5f2ef]/60 dark:bg-gray-900/40 p-5 rounded-2xl">
 
           <!-- Coverage -->
           <div>
             <h4 class="text-xs font-bold text-[#75013f] dark:text-pink-300
                        border-b border-[#75013f]/10 dark:border-pink-900/20 pb-1 mb-3">
-              Coverage Limits (₹) <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+              Coverage Limits (₹) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
             </h4>
-            <div class="flex gap-3">
-              <div class="flex-1">
-                <input type="number" name="minCov"
-                  [(ngModel)]="currentPlan.minCoverageAmount"
-                  [disabled]="isViewOnly"
-                  (blur)="touchPair('minCoverageAmount','maxCoverageAmount')"
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="field-label-sm">Min Coverage</label>
+                <input type="number" name="minCov" [(ngModel)]="currentPlan.minCoverageAmount" [disabled]="isViewOnly"
+                  (ngModelChange)="touchPair('minCoverageAmount','maxCoverageAmount')"
                   [class.!border-red-400]="showErr('minCoverageAmount') && getError('minCoverageAmount')"
                   [class.!border-green-400]="showErr('minCoverageAmount') && !getError('minCoverageAmount')"
                   class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                   placeholder="Min ₹">
-                <p *ngIf="showErr('minCoverageAmount') && getError('minCoverageAmount')" class="err-msg">
+                <p *ngIf="showErr('minCoverageAmount') && getError('minCoverageAmount')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('minCoverageAmount') }}
                 </p>
               </div>
-              <div class="flex-1">
-                <input type="number" name="maxCov"
-                  [(ngModel)]="currentPlan.maxCoverageAmount"
-                  [disabled]="isViewOnly"
-                  (blur)="touchPair('minCoverageAmount','maxCoverageAmount')"
+              <div>
+                <label class="field-label-sm">Max Coverage</label>
+                <input type="number" name="maxCov" [(ngModel)]="currentPlan.maxCoverageAmount" [disabled]="isViewOnly"
+                  (ngModelChange)="touchPair('minCoverageAmount','maxCoverageAmount')"
                   [class.!border-red-400]="showErr('maxCoverageAmount') && getError('maxCoverageAmount')"
                   [class.!border-green-400]="showErr('maxCoverageAmount') && !getError('maxCoverageAmount')"
                   class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                   placeholder="Max ₹">
-                <p *ngIf="showErr('maxCoverageAmount') && getError('maxCoverageAmount')" class="err-msg">
+                <p *ngIf="showErr('maxCoverageAmount') && getError('maxCoverageAmount')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('maxCoverageAmount') }}
                 </p>
               </div>
             </div>
           </div>
 
-          <!-- Term -->
-          <div>
+          <!-- Term (Conditional) -->
+          <div *ngIf="!currentPlan.isCoverageUntilAge">
             <h4 class="text-xs font-bold text-[#75013f] dark:text-pink-300
                        border-b border-[#75013f]/10 dark:border-pink-900/20 pb-1 mb-3">
-              Term Limits (Years) <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+              Term Limits (Years) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
             </h4>
-            <div class="flex gap-3">
-              <div class="flex-1">
-                <input type="number" name="minTerm"
-                  [(ngModel)]="currentPlan.minTermYears"
-                  [disabled]="isViewOnly"
-                  (blur)="touchPair('minTermYears','maxTermYears')"
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="field-label-sm">Min Term</label>
+                <input type="number" name="minTerm" [(ngModel)]="currentPlan.minTermYears" [disabled]="isViewOnly"
+                  (ngModelChange)="touchPair('minTermYears','maxTermYears')"
                   [class.!border-red-400]="showErr('minTermYears') && getError('minTermYears')"
                   [class.!border-green-400]="showErr('minTermYears') && !getError('minTermYears')"
                   class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                   placeholder="Min Yr">
-                <p *ngIf="showErr('minTermYears') && getError('minTermYears')" class="err-msg">
+                <p *ngIf="showErr('minTermYears') && getError('minTermYears')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('minTermYears') }}
                 </p>
               </div>
-              <div class="flex-1">
-                <input type="number" name="maxTerm"
-                  [(ngModel)]="currentPlan.maxTermYears"
-                  [disabled]="isViewOnly"
-                  (blur)="touchPair('minTermYears','maxTermYears')"
+              <div>
+                <label class="field-label-sm">Max Term</label>
+                <input type="number" name="maxTerm" [(ngModel)]="currentPlan.maxTermYears" [disabled]="isViewOnly"
+                  (ngModelChange)="touchPair('minTermYears','maxTermYears')"
                   [class.!border-red-400]="showErr('maxTermYears') && getError('maxTermYears')"
                   [class.!border-green-400]="showErr('maxTermYears') && !getError('maxTermYears')"
                   class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
                   placeholder="Max Yr">
-                <p *ngIf="showErr('maxTermYears') && getError('maxTermYears')" class="err-msg">
+                <p *ngIf="showErr('maxTermYears') && getError('maxTermYears')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('maxTermYears') }}
                 </p>
               </div>
@@ -339,64 +343,57 @@
 
             <div>
               <label class="field-label-sm">
-                Grace Period (Days) <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Grace Period (Days) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="grace"
-                [(ngModel)]="currentPlan.gracePeriodDays"
-                [disabled]="isViewOnly"
-                (blur)="touch('gracePeriodDays')"
+              <input type="number" name="grace" [(ngModel)]="currentPlan.gracePeriodDays" [disabled]="isViewOnly"
+                (ngModelChange)="touch('gracePeriodDays')"
                 [class.!border-red-400]="showErr('gracePeriodDays') && getError('gracePeriodDays')"
                 [class.!border-green-400]="showErr('gracePeriodDays') && !getError('gracePeriodDays')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('gracePeriodDays') && getError('gracePeriodDays')" class="err-msg">
+              <p *ngIf="showErr('gracePeriodDays') && getError('gracePeriodDays')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('gracePeriodDays') }}
               </p>
             </div>
 
             <div>
               <label class="field-label-sm">
-                Max Members <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Max Members <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="maxMembers"
-                [(ngModel)]="currentPlan.maxPolicyMembersAllowed"
-                [disabled]="isViewOnly"
-                (blur)="touch('maxPolicyMembersAllowed')"
+              <input type="number" name="maxMembers" [(ngModel)]="currentPlan.maxPolicyMembersAllowed"
+                [disabled]="isViewOnly" (ngModelChange)="touch('maxPolicyMembersAllowed')"
                 [class.!border-red-400]="showErr('maxPolicyMembersAllowed') && getError('maxPolicyMembersAllowed')"
                 [class.!border-green-400]="showErr('maxPolicyMembersAllowed') && !getError('maxPolicyMembersAllowed')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('maxPolicyMembersAllowed') && getError('maxPolicyMembersAllowed')" class="err-msg">
+              <p *ngIf="showErr('maxPolicyMembersAllowed') && getError('maxPolicyMembersAllowed')"
+                class="err-msg !text-[10px]">
                 {{ getError('maxPolicyMembersAllowed') }}
               </p>
             </div>
 
             <div>
               <label class="field-label-sm">
-                Min Nominees <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Min Nominees <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="minNominees"
-                [(ngModel)]="currentPlan.minNominees"
-                [disabled]="isViewOnly"
-                (blur)="touchPair('minNominees','maxNominees')"
+              <input type="number" name="minNominees" [(ngModel)]="currentPlan.minNominees" [disabled]="isViewOnly"
+                (ngModelChange)="touchPair('minNominees','maxNominees')"
                 [class.!border-red-400]="showErr('minNominees') && getError('minNominees')"
                 [class.!border-green-400]="showErr('minNominees') && !getError('minNominees')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('minNominees') && getError('minNominees')" class="err-msg">
+              <p *ngIf="showErr('minNominees') && getError('minNominees')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('minNominees') }}
               </p>
             </div>
 
             <div>
               <label class="field-label-sm">
-                Max Nominees <span *ngIf="!isViewOnly" class="text-red-500">✱</span>
+                Max Nominees <span *ngIf="!isViewOnly" class="text-red-500">*</span>
               </label>
-              <input type="number" name="maxNominees"
-                [(ngModel)]="currentPlan.maxNominees"
-                [disabled]="isViewOnly"
-                (blur)="touchPair('minNominees','maxNominees')"
+              <input type="number" name="maxNominees" [(ngModel)]="currentPlan.maxNominees" [disabled]="isViewOnly"
+                (ngModelChange)="touchPair('minNominees','maxNominees')"
                 [class.!border-red-400]="showErr('maxNominees') && getError('maxNominees')"
                 [class.!border-green-400]="showErr('maxNominees') && !getError('maxNominees')"
                 class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('maxNominees') && getError('maxNominees')" class="err-msg">
+              <p *ngIf="showErr('maxNominees') && getError('maxNominees')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('maxNominees') }}
               </p>
             </div>
@@ -410,9 +407,7 @@
           <!-- Status -->
           <div>
             <label class="field-label">Plan Status</label>
-            <select name="isActive"
-              [(ngModel)]="currentPlan.isActive"
-              [disabled]="isViewOnly"
+            <select name="isActive" [(ngModel)]="currentPlan.isActive" [disabled]="isViewOnly"
               class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
               <option [ngValue]="true">Active — Visible to Customers</option>
               <option [ngValue]="false">Inactive — Hidden from Customers</option>
@@ -424,39 +419,33 @@
             <label class="field-label">Benefit Toggles</label>
             <div class="flex flex-wrap gap-x-5 gap-y-3 pt-1">
               <label class="toggle-label" [class.pointer-events-none]="isViewOnly">
-                <input type="checkbox" name="hasDeathBenefit"
-                  [(ngModel)]="currentPlan.hasDeathBenefit" [disabled]="isViewOnly"
-                  class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
+                <input type="checkbox" name="hasDeathBenefit" [(ngModel)]="currentPlan.hasDeathBenefit"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
                 <span>Death Benefit</span>
               </label>
               <label class="toggle-label" [class.pointer-events-none]="isViewOnly">
-                <input type="checkbox" name="hasMaturityBenefit"
-                  [(ngModel)]="currentPlan.hasMaturityBenefit" [disabled]="isViewOnly"
-                  class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
+                <input type="checkbox" name="hasMaturityBenefit" [(ngModel)]="currentPlan.hasMaturityBenefit"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
                 <span>Maturity Benefit</span>
               </label>
               <label class="toggle-label" [class.pointer-events-none]="isViewOnly">
-                <input type="checkbox" name="isReturnOfPremium"
-                  [(ngModel)]="currentPlan.isReturnOfPremium" [disabled]="isViewOnly"
-                  class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
+                <input type="checkbox" name="isReturnOfPremium" [(ngModel)]="currentPlan.isReturnOfPremium"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
                 <span>Return of Premium</span>
               </label>
               <label class="toggle-label" [class.pointer-events-none]="isViewOnly">
-                <input type="checkbox" name="hasBonus"
-                  [(ngModel)]="currentPlan.hasBonus" [disabled]="isViewOnly"
+                <input type="checkbox" name="hasBonus" [(ngModel)]="currentPlan.hasBonus" [disabled]="isViewOnly"
                   class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
                 <span>Bonus & Profits</span>
               </label>
               <label class="toggle-label" [class.pointer-events-none]="isViewOnly">
-                <input type="checkbox" name="hasLoanFacility"
-                  [(ngModel)]="currentPlan.hasLoanFacility" [disabled]="isViewOnly"
-                  class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
+                <input type="checkbox" name="hasLoanFacility" [(ngModel)]="currentPlan.hasLoanFacility"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
                 <span>Loan Facility</span>
               </label>
               <label class="toggle-label" [class.pointer-events-none]="isViewOnly">
-                <input type="checkbox" name="coverageIncreasing"
-                  [(ngModel)]="currentPlan.coverageIncreasing" [disabled]="isViewOnly"
-                  class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
+                <input type="checkbox" name="coverageIncreasing" [(ngModel)]="currentPlan.coverageIncreasing"
+                  [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-4 h-4">
                 <span>Coverage Increasing</span>
               </label>
             </div>
@@ -464,25 +453,11 @@
 
         </div>
 
-        <!-- ══ SECTION 6 : Whole Life + Bonus Panel ═══════════ -->
+        <!-- ══ SECTION 6 : Bonus Panel ═══════════════════════ -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <!-- Coverage Until Age (always visible) -->
-          <div>
-            <label class="field-label-sm">Coverage Until Age</label>
-            <input type="number" name="coverageUntilAge"
-              [(ngModel)]="currentPlan.coverageUntilAge"
-              [disabled]="isViewOnly"
-              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
-              placeholder="0 = fixed term; 100 = whole life">
-            <p class="text-[9px] text-gray-400 italic mt-1">
-              0 for Fixed Term · 100 for Whole Life / Pension
-            </p>
-          </div>
-
           <!-- Bonus Panel (conditional on hasBonus) -->
-          <div *ngIf="currentPlan.hasBonus"
-            class="p-4 bg-yellow-50/60 dark:bg-yellow-900/10 rounded-2xl
+          <div *ngIf="currentPlan.hasBonus" class="md:col-start-2 p-4 bg-yellow-50/60 dark:bg-yellow-900/10 rounded-2xl
                    border border-yellow-200 dark:border-yellow-800/30">
             <p class="text-[10px] font-black text-yellow-700 dark:text-yellow-400 uppercase tracking-widest mb-3">
               Bonus Parameters
@@ -490,31 +465,27 @@
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="field-label-sm text-yellow-700 dark:text-yellow-400">
-                  Bonus Rate (%) <span class="text-red-500">✱</span>
+                  Bonus Rate (%) <span class="text-red-500">*</span>
                 </label>
-                <input type="number" step="0.1" name="bonusRate"
-                  [(ngModel)]="currentPlan.bonusRate"
-                  [disabled]="isViewOnly"
-                  (blur)="touch('bonusRate')"
+                <input type="number" step="0.1" name="bonusRate" [(ngModel)]="currentPlan.bonusRate"
+                  [disabled]="isViewOnly" (ngModelChange)="touch('bonusRate')"
                   [class.!border-red-400]="showErr('bonusRate') && getError('bonusRate')"
                   [class.!border-green-400]="showErr('bonusRate') && !getError('bonusRate')"
                   class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-                <p *ngIf="showErr('bonusRate') && getError('bonusRate')" class="err-msg">
+                <p *ngIf="showErr('bonusRate') && getError('bonusRate')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('bonusRate') }}
                 </p>
               </div>
               <div>
                 <label class="field-label-sm text-yellow-700 dark:text-yellow-400">
-                  Terminal Bonus (%) <span class="text-red-500">✱</span>
+                  Terminal Bonus (%) <span class="text-red-500">*</span>
                 </label>
-                <input type="number" step="0.1" name="terminalBonusRate"
-                  [(ngModel)]="currentPlan.terminalBonusRate"
-                  [disabled]="isViewOnly"
-                  (blur)="touch('terminalBonusRate')"
+                <input type="number" step="0.1" name="terminalBonusRate" [(ngModel)]="currentPlan.terminalBonusRate"
+                  [disabled]="isViewOnly" (ngModelChange)="touch('terminalBonusRate')"
                   [class.!border-red-400]="showErr('terminalBonusRate') && getError('terminalBonusRate')"
                   [class.!border-green-400]="showErr('terminalBonusRate') && !getError('terminalBonusRate')"
                   class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-                <p *ngIf="showErr('terminalBonusRate') && getError('terminalBonusRate')" class="err-msg">
+                <p *ngIf="showErr('terminalBonusRate') && getError('terminalBonusRate')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('terminalBonusRate') }}
                 </p>
               </div>
@@ -524,32 +495,28 @@
         </div>
 
         <!-- ══ SECTION 7 : Coverage Increase (conditional) ════ -->
-        <div *ngIf="currentPlan.coverageIncreasing"
-          class="p-4 bg-purple-50/60 dark:bg-purple-900/10 rounded-2xl
+        <div *ngIf="currentPlan.coverageIncreasing" class="p-4 bg-purple-50/60 dark:bg-purple-900/10 rounded-2xl
                  border border-purple-200 dark:border-purple-800/30">
           <p class="text-[10px] font-black text-purple-700 dark:text-purple-300 uppercase tracking-widest mb-3">
             📈 Coverage Increase Parameters
           </p>
           <div class="w-full md:w-1/3">
             <label class="field-label-sm text-purple-700 dark:text-purple-400">
-              Annual Increase Rate (%) <span class="text-red-500">✱</span>
+              Annual Increase Rate (%) <span class="text-red-500">*</span>
             </label>
-            <input type="number" step="0.1" name="coverageIncreaseRate"
-              [(ngModel)]="currentPlan.coverageIncreaseRate"
-              [disabled]="isViewOnly"
-              (blur)="touch('coverageIncreaseRate')"
+            <input type="number" step="0.1" name="coverageIncreaseRate" [(ngModel)]="currentPlan.coverageIncreaseRate"
+              [disabled]="isViewOnly" (ngModelChange)="touch('coverageIncreaseRate')"
               [class.!border-red-400]="showErr('coverageIncreaseRate') && getError('coverageIncreaseRate')"
               [class.!border-green-400]="showErr('coverageIncreaseRate') && !getError('coverageIncreaseRate')"
               class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
-            <p *ngIf="showErr('coverageIncreaseRate') && getError('coverageIncreaseRate')" class="err-msg">
+            <p *ngIf="showErr('coverageIncreaseRate') && getError('coverageIncreaseRate')" class="err-msg !text-[10px] !text-red-500">
               {{ getError('coverageIncreaseRate') }}
             </p>
           </div>
         </div>
 
         <!-- ══ SECTION 8 : Loan Facility (conditional) ════════ -->
-        <div *ngIf="currentPlan.hasLoanFacility"
-          class="p-5 bg-blue-50/60 dark:bg-blue-900/10 rounded-2xl
+        <div *ngIf="currentPlan.hasLoanFacility" class="p-5 bg-blue-50/60 dark:bg-blue-900/10 rounded-2xl
                  border border-blue-200 dark:border-blue-800/30">
           <p class="text-[10px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest mb-4">
             🏦 Loan Facility Parameters
@@ -558,51 +525,44 @@
 
             <div>
               <label class="field-label-sm text-blue-700 dark:text-blue-400">
-                Eligible After (Years) <span class="text-red-500">✱</span>
+                Eligible After (Years) <span class="text-red-500">*</span>
               </label>
-              <input type="number" name="loanYrs"
-                [(ngModel)]="currentPlan.loanEligibleAfterYears"
-                [disabled]="isViewOnly"
-                (blur)="touch('loanEligibleAfterYears')"
+              <input type="number" name="loanYrs" [(ngModel)]="currentPlan.loanEligibleAfterYears"
+                [disabled]="isViewOnly" (ngModelChange)="touch('loanEligibleAfterYears')"
                 [class.!border-red-400]="showErr('loanEligibleAfterYears') && getError('loanEligibleAfterYears')"
                 [class.!border-green-400]="showErr('loanEligibleAfterYears') && !getError('loanEligibleAfterYears')"
                 class="form-input-custom border-blue-200 dark:border-blue-800
                        dark:bg-gray-900 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('loanEligibleAfterYears') && getError('loanEligibleAfterYears')" class="err-msg">
+              <p *ngIf="showErr('loanEligibleAfterYears') && getError('loanEligibleAfterYears')"
+                class="err-msg !text-[10px] !text-red-500">
                 {{ getError('loanEligibleAfterYears') }}
               </p>
             </div>
 
             <div>
               <label class="field-label-sm text-blue-700 dark:text-blue-400">
-                Max Loan % of Surrender <span class="text-red-500">✱</span>
+                Max Loan % of Surrender <span class="text-red-500">*</span>
               </label>
-              <input type="number" name="loanPct"
-                [(ngModel)]="currentPlan.maxLoanPercentage"
-                [disabled]="isViewOnly"
-                (blur)="touch('maxLoanPercentage')"
+              <input type="number" name="loanPct" [(ngModel)]="currentPlan.maxLoanPercentage" [disabled]="isViewOnly"
+                (ngModelChange)="touch('maxLoanPercentage')"
                 [class.!border-red-400]="showErr('maxLoanPercentage') && getError('maxLoanPercentage')"
-                [class.!border-green-400]="showErr('maxLoanPercentage') && !getError('maxLoanPercentage')"
-                class="form-input-custom border-blue-200 dark:border-blue-800
+                [class.!border-green-400]="showErr('maxLoanPercentage') && !getError('maxLoanPercentage')" class="form-input-custom border-blue-200 dark:border-blue-800
                        dark:bg-gray-900 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('maxLoanPercentage') && getError('maxLoanPercentage')" class="err-msg">
+              <p *ngIf="showErr('maxLoanPercentage') && getError('maxLoanPercentage')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('maxLoanPercentage') }}
               </p>
             </div>
 
             <div>
               <label class="field-label-sm text-blue-700 dark:text-blue-400">
-                Loan Interest Rate (%) <span class="text-red-500">✱</span>
+                Loan Interest Rate (%) <span class="text-red-500">*</span>
               </label>
-              <input type="number" step="0.1" name="loanInt"
-                [(ngModel)]="currentPlan.loanInterestRate"
-                [disabled]="isViewOnly"
-                (blur)="touch('loanInterestRate')"
+              <input type="number" step="0.1" name="loanInt" [(ngModel)]="currentPlan.loanInterestRate"
+                [disabled]="isViewOnly" (ngModelChange)="touch('loanInterestRate')"
                 [class.!border-red-400]="showErr('loanInterestRate') && getError('loanInterestRate')"
-                [class.!border-green-400]="showErr('loanInterestRate') && !getError('loanInterestRate')"
-                class="form-input-custom border-blue-200 dark:border-blue-800
+                [class.!border-green-400]="showErr('loanInterestRate') && !getError('loanInterestRate')" class="form-input-custom border-blue-200 dark:border-blue-800
                        dark:bg-gray-900 dark:text-white disabled:opacity-60">
-              <p *ngIf="showErr('loanInterestRate') && getError('loanInterestRate')" class="err-msg">
+              <p *ngIf="showErr('loanInterestRate') && getError('loanInterestRate')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('loanInterestRate') }}
               </p>
             </div>
@@ -610,53 +570,27 @@
           </div>
         </div>
 
-        <!-- ══ FOOTER ACTIONS ══════════════════════════════════ -->
         <div *ngIf="!isViewOnly" class="flex gap-4 pt-2">
-          <button type="button"
-            (click)="savePlan()"
-            class="flex-[2] py-4 px-8 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-bold
+          <button type="button" (click)="savePlan()" class="flex-[2] py-4 px-8 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-bold
                    hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all
                    shadow-lg shadow-[#75013f]/20 active:scale-95">
             {{ isEditMode ? '✓ Update Insurance Plan' : '✓ Create Insurance Plan' }}
           </button>
-          <button type="button"
-            (click)="showModal = false"
-            class="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300
+          <button type="button" (click)="showModal = false" class="flex-1 py-4 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300
                    rounded-2xl font-bold hover:bg-gray-200 dark:hover:bg-gray-600 transition-all">
             Discard
           </button>
         </div>
 
         <div *ngIf="isViewOnly" class="pt-2">
-          <button type="button"
-            (click)="showModal = false"
-            class="w-full py-4 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-bold
+          <button type="button" (click)="showModal = false" class="w-full py-4 bg-[#75013f] dark:bg-pink-700 text-white rounded-2xl font-bold
                    hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-lg active:scale-95">
             Close
           </button>
         </div>
 
-      </div><!-- /modal body -->
-    </div><!-- /modal panel -->
-  </div><!-- /modal overlay -->
+      </div>
+    </div>
+  </div>
 
-</div><!-- /page -->
-
-<!--
-  Add these utility classes to your global styles (styles.css):
-
-  .field-label {
-    @apply block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1;
-  }
-  .field-label-sm {
-    @apply block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase mb-1;
-  }
-  .err-msg {
-    @apply text-red-500 text-[10px] mt-1 font-medium flex items-center gap-1;
-  }
-  .toggle-label {
-    @apply flex items-center gap-2 cursor-pointer;
-    span { @apply text-xs font-semibold text-gray-600 dark:text-gray-400; }
-  }
-  .err-msg::before { content: '⚠ '; }
--->
+</div>

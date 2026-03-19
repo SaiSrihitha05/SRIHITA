@@ -59,15 +59,16 @@ export class AdminPlans implements OnInit {
       hasMaturityBenefit: false,
       isReturnOfPremium: false,
       hasBonus: false,
-      bonusRate: null as number | null,
-      terminalBonusRate: null as number | null,
+      bonusRate: 0,
+      terminalBonusRate: 0,
       hasLoanFacility: false,
       loanEligibleAfterYears: null as number | null,
       maxLoanPercentage: null as number | null,
       loanInterestRate: null as number | null,
       coverageIncreasing: false,
       coverageIncreaseRate: null as number | null,
-      coverageUntilAge: 0,
+      isCoverageUntilAge: false,
+      coverageUntilAge: null as number | null,
     };
   }
 
@@ -143,6 +144,8 @@ export class AdminPlans implements OnInit {
       conditional.push('loanEligibleAfterYears', 'maxLoanPercentage', 'loanInterestRate');
     if (this.currentPlan.coverageIncreasing)
       conditional.push('coverageIncreaseRate');
+    if (this.currentPlan.isCoverageUntilAge)
+      conditional.push('coverageUntilAge');
     [...always, ...conditional].forEach(f => (this.touched[f] = true));
   }
 
@@ -213,6 +216,7 @@ export class AdminPlans implements OnInit {
         return '';
       }
       case 'minTermYears': {
+        if (this.currentPlan.isCoverageUntilAge) return '';
         const num = n(v); const max = n(this.currentPlan.maxTermYears);
         if (num === null) return 'Min term is required';
         if (num < 1) return 'Must be at least 1 year';
@@ -220,6 +224,7 @@ export class AdminPlans implements OnInit {
         return '';
       }
       case 'maxTermYears': {
+        if (this.currentPlan.isCoverageUntilAge) return '';
         const num = n(v); const min = n(this.currentPlan.minTermYears);
         if (num === null) return 'Max term is required';
         if (num < 1) return 'Must be at least 1 year';
@@ -259,8 +264,7 @@ export class AdminPlans implements OnInit {
         if (!this.currentPlan.hasBonus) return '';
         const num = n(v);
         if (num === null) return 'Bonus rate is required';
-        if (num <= 0) return 'Must be greater than 0';
-        if (num > 100) return 'Cannot exceed 100%';
+        if (num < 0) return 'Cannot be negative';
         return '';
       }
       case 'terminalBonusRate': {
@@ -268,7 +272,6 @@ export class AdminPlans implements OnInit {
         const num = n(v);
         if (num === null) return 'Terminal bonus rate is required';
         if (num < 0) return 'Cannot be negative';
-        if (num > 100) return 'Cannot exceed 100%';
         return '';
       }
 
@@ -293,17 +296,16 @@ export class AdminPlans implements OnInit {
         const num = n(v);
         if (num === null) return 'Interest rate is required';
         if (num <= 0) return 'Must be greater than 0';
-        if (num > 50) return 'Cannot exceed 50%';
         return '';
       }
 
-      // ── Conditional: coverageIncreasing ──────────────────────
-      case 'coverageIncreaseRate': {
-        if (!this.currentPlan.coverageIncreasing) return '';
+      // ── Conditional: isCoverageUntilAge ─────────────────────
+      case 'coverageUntilAge': {
+        if (!this.currentPlan.isCoverageUntilAge) return '';
         const num = n(v);
-        if (num === null) return 'Increase rate is required';
-        if (num <= 0) return 'Must be greater than 0';
-        if (num > 50) return 'Cannot exceed 50%';
+        if (num === null) return 'Target age is required';
+        if (num <= this.currentPlan.maxAge) return `Must be > max entry age (${this.currentPlan.maxAge})`;
+        if (num > 100) return 'Cannot exceed age 100';
         return '';
       }
 
@@ -316,9 +318,12 @@ export class AdminPlans implements OnInit {
     const always = [
       'planName', 'planType', 'description', 'baseRate', 'commissionRate',
       'minAge', 'maxAge', 'minCoverageAmount', 'maxCoverageAmount',
-      'minTermYears', 'maxTermYears', 'gracePeriodDays',
-      'maxPolicyMembersAllowed', 'minNominees', 'maxNominees',
+      'gracePeriodDays', 'maxPolicyMembersAllowed', 'minNominees', 'maxNominees',
     ];
+    if (!this.currentPlan.isCoverageUntilAge) {
+      always.push('minTermYears', 'maxTermYears');
+    }
+
     const conditional: string[] = [];
     if (this.currentPlan.hasBonus)
       conditional.push('bonusRate', 'terminalBonusRate');
@@ -326,6 +331,8 @@ export class AdminPlans implements OnInit {
       conditional.push('loanEligibleAfterYears', 'maxLoanPercentage', 'loanInterestRate');
     if (this.currentPlan.coverageIncreasing)
       conditional.push('coverageIncreaseRate');
+    if (this.currentPlan.isCoverageUntilAge)
+      conditional.push('coverageUntilAge');
     return [...always, ...conditional].every(f => this.getError(f) === '');
   }
 

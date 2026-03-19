@@ -86,15 +86,15 @@
 
   <!-- Modal Content Container -->
   <div
-    class="relative bg-white dark:bg-gray-800 w-full max-w-lg rounded-[3rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border dark:border-gray-700 animate-in zoom-in-95 duration-200">
+    class="relative bg-white dark:bg-gray-800 w-full max-w-4xl rounded-[3rem] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border dark:border-gray-700 animate-in zoom-in-95 duration-200">
 
     <!-- Header -->
     <div
       class="p-8 bg-[#f5f2ef] dark:bg-gray-900/50 border-b dark:border-gray-700 flex justify-between items-center flex-shrink-0">
       <div>
-        <h3 class="text-2xl font-black text-[#75013f] dark:text-pink-300">Process Claim</h3>
+        <h3 class="text-2xl font-black text-[#75013f] dark:text-pink-300">Claim Verification Report</h3>
         <p class="text-gray-400 dark:text-gray-500 text-[10px] font-black uppercase tracking-widest mt-1">
-          Claim #{{selectedClaim.id}} — {{selectedClaim.policyNumber}}
+          Assigned Case: {{selectedClaim.policyNumber}} — Processing Phase
         </p>
       </div>
       <button (click)="closeModal()"
@@ -104,133 +104,419 @@
     </div>
 
     <!-- Scrollable Body -->
-    <div class="p-8 space-y-8 overflow-y-auto custom-scrollbar">
+    <div class="p-8 overflow-y-auto custom-scrollbar bg-gray-50/20 dark:bg-gray-900/10">
 
-      <!-- Claim Quick Info & Loan Deduction -->
-      <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border dark:border-gray-700">
-            <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Member</p>
-            <p class="font-bold text-gray-700 dark:text-gray-200 text-sm mt-1 truncate">
-              {{selectedClaim.policyMemberName}}
-            </p>
-          </div>
-          <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border dark:border-gray-700">
-            <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Claim Amount</p>
-            <p class="font-black text-[#75013f] dark:text-pink-400 text-sm mt-1">₹{{selectedClaim.claimAmount | number}}
-            </p>
-          </div>
+      <!-- Loading State for Detail -->
+      <div *ngIf="loadingDetail" class="py-20 text-center space-y-4">
+        <div class="inline-block w-8 h-8 border-4 border-[#75013f] border-t-transparent rounded-full animate-spin">
         </div>
-
-        <!-- Detailed Financial Breakdown -->
-        <div class="p-6 bg-gray-50 dark:bg-gray-900/50 rounded-[2.5rem] border dark:border-gray-700 space-y-4">
-          <p class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Benefit
-            Breakdown</p>
-
-          <div class="space-y-3">
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-gray-500 dark:text-gray-400 font-bold">Base Coverage</span>
-              <span class="font-black text-gray-700 dark:text-gray-200">₹{{selectedClaim.baseCoverageAmount |
-                number:'1.0-0'}}</span>
-            </div>
-
-            <div *ngIf="selectedClaim.accumulatedBonus > 0" class="flex justify-between items-center text-xs">
-              <span class="text-amber-600 dark:text-amber-500 font-bold uppercase tracking-tighter cursor-help"
-                title="Yearly reversionary bonus">+ Accumulated Bonus</span>
-              <span class="font-black text-amber-600 dark:text-amber-400">+ ₹{{selectedClaim.accumulatedBonus |
-                number:'1.0-0'}}</span>
-            </div>
-
-            <div *ngIf="selectedClaim.terminalBonus > 0" class="flex justify-between items-center text-xs">
-              <span class="text-blue-600 dark:text-blue-400 font-bold uppercase tracking-tighter cursor-help"
-                title="One-time maturity bonus">+ Terminal Bonus</span>
-              <span class="font-black text-blue-600 dark:text-blue-400">+ ₹{{selectedClaim.terminalBonus |
-                number:'1.0-0'}}</span>
-            </div>
-
-            <div class="pt-3 border-t dark:border-gray-700 flex justify-between items-center">
-              <span class="font-black text-gray-800 dark:text-gray-100 uppercase text-[10px] tracking-tight">Total Gross
-                Claim</span>
-              <span class="font-black text-[#75013f] dark:text-pink-400">₹{{selectedClaim.claimAmount |
-                number:'1.0-0'}}</span>
-            </div>
-
-            <!-- Loan Deduction (Negative) -->
-            <div *ngIf="selectedClaim.outstandingLoanAmount > 0"
-              class="flex justify-between items-center text-xs p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/30">
-              <span class="text-red-600 dark:text-red-400 font-bold uppercase tracking-widest">— Outstanding Loan</span>
-              <span class="font-black text-red-600 dark:text-red-400">₹{{selectedClaim.outstandingLoanAmount |
-                number:'1.0-0'}}</span>
-            </div>
-
-          </div>
-
-          <!-- Suggested Net Settlement -->
-          <div
-            class="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl border border-green-100 dark:border-green-900/30 flex justify-between items-center">
-            <span class="text-[10px] font-black text-green-700 dark:text-green-400 uppercase tracking-widest">Suggested
-              Net Payout</span>
-            <span class="text-xl font-black text-green-700 dark:text-green-400">₹{{selectedClaim.netSettlementAmount |
-              number:'1.0-0'}}</span>
-          </div>
-        </div>
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest animate-pulse">Retrieving Verification
+          Data...</p>
       </div>
 
-      <!-- Form Inputs -->
-      <div class="space-y-6">
-        <div class="space-y-2">
-          <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Update Status
-            To</label>
-          <select [(ngModel)]="processForm.status" name="status"
-            class="w-full p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border-none dark:text-gray-100 outline-none focus:ring-2 focus:ring-[#75013f]/20 transition-all">
-            <option *ngFor="let opt of statusOptions" [value]="opt.value">{{opt.label}}</option>
-          </select>
-        </div>
+      <div *ngIf="!loadingDetail" class="space-y-10 pb-10">
 
-        <div *ngIf="processForm.status === 'Approved' || processForm.status === 'Settled'"
-          class="space-y-2 animate-in slide-in-from-top-2 duration-300">
-          <div class="flex justify-between items-center">
-            <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">
-              Settlement Amount (₹) <span class="text-red-400">*</span>
-            </label>
-            <button *ngIf="selectedClaim.outstandingLoanAmount > 0"
-              (click)="processForm.settlementAmount = selectedClaim.claimAmount - selectedClaim.outstandingLoanAmount"
-              class="text-[9px] font-extrabold text-[#75013f] hover:underline uppercase">Use Net Payout</button>
+        <!-- Section 1: Claim Summary -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">01</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Claim Summary</h4>
           </div>
-          <input [(ngModel)]="processForm.settlementAmount" name="settlementAmount" type="number"
-            [max]="selectedClaim.claimAmount" placeholder="Enter amount..."
-            class="w-full p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border-none dark:text-gray-100 outline-none focus:ring-2 focus:ring-[#75013f]/20 transition-all" />
-          <p class="text-[9px] text-gray-400 font-bold">Limit: ₹{{selectedClaim.claimAmount | number}}</p>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm">
+              <p class="text-[9px] font-black text-gray-400 uppercase">Claim ID</p>
+              <p class="font-bold text-[#75013f] dark:text-pink-400 mt-1">#{{selectedClaim.id}}</p>
+            </div>
+            <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm">
+              <p class="text-[9px] font-black text-gray-400 uppercase">Claim Type</p>
+              <p class="font-bold text-gray-700 dark:text-gray-200 mt-1 uppercase">{{selectedClaim.claimType}}</p>
+            </div>
+            <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm">
+              <p class="text-[9px] font-black text-gray-400 uppercase">Filed Date</p>
+              <p class="font-bold text-gray-700 dark:text-gray-200 mt-1">{{selectedClaim.filedDate | date:'mediumDate'}}
+              </p>
+            </div>
+            <div class="p-5 bg-white dark:bg-gray-800 rounded-2xl border dark:border-gray-700 shadow-sm">
+              <p class="text-[9px] font-black text-gray-400 uppercase">Current Status</p>
+              <p class="font-black mt-1 uppercase text-[10px]">
+                <span [ngClass]="getStatusBadgeClass(selectedClaim.status)" class="px-3 py-1 rounded-full text-white">
+                  {{selectedClaim.status}}
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Two Column Layout for Details -->
+        <div class="grid lg:grid-cols-2 gap-10">
+
+          <!-- Section 2: Policy Details -->
+          <section>
+            <div class="flex items-center gap-3 mb-6">
+              <span
+                class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">02</span>
+              <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Policy
+                Verification</h4>
+            </div>
+            <div class="p-6 bg-white dark:bg-gray-800 rounded-[2rem] border dark:border-gray-700 shadow-sm space-y-4">
+              <div class="flex justify-between border-b dark:border-gray-700 pb-2">
+                <span class="text-xs text-gray-500 font-bold">Policy Number</span>
+                <span class="text-xs font-black text-gray-700 dark:text-gray-200">{{selectedClaim.policyNumber}}</span>
+              </div>
+              <div class="flex justify-between border-b dark:border-gray-700 pb-2">
+                <span class="text-xs text-gray-500 font-bold">Plan Name</span>
+                <span class="text-xs font-black text-[#75013f] dark:text-pink-300">{{selectedClaim.planName}}</span>
+              </div>
+              <div class="flex justify-between border-b dark:border-gray-700 pb-2">
+                <span class="text-xs text-gray-500 font-bold">Policy Status</span>
+                <span class="text-xs font-black text-green-600 uppercase">{{selectedClaim.policyStatus}}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-xs text-gray-500 font-bold">Started On</span>
+                <span class="text-xs font-black text-gray-700 dark:text-gray-200">{{selectedClaim.policyStartDate |
+                  date:'mediumDate'}}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: Deceased Member Details -->
+          <section>
+            <div class="flex items-center gap-3 mb-6">
+              <span
+                class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">03</span>
+              <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Deceased Profile
+              </h4>
+            </div>
+            <div
+              class="p-6 bg-[#75013f]/5 dark:bg-pink-900/10 rounded-[2rem] border dark:border-gray-700 shadow-sm space-y-4">
+              <div class="flex justify-between border-b dark:border-gray-700 pb-2">
+                <span class="text-xs text-gray-500 font-bold">Member Name</span>
+                <span
+                  class="text-xs font-black text-gray-800 dark:text-gray-100">{{selectedClaim.policyMemberName}}</span>
+              </div>
+              <div class="flex justify-between border-b dark:border-gray-700 pb-2">
+                <span class="text-xs text-gray-500 font-bold">Relationship</span>
+                <span
+                  class="text-xs font-black text-gray-800 dark:text-gray-100">{{selectedClaim.memberRelationship}}</span>
+              </div>
+              <div class="flex justify-between border-b dark:border-gray-700 pb-2">
+                <span class="text-xs text-gray-500 font-bold">Age at Entry/Death</span>
+                <span class="text-xs font-black text-gray-800 dark:text-gray-100">{{selectedClaim.memberAge}}
+                  Years</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-xs text-gray-500 font-bold">DOB</span>
+                <span class="text-xs font-black text-gray-800 dark:text-gray-100">{{selectedClaim.memberDob |
+                  date:'mediumDate'}}</span>
+              </div>
+            </div>
+          </section>
         </div>
 
-        <div class="space-y-2">
-          <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Officer
-            Remarks <span class="text-red-400">*</span></label>
-          <textarea [(ngModel)]="processForm.remarks" name="remarks" rows="3" placeholder="Provide justification..."
-            class="w-full p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border-none dark:text-gray-100 outline-none focus:ring-2 focus:ring-[#75013f]/20 resize-none transition-all"></textarea>
+        <!-- Section 4: Insured Members Grid -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">04</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Insured Members
+              (Policy Participants)</h4>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngFor="let member of selectedClaim.allMembers"
+              [ngClass]="member.id === selectedClaim.claimForMemberId ? 'border-[#75013f] bg-[#75013f]/5' : 'border-gray-100 bg-white'"
+              class="p-5 rounded-2xl border dark:border-gray-700 dark:bg-gray-800 shadow-sm transition-all hover:shadow-md relative overflow-hidden">
+              <div *ngIf="member.id === selectedClaim.claimForMemberId"
+                class="absolute top-0 right-0 p-2 bg-[#75013f] text-white text-[8px] font-black uppercase rounded-bl-xl shadow-sm">
+                Claim Target</div>
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-xl shadow-inner">
+                  👤</div>
+                <div>
+                  <p class="text-xs font-black text-gray-800 dark:text-gray-100">{{member.memberName}}</p>
+                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
+                    {{member.relationshipToCustomer}} • ₹{{member.coverageAmount | number}} Assured</p>
+                  <span [ngClass]="member.status === 'Deceased' ? 'text-red-500' : 'text-green-500'"
+                    class="text-[8px] font-black uppercase tracking-widest">{{member.status}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="grid lg:grid-cols-2 gap-10">
+          <!-- Section 5: Premium Payment History -->
+          <section>
+            <div class="flex items-center gap-3 mb-6">
+              <span
+                class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">05</span>
+              <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Payment
+                Compliance</h4>
+            </div>
+            <div class="p-6 bg-white dark:bg-gray-800 rounded-[2rem] border dark:border-gray-700 shadow-sm space-y-4">
+              <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                  <span class="text-[9px] font-black text-gray-400 uppercase">Paid Premiums</span>
+                  <span class="text-xl font-black text-gray-800 dark:text-gray-100">{{selectedClaim.totalPaymentsCount}}
+                    Installments</span>
+                </div>
+                <div
+                  class="w-12 h-12 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-2xl shadow-inner border border-green-100 dark:border-green-900/30 text-green-600">
+                  ✓</div>
+              </div>
+              <div class="grid grid-cols-2 gap-4 pt-4 border-t dark:border-gray-700">
+                <div>
+                  <p class="text-[9px] font-black text-gray-400 uppercase">Last Paid</p>
+                  <p class="text-xs font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.lastPaymentDate |
+                    date:'mediumDate'}}</p>
+                </div>
+                <div>
+                  <p class="text-[9px] font-black text-gray-400 uppercase">Next Due</p>
+                  <p class="text-xs font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.nextDueDate |
+                    date:'mediumDate'}}</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 6: Cause of Death Verification -->
+          <section>
+            <div class="flex items-center gap-3 mb-6">
+              <span
+                class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">06</span>
+              <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Evidence of
+                Death</h4>
+            </div>
+            <div class="p-6 bg-white dark:bg-gray-800 rounded-[2rem] border dark:border-gray-700 shadow-sm space-y-4">
+              <div>
+                <p class="text-[9px] font-black text-gray-400 uppercase">Certificate Number</p>
+                <p class="text-xs font-black text-[#75013f] dark:text-pink-400 mt-1">
+                  {{selectedClaim.deathCertificateNumber || 'Not Provided'}}</p>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-[9px] font-black text-gray-400 uppercase">Date of Death</p>
+                  <p class="text-xs font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.dateOfDeath |
+                    date:'mediumDate'}}</p>
+                </div>
+                <div>
+                  <p class="text-[9px] font-black text-gray-400 uppercase">Cause of Death</p>
+                  <p class="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-tighter">
+                    {{selectedClaim.causeOfDeath || 'N/A'}}</p>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
+
+        <!-- Section 7: Beneficiary Details -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">07</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Nominee
+              Distribution Split</h4>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let nominee of selectedClaim.allNominees"
+              class="p-6 bg-white dark:bg-gray-800 rounded-[2rem] border dark:border-gray-700 shadow-sm relative overflow-hidden group">
+              <p class="text-[10px] font-black text-[#fe3082] uppercase tracking-widest mb-1">
+                {{nominee.sharePercentage}}% Entitlement</p>
+              <h5 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase">{{nominee.nomineeName}}</h5>
+              <p
+                class="text-[9px] font-bold text-gray-400 uppercase tracking-widest border-b dark:border-gray-700 pb-2 mb-3">
+                {{nominee.relationshipToPolicyHolder}}</p>
+
+              <div class="space-y-1">
+                <p class="text-[9px] font-black text-gray-400 uppercase">Projected Payout</p>
+                <p class="text-lg font-black text-[#75013f] dark:text-pink-400">₹{{((processForm.settlementAmount ||
+                  selectedClaim.netSettlementAmount) * nominee.sharePercentage / 100) | number:'1.0-0'}}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 8: Uploaded Documents -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">08</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Evidence Vault
+              (Verification)</h4>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div *ngFor="let doc of selectedClaim.documents"
+              class="flex justify-between items-center p-5 bg-white dark:bg-gray-800 rounded-3xl border dark:border-gray-700 shadow-sm hover:border-purple-200 transition-all group">
+              <div class="flex items-center gap-4 overflow-hidden">
+                <div
+                  class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-2xl group-hover:rotate-6 transition-transform">
+                  📄</div>
+                <div class="flex flex-col truncate">
+                  <span class="text-xs font-black text-gray-800 dark:text-gray-100 truncate"
+                    [title]="doc.fileName">{{doc.fileName}}</span>
+                  <span class="text-[9px] text-gray-400 font-bold uppercase">{{doc.documentCategory}} • {{doc.uploadedAt
+                    | date:'short'}}</span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <a [href]="apiUrl + '/' + selectedClaim.id + '/documents/' + doc.id + '/download'" target="_blank"
+                  class="p-3 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-xl transition-all shadow-sm active:scale-90"
+                  title="Download">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 9: Financial Calculation -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">09</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Final Benefit
+              Calculation</h4>
+          </div>
+          <div
+            class="p-8 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 rounded-[3rem] shadow-xl border dark:border-gray-700 relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-[#75013f]/5 rounded-full blur-[80px]"></div>
+            <div class="relative z-10 grid md:grid-cols-3 gap-8 text-center md:text-left">
+              <div class="space-y-1">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Base Sum Assured</p>
+                <p class="text-2xl font-black text-gray-800 dark:text-gray-100">₹{{selectedClaim.baseCoverageAmount |
+                  number}}</p>
+              </div>
+              <div class="space-y-1">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Total Bonuses</p>
+                <p class="text-2xl font-black text-amber-600 dark:text-amber-500">+ ₹{{(selectedClaim.accumulatedBonus +
+                  selectedClaim.terminalBonus) | number}}</p>
+              </div>
+              <div class="space-y-1">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Loan Deductions</p>
+                <p class="text-2xl font-black text-red-500">- ₹{{selectedClaim.outstandingLoanAmount | number}}</p>
+              </div>
+            </div>
+            <div
+              class="mt-8 pt-8 border-t dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
+              <div class="text-center md:text-left">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Suggested Settlement (Net)</p>
+                <p class="text-4xl font-black text-green-600 dark:text-green-400">₹{{selectedClaim.netSettlementAmount |
+                  number}}</p>
+              </div>
+              <div
+                class="p-6 bg-[#75013f] rounded-3xl border border-[#75013f]/20 shadow-lg shadow-[#75013f]/20 text-center">
+                <p class="text-[10px] font-black text-pink-200 uppercase tracking-widest mb-1">Total Entitlement</p>
+                <p class="text-xl font-black text-white">₹{{selectedClaim.claimAmount | number}}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 10: Claimant Remarks & History -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">10</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">Claimant Remarks & History</h4>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-6 bg-white dark:bg-gray-800 rounded-[2rem] border dark:border-gray-700 shadow-sm">
+              <p class="text-[9px] font-black text-gray-400 uppercase mb-2">Original Filing Remarks</p>
+              <p class="text-sm text-gray-700 dark:text-gray-300 leading-relaxed italic">
+                "{{selectedClaim.remarks || 'No remarks provided by customer.'}}"
+              </p>
+            </div>
+            <div *ngIf="selectedClaim.officerRemarks" class="p-6 bg-[#75013f]/5 dark:bg-pink-900/10 rounded-[2rem] border border-[#75013f]/10 dark:border-pink-900/20 shadow-sm">
+              <p class="text-[9px] font-black text-[#75013f] dark:text-pink-400 uppercase mb-2">Previous Officer Feedback</p>
+              <p class="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
+                {{selectedClaim.officerRemarks}}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 11: Final decision -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span
+              class="w-8 h-8 rounded-full bg-[#75013f] text-white flex items-center justify-center text-xs font-black">11</span>
+            <h4 class="text-sm font-black text-gray-800 dark:text-gray-100 uppercase tracking-widest">
+              Final decision</h4>
+          </div>
+        </section>
+
+        <!-- Decision Box -->
+        <div class="bg-white dark:bg-gray-800 rounded-[3rem] border-4 border-[#75013f]/10 p-10 shadow-xl space-y-8">
+          <div class="grid lg:grid-cols-2 gap-8">
+            <div class="space-y-4">
+              <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Final Settlement
+                Action</label>
+              <div class="flex gap-4">
+                <button *ngFor="let opt of statusOptions" (click)="processForm.status = opt.value"
+                  [ngClass]="processForm.status === opt.value 
+                          ? (opt.value === 'Settled' ? 'bg-green-600 text-white shadow-lg ring-4 ring-green-500/20' : 'bg-red-500 text-white shadow-lg ring-4 ring-red-500/20')
+                          : 'bg-gray-50 border-gray-100 text-gray-400 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700'"
+                  class="flex-1 p-5 rounded-3xl border font-black text-xs uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-2">
+                  <span *ngIf="opt.value === 'Settled'"></span>
+                  <span *ngIf="opt.value === 'Rejected'"></span>
+                  {{opt.label}}
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="processForm.status === 'Approved' || processForm.status === 'Settled'"
+              class="space-y-4 animate-in slide-in-from-top-4">
+              <div class="flex justify-between items-center">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Settlement Amount
+                  (₹)</label>
+                <button (click)="processForm.settlementAmount = selectedClaim.netSettlementAmount"
+                  class="text-[9px] font-black text-[#fe3082] uppercase hover:underline">Match Net Suggested</button>
+              </div>
+              <div class="relative">
+                <span class="absolute left-5 top-1/2 -translate-y-1/2 font-black text-[#75013f]">₹</span>
+                <input [(ngModel)]="processForm.settlementAmount" type="number"
+                  class="w-full pl-12 pr-5 py-5 bg-gray-50 dark:bg-gray-900 rounded-[2rem] border-none font-black text-xl text-[#75013f] outline-none focus:ring-4 focus:ring-[#75013f]/10 transition-all shadow-inner" />
+              </div>
+              <p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Maximum Allowable:
+                ₹{{selectedClaim.claimAmount | number}}</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Officer Decision Memo
+              (Internal Remarks)</label>
+            <textarea [(ngModel)]="processForm.remarks" rows="3"
+              placeholder="Identify documents verified and justification for settlement amount..."
+              class="w-full p-6 bg-gray-50 dark:bg-gray-900 rounded-[2.5rem] border-none text-sm outline-none focus:ring-4 focus:ring-[#75013f]/10 transition-all shadow-inner resize-none"></textarea>
+          </div>
+        </div>
+
       </div>
     </div>
 
     <!-- Footer Actions -->
-    <div class="p-8 border-t dark:border-gray-700 bg-gray-50/30 dark:bg-gray-900/30 flex gap-4 flex-shrink-0">
+    <div class="p-8 border-t dark:border-gray-700 bg-white dark:bg-gray-900 flex gap-4 flex-shrink-0 z-20 shadow-2xl">
       <button (click)="closeModal()"
-        class="flex-1 py-4 border-2 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-gray-900 transition-all active:scale-95">
-        Cancel
+        class="flex-1 py-5 border-2 border-gray-100 dark:border-gray-700 text-gray-400 dark:text-gray-500 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95">
+        Close / Draft
       </button>
-      <button (click)="submitProcess()" [disabled]="submitting"
-        [class]="(processForm.status === 'Approved' || processForm.status === 'Settled') ? 'bg-green-600 hover:bg-green-700 shadow-green-900/20' : processForm.status === 'Rejected' ? 'bg-red-500 hover:bg-red-600 shadow-red-900/20' : 'bg-[#75013f] hover:bg-[#3b001f] shadow-purple-900/20'"
-        class="flex-1 py-4 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-        <span *ngIf="!submitting">Update to {{ processForm.status }}</span>
-        <span *ngIf="submitting" class="flex items-center justify-center gap-2">
-          <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+      <button (click)="submitProcess()" [disabled]="submitting || loadingDetail"
+        [class]="(processForm.status === 'Approved' || processForm.status === 'Settled') ? 'bg-green-600 shadow-green-900/40' : processForm.status === 'Rejected' ? 'bg-red-500 shadow-red-900/40' : 'bg-[#75013f] shadow-[#75013f]/40'"
+        class="flex-[2] py-5 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-2xl active:scale-95 disabled:opacity-30 disabled:grayscale">
+        <span *ngIf="!submitting">Execute {{ processForm.status }} Decision</span>
+        <span *ngIf="submitting" class="flex items-center justify-center gap-3">
+          <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none">
             </circle>
             <path class="opacity-75" fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
             </path>
           </svg>
-          Processing...
+          Settling Case...
         </span>
       </button>
     </div>

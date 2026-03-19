@@ -11,7 +11,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class ClaimsOfficerSideBar {
   navLinks = [
-    { label: 'Overview', icon: '📉', path: '/claims-officer-dashboard' },
+    { label: 'Dashboard', icon: '🏠', path: '/claims-officer-dashboard' },
     { label: 'My Assigned Claims', icon: '💰', path: '/claims-officer-dashboard/my-claims' },
     { label: 'Profile', icon: '👤', path: '/claims-officer-dashboard/profile' }
   ];

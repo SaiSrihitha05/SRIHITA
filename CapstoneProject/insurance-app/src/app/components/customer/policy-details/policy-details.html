@@ -63,6 +63,18 @@
             </p>
           </div>
         </div>
+
+        <!-- Processing Feedback (Remarks) Section -->
+        <div *ngIf="policy.remarks" class="mt-10 p-6 bg-[#75013f]/5 dark:bg-pink-900/10 border border-[#75013f]/10 dark:border-pink-900/20 rounded-3xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <p class="text-[10px] text-[#75013f] dark:text-pink-400 font-black uppercase mb-2 tracking-widest">Processing Feedback</p>
+          <p class="text-sm font-bold text-gray-800 dark:text-gray-200 leading-relaxed italic">
+            "{{ policy.remarks }}"
+          </p>
+          <div class="mt-3 flex items-center gap-2">
+            <span class="w-2 h-2 bg-[#75013f] rounded-full"></span>
+            <span class="text-[9px] text-[#75013f] dark:text-pink-400 font-black uppercase">Official Agent Note</span>
+          </div>
+        </div>
       </div>
 
       <div class="space-y-4">

@@ -16,6 +16,7 @@ export class CustomerSideBar {
     { label: 'Payments', icon: '💳', path: '/customer-dashboard/payment-history' },
     { label: 'My Loans', icon: '🏦', path: '/customer-dashboard/my-loans' },
     { label: 'Claims', icon: '📝', path: '/customer-dashboard/my-claims' },
+    { label: 'Help Center', icon: '💡', path: '/customer-dashboard/help' },
     { label: 'Profile', icon: '👤', path: '/customer-dashboard/profile' }
   ];
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -20,5 +20,8 @@ namespace Application.DTOs
 
         [Required]
         public string Phone { get; set; } = string.Empty;
+
+        public DateTime? DateOfBirth { get; set; }
+        public string? Gender { get; set; }
     }
 }

@@ -51,8 +51,15 @@ export class PayPremium implements OnInit {
   }
 
   get installmentOptions(): { value: number, label: string }[] {
-    const label = this.installmentLabel;
-    const options = [{ value: 0, label: `Current ${label} Only` }];
+    if (!this.policy || !this.policy.nextDueDate) return [];
+    
+    // Format the date for display (e.g., 15-Apr-2026)
+    const dateObj = new Date(this.policy.nextDueDate);
+    const dateString = dateObj.toLocaleDateString('en-GB', {
+        day: '2-digit', month: 'short', year: 'numeric'
+    }).replace(/ /g, '-');
+
+    const options = [{ value: 0, label: `1 Installment (Due: ${dateString})` }];
 
     // Customize options based on frequency
     let counts = [1, 2, 5]; // Default for monthly
@@ -60,7 +67,9 @@ export class PayPremium implements OnInit {
     if (this.policy?.premiumFrequency === 'Yearly') counts = [1, 2];
 
     counts.forEach(c => {
-      options.push({ value: c, label: `Next ${c} ${label}${c > 1 ? 's' : ''}` });
+      // If value is c, total installments being paid is c + 1
+      const totalInstallments = c + 1;
+      options.push({ value: c, label: `${totalInstallments} Installments (Includes Advance)` });
     });
 
     return options;

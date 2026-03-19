@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,14 +9,9 @@ namespace Application.DTOs
 {
     public class PolicyNomineeDto
     {
-        [Required]
-        public string NomineeName { get; set; } = string.Empty;
-
-        [Required]
-        public string RelationshipToPolicyHolder { get; set; } = string.Empty;
-
-        [Required]
-        public string ContactNumber { get; set; } = string.Empty;
+        public string? NomineeName { get; set; }
+        public string? RelationshipToPolicyHolder { get; set; }
+        public string? ContactNumber { get; set; }
 
         [Range(0.01, 100)]
         public decimal SharePercentage { get; set; }

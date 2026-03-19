@@ -59,11 +59,33 @@ export class Home {
     }, 1500);
   }
 
+  get userRole(): string | null {
+    return this.authService.getUserRole();
+  }
+
   navigateToExplore() {
-    if (this.authService.isLoggedIn() && this.authService.getUserRole() === 'Customer') {
-      this.router.navigate(['/customer-dashboard/explore-plans']);
-    } else {
+    if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
+      return;
+    }
+
+    const role = this.userRole;
+    switch (role) {
+      case 'Customer':
+        this.router.navigate(['/customer-dashboard/explore-plans']);
+        break;
+      case 'Agent':
+        this.router.navigate(['/agent-dashboard/explore-plans']);
+        break;
+      case 'Admin':
+        this.router.navigate(['/admin-dashboard/plans']);
+        break;
+      case 'ClaimsOfficer':
+        this.router.navigate(['/claims-officer-dashboard']);
+        break;
+      default:
+        this.router.navigate(['/login']);
+        break;
     }
   }
 }

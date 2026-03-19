@@ -1,6 +1,6 @@
 <!-- Navigation Sidebar for Administrative portal -->
 <aside
-  class="w-64 min-h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col fixed left-0 top-16 transition-colors duration-300">
+  class="w-64 h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-colors duration-300 overflow-y-auto">
   <div class="flex-1 py-6 px-4">
     <nav class="space-y-2">
       <a *ngFor="let link of navLinks" [routerLink]="link.path"

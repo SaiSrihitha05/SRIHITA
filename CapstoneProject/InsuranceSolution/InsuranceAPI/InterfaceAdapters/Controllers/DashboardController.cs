@@ -1,4 +1,4 @@
-﻿using Application.Services;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -45,6 +45,17 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
                 User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             var result = await _dashboardService.GetAgentDashboard(agentId);
+            return Ok(result);
+        }
+
+        [HttpGet("agent/commissions")]
+        [Authorize(Roles = "Agent")]
+        public async Task<IActionResult> GetAgentCommissions()
+        {
+            var agentId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = await _dashboardService.GetAgentEarningsAsync(agentId);
             return Ok(result);
         }
 

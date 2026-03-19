@@ -40,6 +40,10 @@ export const routes: Routes = [
         loadComponent: () => import('./components/admin/admin-plans/admin-plans').then(m => m.AdminPlans)
       },
       {
+        path: 'notifications',
+        loadComponent: () => import('./components/customer/notification-center/notification-center').then(m => m.NotificationCenter)
+      },
+      {
         path: 'policies',
         loadComponent: () => import('./components/admin/admin-policies/admin-policies').then(m => m.AdminPolicies)
       },
@@ -76,8 +80,20 @@ export const routes: Routes = [
         loadComponent: () => import('./components/agent/agent-policies/agent-policies').then(m => m.AgentPolicies)
       },
       {
+        path: 'notifications',
+        loadComponent: () => import('./components/customer/notification-center/notification-center').then(m => m.NotificationCenter)
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./components/agent/agent-profile/agent-profile').then(m => m.AgentProfile)
+      },
+      {
+        path: 'explore-plans',
+        loadComponent: () => import('./components/agent/agent-plans/agent-plans').then(m => m.AgentPlans)
+      },
+      {
+        path: 'commissions',
+        loadComponent: () => import('./components/agent/agent-earnings/agent-earnings').then(m => m.AgentEarnings)
       }
     ]
   },
@@ -89,6 +105,10 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./components/claims-officer/dashboard/dashboard').then(m => m.ClaimsOfficerDashboard) },
       { path: 'my-claims', loadComponent: () => import('./components/claims-officer/claims-officer-claims/claims-officer-claims').then(m => m.ClaimsOfficerClaims) },
+      {
+        path: 'notifications',
+        loadComponent: () => import('./components/customer/notification-center/notification-center').then(m => m.NotificationCenter)
+      },
       { path: 'profile', loadComponent: () => import('./components/claims-officer/profile/profile').then(m => m.ClaimsOfficerProfile) }
     ]
   },
@@ -142,6 +162,18 @@ export const routes: Routes = [
       {
         path: 'my-loans',
         loadComponent: () => import('./components/customer/my-loans/my-loans').then(m => m.MyLoans)
+      },
+      {
+        path: 'apply-loan',
+        loadComponent: () => import('./components/customer/apply-loan/apply-loan').then(m => m.ApplyLoan)
+      },
+      {
+        path: 'repay-loan/:id',
+        loadComponent: () => import('./components/customer/repay-loan/repay-loan').then(m => m.RepayLoan)
+      },
+      {
+        path: 'help',
+        loadComponent: () => import('./components/customer/customer-help/customer-help').then(m => m.CustomerHelp)
       }
     ]
   },

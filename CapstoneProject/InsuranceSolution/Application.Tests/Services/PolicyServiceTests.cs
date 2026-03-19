@@ -22,7 +22,7 @@ namespace Application.Tests.Services
 {
     public class PolicyServiceTests
     {
-        private (InsuranceDbContext db, PolicyService service, Mock<INotificationService> mockNotify, Mock<IEmailService> mockEmail, Mock<IWebHostEnvironment> mockEnv) BuildTestContextAndService()
+        private (InsuranceDbContext db, PolicyService service, Mock<INotificationService> mockNotify, Mock<IEmailService> mockEmail, Mock<IWebHostEnvironment> mockEnv, Mock<ISystemConfigRepository> mockConfig) BuildTestContextAndService()
         {
             var dbOptions = new DbContextOptionsBuilder<InsuranceDbContext>()
                 .UseInMemoryDatabase($"PolicyServiceTestDb_{Guid.NewGuid()}")
@@ -41,6 +41,10 @@ namespace Application.Tests.Services
             // Set up a mock root path for uploads
             mockEnv.Setup(env => env.WebRootPath).Returns(Path.Combine(Path.GetTempPath(), "TestWebRoot"));
 
+            var mockConfig = new Mock<ISystemConfigRepository>();
+            mockConfig.Setup(c => c.GetConfigAsync())
+                .ReturnsAsync(new SystemConfig { Id = 1, LastAgentAssignmentIndex = -1 });
+
             var service = new PolicyService(
                 policyRepo,
                 planRepo,
@@ -48,9 +52,10 @@ namespace Application.Tests.Services
                 docRepo,
                 mockNotify.Object,
                 mockEmail.Object,
-                mockEnv.Object);
+                mockEnv.Object,
+                mockConfig.Object);
 
-            return (dbContext, service, mockNotify, mockEmail, mockEnv);
+            return (dbContext, service, mockNotify, mockEmail, mockEnv, mockConfig);
         }
 
         private async Task<(User customer, Plan plan)> SeedBasicData(InsuranceDbContext db)
@@ -94,7 +99,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task CreatePolicyAsync_ShouldCreatePolicySuccessfully_WhenDataIsValid()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
 
             var dto = new CreatePolicyDto { PlanId = plan.Id, StartDate = DateTime.Today.AddDays(1), TermYears = 5, PremiumFrequency = PremiumFrequency.Monthly };
@@ -111,7 +116,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task CreatePolicyAsync_ShouldThrowBadRequestException_WhenTermYearsOutsidePlanLimits()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
 
             var dto = new CreatePolicyDto { PlanId = plan.Id, StartDate = DateTime.Today.AddDays(1), TermYears = 20 }; // Max is 10
@@ -123,7 +128,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task CreatePolicyAsync_ShouldThrowBadRequestException_WhenNomineeSharesDoNotTotal100()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
 
             var dto = new CreatePolicyDto { PlanId = plan.Id, StartDate = DateTime.Today.AddDays(1), TermYears = 5 };
@@ -138,7 +143,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task GetPolicyByIdAsync_ShouldReturnPolicy_WhenExists()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
             var policy = new PolicyAssignment { Status = PolicyStatus.Active, CustomerId = customer.Id, PlanId = plan.Id };
             db.PolicyAssignments.Add(policy);
@@ -152,7 +157,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task GetPolicyByIdAsync_ShouldThrowNotFoundException_WhenPolicyDoesNotExist()
         {
-            var (_, service, _, _, _) = BuildTestContextAndService();
+            var (_, service, _, _, _, _) = BuildTestContextAndService();
 
             await Assert.ThrowsAsync<NotFoundException>(() => service.GetPolicyByIdAsync(999));
         }
@@ -160,7 +165,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task GetPolicyByIdAsync_ShouldMapEntityToDtoCorrectly()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
             var policy = new PolicyAssignment { CustomerId = customer.Id, PlanId = plan.Id, TermYears = 10, Status = PolicyStatus.Active, PolicyNumber = "POL123" };
             db.PolicyAssignments.Add(policy);
@@ -178,7 +183,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task GetAllPoliciesAsync_ShouldReturnAllPolicies_WhenDataExists()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
             db.PolicyAssignments.AddRange(
                 new PolicyAssignment { CustomerId = customer.Id, PlanId = plan.Id },
@@ -193,7 +198,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task GetAllPoliciesAsync_ShouldReturnEmptyList_WhenNoDataExists()
         {
-            var (_, service, _, _, _) = BuildTestContextAndService();
+            var (_, service, _, _, _, _) = BuildTestContextAndService();
 
             var results = await service.GetAllPoliciesAsync();
 
@@ -203,7 +208,7 @@ namespace Application.Tests.Services
         [Fact]
         public async Task GetAllPoliciesAsync_ShouldMapEntityToDtoCorrectly()
         {
-            var (db, service, _, _, _) = BuildTestContextAndService();
+            var (db, service, _, _, _, _) = BuildTestContextAndService();
             var (customer, plan) = await SeedBasicData(db);
             db.PolicyAssignments.Add(new PolicyAssignment { PolicyNumber = "123", CustomerId = customer.Id, PlanId = plan.Id });
             await db.SaveChangesAsync();

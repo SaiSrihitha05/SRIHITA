@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +12,7 @@ namespace Application.DTOs
         public string FileName { get; set; } = string.Empty;
         public string FilePath { get; set; } = string.Empty;
         public string DocumentCategory { get; set; } = string.Empty;
+        public string UploadedByName { get; set; } = string.Empty;
         public DateTime UploadedAt { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +14,7 @@ namespace Application.DTOs
         public int RejectedPolicies { get; set; }
         public List<PolicyResponseDto> RecentAssignedPolicies { get; set; } = new();
         public int AssignedCustomers { get; set; }    
+        public decimal TotalCoverageAmountSold { get; set; }
         
         //Commmission
         public decimal TotalCommissionEarned { get; set; } 

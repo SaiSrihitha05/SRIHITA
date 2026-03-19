@@ -165,13 +165,16 @@ namespace InsuranceAPI
             builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
             builder.Services.AddScoped<IClaimService, ClaimService>();
 
-            //Service for Dashboard
-            builder.Services.AddScoped<IDashboardService, DashboardService>();
-
-            // Loan module
+            //Services for Loans
             builder.Services.AddScoped<ILoanRepository, LoanRepository>();
             builder.Services.AddScoped<ILoanService, LoanService>();
 
+            //Service for Dashboard
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+            // System configuration
+            builder.Services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
+            
             // Background services
             builder.Services.AddHostedService<PremiumReminderService>();
             builder.Services.AddHostedService<MaturityProcessingService>();

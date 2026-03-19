@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,5 +20,6 @@ namespace Application.DTOs
         public bool IsPrimaryInsured { get; set; }
         public decimal CurrentCoverageAmount { get; set; }
         public int YearsActive { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

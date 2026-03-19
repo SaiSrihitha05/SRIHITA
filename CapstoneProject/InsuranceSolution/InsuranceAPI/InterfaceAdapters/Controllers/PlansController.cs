@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +21,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         //  Public to Admin and Customer 
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Customer")]
+        [Authorize(Roles = "Admin,Customer,Agent")]
         public async Task<IActionResult> GetPlans()
         {
             // Admin sees all, Customer sees active only
@@ -35,7 +35,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Customer")]
+        [Authorize(Roles = "Admin,Customer,Agent")]
         public async Task<IActionResult> GetPlanById(int id)
         {
             var role = User.FindFirst(ClaimTypes.Role)!.Value;
@@ -71,7 +71,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         }
 
         [HttpGet("filter")]
-        [Authorize(Roles = "Admin,Customer")]
+        [Authorize(Roles = "Admin,Customer,Agent")]
         public async Task<IActionResult> GetFilteredPlans([FromQuery] PlanFilterDto filter)
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";

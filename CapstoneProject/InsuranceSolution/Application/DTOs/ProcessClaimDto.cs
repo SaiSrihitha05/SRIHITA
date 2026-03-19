@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,5 +17,10 @@ namespace Application.DTOs
 
         // Only required if Approved
         public decimal? SettlementAmount { get; set; }
+
+        // Precision fields for verification
+        public DateTime? DateOfDeath { get; set; }
+        public string? CauseOfDeath { get; set; }
+        public string? DeathCertificateNumber { get; set; }
     }
 }

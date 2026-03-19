@@ -15,6 +15,7 @@ export class MyClaims implements OnInit {
 
   claims: any[] = [];
   loading = true;
+  selectedClaim: any = null;
 
   ngOnInit() {
     this.loadClaims();
@@ -42,7 +43,22 @@ export class MyClaims implements OnInit {
       case 'UnderReview': return 'bg-amber-500';
       case 'Settled':     return 'bg-green-500';
       case 'Rejected':    return 'bg-red-500';
+      case 'DocumentationRequested': return 'bg-purple-500';
       default:            return 'bg-gray-500';
     }
+  }
+
+  viewClaimDetails(claim: any) {
+    this.selectedClaim = claim;
+    this.cdr.detectChanges();
+  }
+
+  closeDetailsModal() {
+    this.selectedClaim = null;
+    this.cdr.detectChanges();
+  }
+
+  getLatestUpdate(claim: any): any {
+    return claim.processedDate || claim.filedDate;
   }
 }

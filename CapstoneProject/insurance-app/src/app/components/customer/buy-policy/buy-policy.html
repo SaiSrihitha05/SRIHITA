@@ -8,7 +8,7 @@ transition-all duration-200">
   <div class="flex items-center justify-center gap-4 mb-12 print:hidden transition-all">
     <div *ngFor="let s of [1,2,3,4]" class="flex items-center">
       <div
-        [class]="step >= s ? 'bg-[#75013f] dark:bg-pink-700 text-white' : 'bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-600 border dark:border-gray-700'"
+        [class]="step >= s ? 'bg-[#75013f] dark:bg-pink-700 text-white' : 'bg-white dark:bg-gray-800 text-gray-300 dark:text-gray-500 border dark:border-gray-700'"
         class="w-12 h-12 rounded-full flex items-center justify-center font-bold shadow-sm transition-colors duration-300">
         {{ s }}
       </div>
@@ -54,17 +54,26 @@ transition-all duration-200">
           </p>
         </div>
 
-        <div class="space-y-3" *ngIf="!isWholeLifePlan">
-          <label class="block text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Policy
-            Term (Years)</label>
-          <input type="number" [(ngModel)]="policyData.termYears"
-            class="w-full p-5 bg-[#f5f2ef] dark:bg-gray-900/50 dark:text-gray-100 rounded-3xl border-none outline-none focus:ring-2 focus:ring-[#75013f] dark:focus:ring-pink-600 transition-colors">
-          <p class="text-[9px] text-gray-500 dark:text-gray-400">Available Range: {{selectedPlan.minTermYears}} to
-            {{selectedPlan.maxTermYears}} Years.</p>
-          <p *ngIf="policyData.termYears < selectedPlan.minTermYears || policyData.termYears > selectedPlan.maxTermYears"
-            class="text-[13px] text-red-500 font-bold animate-pulse">
-            ⚠️ Plan requires {{selectedPlan.minTermYears}} to {{selectedPlan.maxTermYears}} years.
-          </p>
+        <div class="space-y-6 pt-2" *ngIf="!isWholeLifePlan">
+          <div class="flex justify-between items-end">
+            <label class="text-[12px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Policy Term</label>
+            <div class="bg-[#75013f] text-white px-4 py-1.5 rounded-full text-sm font-black shadow-lg shadow-[#75013f]/20 animate-in zoom-in duration-300">
+              {{ policyData.termYears }} Years
+            </div>
+          </div>
+          
+          <div class="relative px-1">
+            <input type="range" 
+                   [(ngModel)]="policyData.termYears" 
+                   [min]="selectedPlan.minTermYears" 
+                   [max]="selectedPlan.maxTermYears" 
+                   step="1"
+                   class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer accent-[#75013f] hover:accent-[#fe3082] transition-all shadow-inner">
+            <div class="flex justify-between mt-3 px-1">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{selectedPlan.minTermYears}} Yrs (Min)</span>
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{selectedPlan.maxTermYears}} Yrs (Max)</span>
+            </div>
+          </div>
         </div>
 
         <div class="space-y-3">
@@ -103,22 +112,37 @@ transition-all duration-200">
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div class="space-y-2">
+            <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Relation <span
+                class="text-red-500">*</span></label>
+            <select [(ngModel)]="m.RelationshipToCustomer" (change)="onRelationshipChange(i)" required
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+              <option value="Self" *ngIf="!isSelfAlreadySelected(i)">Self</option>
+              <option value="Spouse">Spouse</option>
+              <option value="Child">Child</option>
+              <option value="Parent">Parent</option>
+              <option value="Sibling">Sibling</option>
+              <option value="Other">Other</option>
+            </select>
+            <p *ngIf="isSubmitted && !m.RelationshipToCustomer" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
+          </div>
+
+          <div class="space-y-2">
             <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Legal Name <span
                 class="text-red-500">*</span></label>
-            <input [(ngModel)]="m.MemberName" required
-              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+            <input [(ngModel)]="m.MemberName" required [disabled]="m.RelationshipToCustomer === 'Self'"
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20 disabled:opacity-50">
             <p *ngIf="isSubmitted && !m.MemberName" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
           </div>
 
           <div class="space-y-2">
             <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">DOB <span
                 class="text-red-500">*</span></label>
-            <input [(ngModel)]="m.DateOfBirth" type="date" [max]="yesterday" required
-              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
+            <input [(ngModel)]="m.DateOfBirth" type="date" [max]="yesterday" required [disabled]="m.RelationshipToCustomer === 'Self'"
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20 disabled:opacity-50">
             <p *ngIf="isSubmitted && !m.DateOfBirth" class="text-[9px] text-red-400 font-bold">⚠️ Required</p>
             <p *ngIf="isSubmitted && m.DateOfBirth && 
-         (getAge(m.DateOfBirth) < selectedPlan.minAge || 
-          getAge(m.DateOfBirth) > selectedPlan.maxAge)" class="text-[9px] text-red-500 font-bold">
+          (getAge(m.DateOfBirth) < selectedPlan.minAge || 
+           getAge(m.DateOfBirth) > selectedPlan.maxAge)" class="text-[9px] text-red-500 font-bold">
               ⚠️ Age must be {{selectedPlan.minAge}}—{{selectedPlan.maxAge}}
             </p>
           </div>
@@ -126,23 +150,40 @@ transition-all duration-200">
           <div class="space-y-2">
             <label class="block text-[13px] font-black text-gray-500 dark:text-gray-400 uppercase">Gender <span
                 class="text-red-500">*</span></label>
-            <select [(ngModel)]="m.Gender" required
-              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-2xl border-none shadow-inner text-sm outline-none focus:ring-2 focus:ring-[#75013f]/20">
+            <select [(ngModel)]="m.Gender" required [disabled]="m.RelationshipToCustomer === 'Self'"
+              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-2xl border-none shadow-inner text-sm outline-none focus:ring-2 focus:ring-[#75013f]/20 disabled:opacity-50">
               <option value="Male" class="dark:bg-gray-800">Male</option>
               <option value="Female" class="dark:bg-gray-800">Female</option>
               <option value="Other" class="dark:bg-gray-800">Other</option>
             </select>
           </div>
 
-          <div class="space-y-2">
-            <label class="text-[13px] font-black text-gray-400 dark:text-gray-500 uppercase">Coverage Amt (₹) <span
-                class="text-red-500">*</span></label>
-            <input [(ngModel)]="m.CoverageAmount" type="number" required
-              class="w-full p-4 bg-white dark:bg-gray-800 dark:text-white rounded-xl border-none text-sm focus:ring-2 focus:ring-[#75013f]/20">
-            <p *ngIf="isSubmitted&&(m.CoverageAmount < selectedPlan.minCoverageAmount || m.CoverageAmount > selectedPlan.maxCoverageAmount)"
-              class="text-[9px] text-red-500 font-bold">
-              ⚠️ Min: ₹{{selectedPlan.minCoverageAmount | number}} | Max: ₹{{selectedPlan.maxCoverageAmount | number}}
-            </p>
+          <div class="space-y-6 pt-2">
+            <div class="flex justify-between items-end">
+              <label class="text-[12px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Coverage Amount</label>
+              <div class="bg-[#75013f] text-white px-4 py-1.5 rounded-full text-sm font-black shadow-lg shadow-[#75013f]/20 animate-in zoom-in duration-300">
+                ₹{{ m.CoverageAmount | number }}
+              </div>
+            </div>
+
+            <div class="relative px-1">
+              <input type="range" 
+                     [(ngModel)]="m.CoverageAmount" 
+                     [min]="selectedPlan.minCoverageAmount" 
+                     [max]="selectedPlan.maxCoverageAmount" 
+                     step="500000"
+                     class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer accent-[#75013f] hover:accent-[#fe3082] transition-all shadow-inner">
+              
+              <div class="flex justify-between mt-3 px-1">
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Min: ₹{{selectedPlan.minCoverageAmount / 100000 | number:'1.0-0'}}L</span>
+                <div class="text-[9px] text-[#75013f] dark:text-pink-400 font-bold uppercase tracking-widest">
+                  {{ m.CoverageAmount / 100000 | number:'1.0-2' }} Lakhs
+                </div>
+                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Max: ₹{{selectedPlan.maxCoverageAmount / 100000 | number:'1.0-0'}}L</span>
+              </div>
+            </div>
+            
+            <p *ngIf="isSubmitted && !m.CoverageAmount" class="text-[9px] text-red-500 font-bold text-center">⚠️ Selection Required</p>
           </div>
 
           <div class="space-y-2">
@@ -259,47 +300,81 @@ transition-all duration-200">
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div
-          class="p-10 bg-[#75013f] dark:bg-pink-900/40 text-white rounded-[3rem] shadow-xl border dark:border-pink-800 transition-colors">
-          <label class="text-[9px] font-black uppercase opacity-60 mb-6 block tracking-widest">Policy Selection</label>
-          <p class="text-4xl font-bold mb-10">{{selectedPlan.planName}}</p>
-          <div class="grid grid-cols-2 gap-y-10 border-t border-white/20 pt-10 text-xs uppercase font-black">
-            <div><label class="opacity-60 block mb-1">Term</label>
-              <p class="text-xl">{{ isWholeLifePlan ? 'Lifelong' : policyData.termYears + ' Yrs' }}</p>
+        <!-- Policy & Premium Summary -->
+        <div class="space-y-10">
+          <div class="p-10 bg-[#75013f] dark:bg-pink-900/40 text-white rounded-[3rem] shadow-xl border dark:border-pink-800 transition-colors">
+            <label class="text-[9px] font-black uppercase opacity-60 mb-6 block tracking-widest">Policy Selection</label>
+            <p class="text-4xl font-bold mb-10">{{selectedPlan.planName}}</p>
+            <div class="grid grid-cols-2 gap-y-10 border-t border-white/20 pt-10 text-xs uppercase font-black">
+              <div><label class="opacity-60 block mb-1">Term</label>
+                <p class="text-xl">{{ isWholeLifePlan ? 'Lifelong' : policyData.termYears + ' Yrs' }}</p>
+              </div>
+              <div><label class="opacity-60 block mb-1">Billing</label>
+                <p class="text-xl">{{policyData.premiumFrequency}}</p>
+              </div>
+              <div><label class="opacity-60 block mb-1">Insured</label>
+                <p class="text-xl">{{members.length}} Members</p>
+              </div>
+              <div><label class="opacity-60 block mb-1">Start Date</label>
+                <p class="text-xl">{{policyData.startDate | date}}</p>
+              </div>
             </div>
-            <div><label class="opacity-60 block mb-1">Billing</label>
-              <p class="text-xl">{{policyData.premiumFrequency}}</p>
+          </div>
+
+          <!-- Total Premium Highlight -->
+          <div class="p-10 bg-white dark:bg-gray-800 rounded-[3rem] border-2 border-[#75013f]/10 dark:border-pink-900/20 shadow-sm flex justify-between items-center group hover:border-[#75013f] transition-all">
+            <div>
+              <label class="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest block mb-1">Final Premium ({{policyData.premiumFrequency}})</label>
+              <p class="text-[11px] text-[#75013f] dark:text-pink-400 font-bold">Includes GST & All Applicable Surcharges</p>
             </div>
-            <div><label class="opacity-60 block mb-1">Insured</label>
-              <p class="text-xl">{{members.length}} Members</p>
-            </div>
-            <div><label class="opacity-60 block mb-1">Start Date</label>
-              <p class="text-xl">{{policyData.startDate | date}}</p>
+            <div class="text-right">
+              <span class="text-4xl font-black text-[#75013f] dark:text-pink-300">₹{{ calculateTotalPremium() | number:'1.2-2' }}</span>
             </div>
           </div>
         </div>
 
-        <div
-          class="rounded-[3rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm bg-white dark:bg-gray-800 transition-colors duration-300">
+        <!-- Insured Members Table -->
+        <div class="rounded-[3rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm bg-white dark:bg-gray-800 transition-colors duration-300">
+          <div class="px-8 py-5 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+            <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Insured Details</h3>
+          </div>
           <table class="w-full text-left">
-            <thead
-              class="bg-gray-50 dark:bg-gray-900/50 text-[13px] font-black uppercase text-gray-400 dark:text-gray-500 border-b dark:border-gray-700">
+            <thead class="bg-gray-50/50 dark:bg-gray-900/30 text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 border-b dark:border-gray-700">
               <tr>
-                <th class="px-8 py-5">Insured Name</th>
-                <th class="px-8 py-5">Age/Gender</th>
-                <th class="px-8 py-5">Coverage</th>
+                <th class="px-8 py-4">Name</th>
+                <th class="px-8 py-4">Status</th>
+                <th class="px-8 py-4">Coverage</th>
               </tr>
             </thead>
             <tbody class="text-xs divide-y dark:divide-gray-700">
               <tr *ngFor="let m of members" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <td class="px-8 py-5 font-bold dark:text-gray-100">{{m.MemberName}} <br><span
-                    class="text-[8px] bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full dark:text-gray-400">{{m.RelationshipToCustomer}}</span>
+                <td class="px-8 py-5">
+                  <p class="font-bold dark:text-gray-100">{{m.MemberName}}</p>
+                  <span class="text-[8px] uppercase tracking-tighter text-gray-400 font-bold">{{m.RelationshipToCustomer}}</span>
                 </td>
                 <td class="px-8 py-5 dark:text-gray-300">{{getAge(m.DateOfBirth)}} Yrs / {{m.Gender}}</td>
                 <td class="px-8 py-5 font-black text-[#75013f] dark:text-pink-400">₹{{m.CoverageAmount | number}}</td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Nominee Summary -->
+        <div class="lg:col-span-2 rounded-[3rem] border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm bg-white dark:bg-gray-800 transition-colors duration-300">
+          <div class="px-8 py-5 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 flex justify-between items-center">
+            <h3 class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Nominee Distribution</h3>
+            <span class="text-[10px] font-black py-1 px-4 bg-[#75013f]/5 text-[#75013f] rounded-full uppercase tracking-widest">Total: 100%</span>
+          </div>
+          <div class="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div *ngFor="let n of nominees" class="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100/50 dark:border-gray-700/50">
+              <div class="flex justify-between items-start mb-4">
+                <span class="text-[9px] font-black text-white px-3 py-1 bg-[#fe3082] rounded-lg">{{n.SharePercentage}}% Share</span>
+              </div>
+              <p class="font-bold dark:text-white uppercase text-xs">{{n.NomineeName}}</p>
+              <p class="text-[10px] text-gray-400 font-bold">{{n.RelationshipToPolicyHolder}}</p>
+              <p class="text-[10px] text-gray-500 mt-2">📞 {{n.ContactNumber}}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -327,7 +402,7 @@ transition-all duration-200">
           ✓ Progress Saved
         </span>
 
-        <button (click)="saveOrUpdateDraft()" [disabled]="isSavingDraft" class="px-8 py-4 border-2 border-[#75013f] text-[#75013f] 
+        <button (click)="saveOrUpdateDraft()" [disabled]="isSavingDraft" class="px-8 py-4 border-2 border-[#75013f] dark:border-pink-600 text-[#75013f] dark:text-pink-300 
                    rounded-2xl font-black text-[13px] uppercase 
                    hover:bg-[#75013f] hover:text-white transition-all
                    disabled:opacity-40 disabled:cursor-not-allowed">

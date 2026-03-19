@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 
 namespace Application.DTOs
 {
@@ -13,8 +13,8 @@ namespace Application.DTOs
         public int MaxAge { get; set; }
         public decimal MinCoverageAmount { get; set; }
         public decimal MaxCoverageAmount { get; set; }
-        public int MinTermYears { get; set; }
-        public int MaxTermYears { get; set; }
+        public int? MinTermYears { get; set; }
+        public int? MaxTermYears { get; set; }
         public int MinNominees { get; set; }
         public int MaxNominees { get; set; }
         public int GracePeriodDays { get; set; }
@@ -29,7 +29,10 @@ namespace Application.DTOs
         public bool HasLoanFacility { get; set; }
         public bool CoverageIncreasing { get; set; }
         public decimal CoverageIncreaseRate { get; set; }
-        public int CoverageUntilAge { get; set; }
+        public bool IsCoverageUntilAge { get; set; }
+        public int? CoverageUntilAge { get; set; }
+        public decimal BonusRate { get; set; }
+        public decimal TerminalBonusRate { get; set; }
         public int LoanEligibleAfterYears { get; set; }
         public decimal MaxLoanPercentage { get; set; }
         public decimal LoanInterestRate { get; set; }

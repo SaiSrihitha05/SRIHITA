@@ -127,9 +127,10 @@ namespace Application.Services
                 BalanceAfter = Math.Round(loan.OutstandingBalance - principalPaid, 2), 
                 InstallmentsPaid = 0,
                 PaymentDate = DateTime.UtcNow,
-                PaymentMethod = "Loan Repayment",
-                TransactionReference = $"LOAN-REPAY-{loan.Id}-{DateTime.UtcNow.Ticks}",
+                PaymentMethod = dto.PaymentMethod,
+                TransactionReference = GenerateTransactionReference(),
                 Status = PaymentStatus.Completed,
+                PaymentType = PaymentType.LoanRepayment,
                 InvoiceNumber = await _paymentRepository.GenerateInvoiceNumberAsync(),
                 CreatedAt = DateTime.UtcNow
             };
@@ -151,14 +152,17 @@ namespace Application.Services
             await _loanRepository.SaveChangesAsync();
             await _paymentRepository.SaveChangesAsync();
 
-            await _notificationService.CreateNotificationAsync(
-                userId: customerId,
-                title: loan.Status == LoanStatus.Closed ? "Loan Fully Repaid" : "Loan Repayment Recorded",
-                message: $"Repayment of Rs.{dto.Amount:N2} recorded. Outstanding: Rs.{loan.OutstandingBalance:N2}",
-                type: NotificationType.General,
-                policyId: loan.PolicyAssignmentId,
-                claimId: null,
-                paymentId: null);
+            if (loan.Status == LoanStatus.Closed)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: customerId,
+                    title: "Loan Fully Repaid",
+                    message: $"Congratulations! Your loan for policy {loan.PolicyAssignment?.PolicyNumber} has been fully repaid.",
+                    type: NotificationType.General,
+                    policyId: loan.PolicyAssignmentId,
+                    claimId: null,
+                    paymentId: null);
+            }
 
             return MapToDto(loan, loan.PolicyAssignment);
         }
@@ -166,7 +170,7 @@ namespace Application.Services
         public async Task<IEnumerable<LoanResponseDto>> GetMyLoansAsync(int customerId)
         {
             var loans = await _loanRepository.GetByCustomerIdAsync(customerId);
-            return loans.Select(l => MapToDto(l, l.PolicyAssignment));
+            return loans.Select(l => MapToDto(l, l.PolicyAssignment!));
         }
 
         public async Task<LoanResponseDto?> GetLoanByIdAsync(int id)
@@ -182,6 +186,55 @@ namespace Application.Services
             return loan?.OutstandingBalance ?? 0;
         }
 
+        public async Task<LoanEligibilityResponseDto> CheckLoanEligibilityAsync(int policyId)
+        {
+            var policy = await _policyRepository.GetByIdWithDetailsAsync(policyId);
+            if (policy == null)
+            {
+                return new LoanEligibilityResponseDto { Eligible = false, Reason = "Policy not found." };
+            }
+
+            if (policy.Status != PolicyStatus.Active)
+            {
+                return new LoanEligibilityResponseDto { Eligible = false, Reason = "Loan can only be applied on Active policies." };
+            }
+
+            if (!policy.Plan!.HasLoanFacility)
+            {
+                return new LoanEligibilityResponseDto { Eligible = false, Reason = "This plan does not offer loan facility." };
+            }
+
+            var yearsActive = (DateTime.UtcNow - policy.StartDate).Days / 365;
+            if (yearsActive < policy.Plan.LoanEligibleAfterYears)
+            {
+                return new LoanEligibilityResponseDto { Eligible = false, Reason = $"Loan is available only after {policy.Plan.LoanEligibleAfterYears} years. Your policy is {yearsActive} year(s) old." };
+            }
+
+            var existingLoan = await _loanRepository.GetActiveLoanByPolicyAsync(policyId);
+            if (existingLoan != null)
+            {
+                return new LoanEligibilityResponseDto { Eligible = false, Reason = "An active loan already exists on this policy." };
+            }
+
+            // Calculate surrender value - Total Premiums Paid × 30%
+            var totalPaid = policy.Payments?.Where(p => p.Status == PaymentStatus.Completed).Sum(p => p.Amount) ?? 0;
+            var surrenderValue = totalPaid * 0.30m;
+
+            if (surrenderValue <= 0)
+            {
+                return new LoanEligibilityResponseDto { Eligible = false, Reason = "Insufficient premium payments to generate loan value." };
+            }
+
+            var maxLoan = surrenderValue * (policy.Plan.MaxLoanPercentage / 100);
+
+            return new LoanEligibilityResponseDto
+            {
+                Eligible = true,
+                EstimatedAmount = Math.Round(maxLoan, 2),
+                InterestRate = policy.Plan.LoanInterestRate
+            };
+        }
+
         public async Task<IEnumerable<LoanResponseDto>> GetAllLoansAsync()
         {
             var loans = await _loanRepository.GetAllAsync();
@@ -194,7 +247,7 @@ namespace Application.Services
             return loans.Select(l => MapToDto(l, l.PolicyAssignment));
         }
 
-        private LoanResponseDto MapToDto(PolicyLoan loan, PolicyAssignment policy)
+        private LoanResponseDto MapToDto(PolicyLoan loan, PolicyAssignment? policy)
         {
             return new LoanResponseDto
             {
@@ -224,5 +277,7 @@ namespace Application.Services
                     }).ToList() ?? new List<LoanRepaymentDto>()
             };
         }
+        private static string GenerateTransactionReference() =>
+            $"TXN{DateTime.UtcNow:yyyyMMddHHmmss}{Guid.NewGuid().ToString()[..6].ToUpper()}";
     }
 }

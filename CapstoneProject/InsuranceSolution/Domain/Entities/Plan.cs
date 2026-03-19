@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Threading.Tasks;
 using Domain.Enums;
 
@@ -29,8 +29,8 @@ namespace Domain.Entities
         public decimal MaxCoverageAmount { get; set; }
 
         // Duration limits for how long the policy can run
-        public int MinTermYears { get; set; }
-        public int MaxTermYears { get; set; }
+        public int? MinTermYears { get; set; }
+        public int? MaxTermYears { get; set; }
 
         // Allowance for late payments before the policy lapses
         public int GracePeriodDays { get; set; }
@@ -63,7 +63,8 @@ namespace Domain.Entities
         public bool HasLoanFacility { get; set; } = false;
         public bool CoverageIncreasing { get; set; } = false;
         public decimal CoverageIncreaseRate { get; set; } = 0;
-        public int CoverageUntilAge { get; set; } = 0;
+        public bool IsCoverageUntilAge { get; set; } = false;
+        public int? CoverageUntilAge { get; set; }
         public int LoanEligibleAfterYears { get; set; } = 0;
         public decimal MaxLoanPercentage { get; set; } = 0;
         public decimal LoanInterestRate { get; set; } = 0;

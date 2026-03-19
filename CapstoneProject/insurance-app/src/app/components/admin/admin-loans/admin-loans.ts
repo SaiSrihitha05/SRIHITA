@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoanService } from '../../../services/loan.service';
 import { LoanResponseDto } from '../../../models/loan.model';
@@ -7,10 +7,12 @@ import { LoanResponseDto } from '../../../models/loan.model';
     selector: 'app-admin-loans',
     standalone: true,
     imports: [CommonModule],
-    templateUrl: './admin-loans.html'
+    templateUrl: './admin-loans.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminLoans implements OnInit {
     private loanService = inject(LoanService);
+    private cdr = inject(ChangeDetectorRef);
 
     loans: LoanResponseDto[] = [];
     loading = true;
@@ -42,12 +44,19 @@ export class AdminLoans implements OnInit {
             next: (data) => {
                 this.loans = data;
                 this.loading = false;
+                this.cdr.markForCheck();
             },
-            error: () => { this.loading = false; }
+            error: () => {
+                this.loading = false;
+                this.cdr.markForCheck();
+            }
         });
     }
 
-    setFilter(f: string) { this.filter = f; }
+    setFilter(f: string) {
+        this.filter = f;
+        this.cdr.markForCheck();
+    }
 
     getStatusClass(status: string): string {
         switch (status) {

@@ -61,6 +61,14 @@ namespace InsuranceApi.InterfaceAdapters.Controllers
             return Ok(new { outstandingBalance = balance });
         }
 
+        [HttpGet("check-eligibility/{policyId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> CheckLoanEligibility(int policyId)
+        {
+            var result = await _loanService.CheckLoanEligibilityAsync(policyId);
+            return Ok(result);
+        }
+
         // Admin Endpoints
         [HttpGet("all")]
         [Authorize(Roles = "Admin")]

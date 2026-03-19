@@ -38,4 +38,8 @@ export class LoanService {
     getLoansByPolicy(policyId: number): Observable<LoanResponseDto[]> {
         return this.http.get<LoanResponseDto[]>(`${this.baseUrl}/by-policy/${policyId}`);
     }
+
+    checkEligibility(policyId: number): Observable<{ eligible: boolean; reason: string; estimatedAmount: number; interestRate: number }> {
+        return this.http.get<{ eligible: boolean; reason: string; estimatedAmount: number; interestRate: number }>(`${this.baseUrl}/check-eligibility/${policyId}`);
+    }
 }

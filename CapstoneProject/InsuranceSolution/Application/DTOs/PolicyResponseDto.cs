@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,12 +14,18 @@ namespace Application.DTOs
         public string CustomerName { get; set; } = string.Empty;
         public int? AgentId { get; set; }
         public string? AgentName { get; set; }
+        public string? AgentEmail { get; set; }
+        public string? AgentPhone { get; set; }
+        public string CustomerPhone { get; set; } = string.Empty;
+        public string CustomerEmail { get; set; } = string.Empty;
+        public int CustomerAge { get; set; }
         public int PlanId { get; set; }
         public string PlanName { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int TermYears { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string? Remarks { get; set; }
         public string CommissionStatus { get; set; } = string.Empty;
         public decimal TotalPremiumAmount { get; set; }
         public string PremiumFrequency { get; set; } = string.Empty;
@@ -30,8 +36,16 @@ namespace Application.DTOs
         public decimal PlanMaxLoanPercentage { get; set; }
         public bool PlanCoverageIncreasing { get; set; }
         public bool PlanHasBonus { get; set; }
+        public bool PlanIsCoverageUntilAge { get; set; }
         public int PlanCoverageUntilAge { get; set; }
         public decimal PlanCoverageIncreaseRate { get; set; }
+        public int PlanMinAge { get; set; }
+        public int PlanMaxAge { get; set; }
+        public decimal PlanMinCoverageAmount { get; set; }
+        public decimal PlanMaxCoverageAmount { get; set; }
+        public int PlanMinNominees { get; set; }
+        public int PlanMaxNominees { get; set; }
+        public int PlanMaxMembers { get; set; }
         public decimal PlanBonusRate { get; set; }
         public decimal PlanTerminalBonusRate { get; set; }
         public BonusCalculationResult BonusDetails { get; set; } = new();

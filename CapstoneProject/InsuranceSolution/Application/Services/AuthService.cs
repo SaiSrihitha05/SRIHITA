@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
@@ -38,6 +38,8 @@ public class AuthService : IAuthService
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             Phone = dto.Phone,
             Role = UserRole.Customer,
+            DateOfBirth = dto.DateOfBirth,
+            Gender = dto.Gender,
             CreatedAt = DateTime.UtcNow,
             IsActive = true
         };

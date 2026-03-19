@@ -1,0 +1,144 @@
+<div class="p-4 md:p-8 min-h-screen">
+    <div class="mb-10 animate-in fade-in slide-in-from-top duration-700">
+        <h1 class="text-4xl font-black text-gray-800 dark:text-gray-100 mb-2">
+            Loan <span class="text-[#75013f]">Repayment</span>
+        </h1>
+        <p class="text-sm text-gray-500">Pay down your outstanding balance securely.</p>
+    </div>
+
+    <div *ngIf="loan" class="animate-in fade-in zoom-in-95 duration-500">
+        <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-8 items-start max-w-5xl mx-auto">
+            
+            <!-- Column 1: Summary & Details -->
+            <div class="space-y-6">
+                <!-- Compact Balance Card -->
+                <div class="bg-gradient-to-br from-[#75013f] to-[#fe3082] p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <p class="text-[10px] uppercase font-black tracking-[0.2em] opacity-70 mb-2">Current Outstanding</p>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl font-black tracking-tighter">₹{{ loan.outstandingBalance | number:'1.2-2' }}</span>
+                    </div>
+                </div>
+
+                <!-- Rich Details List -->
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 border-b border-gray-50 dark:border-gray-700 pb-4">Loan Details</h3>
+                    
+                    <div class="space-y-5">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-500">Policy Plan</span>
+                            <span class="text-xs font-black text-gray-800 dark:text-gray-200 uppercase tracking-tighter">{{ loan.planName }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-500">Policy Number</span>
+                            <span class="text-xs font-black text-[#75013f] dark:text-pink-400">#{{ loan.policyNumber }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 dark:border-gray-700 pt-4">
+                            <span class="text-xs font-bold text-gray-500">Original Principal</span>
+                            <span class="text-xs font-black text-gray-800 dark:text-gray-200">₹{{ loan.loanAmount | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-500">Interest Accrued</span>
+                            <span class="text-xs font-black text-green-600 dark:text-green-400">{{ loan.interestRate }}% p.a.</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-gray-500">Interest Paid</span>
+                            <span class="text-xs font-black text-gray-800 dark:text-gray-200">₹{{ loan.totalInterestPaid | number:'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-50 dark:border-gray-700 pt-4">
+                            <span class="text-xs font-bold text-gray-500">Loan Sanctioned Date</span>
+                            <span class="text-xs font-black text-gray-800 dark:text-gray-200 italic">{{ loan.loanDate | date:'dd MMM yyyy' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2: Repayment Form -->
+            <div class="bg-white dark:bg-gray-800 p-10 rounded-[3rem] shadow-xl border border-gray-50 dark:border-gray-700">
+                <div class="space-y-10">
+                    
+                    <!-- Amount Input Section -->
+                    <div class="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-[2rem]">
+                        <label class="block text-[10px] font-black text-[#75013f] uppercase tracking-widest mb-4 px-1">Configure Repayment Amount</label>
+                        <div class="relative">
+                            <span class="absolute left-0 top-1/2 -translate-y-1/2 text-3xl font-black text-gray-300 transition-colors">₹</span>
+                            <input type="number" [(ngModel)]="repaymentForm.amount"
+                                class="w-full pl-10 pr-5 py-2 bg-transparent border-b-4 border-transparent focus:border-[#75013f] font-black text-4xl text-gray-800 dark:text-gray-100 outline-none transition-all placeholder:text-gray-200"
+                                [class.text-red-500]="isOverpaid"
+                                placeholder="0.00">
+                        </div>
+                        <div *ngIf="isOverpaid" class="mt-4 text-[10px] text-red-500 font-bold uppercase tracking-wider">
+                            ⚠️ Error: Exceeds outstanding balance
+                        </div>
+                        <div class="flex justify-between mt-6">
+                            <button (click)="repaymentForm.amount = loan.outstandingBalance" 
+                                class="px-4 py-2 bg-[#75013f]/10 text-[#75013f] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#75013f] hover:text-white transition-all">
+                                Pay Total Balance
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method Strategy -->
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 px-1">Pay via</label>
+                        <div class="space-y-3">
+                            <!-- UPI -->
+                            <button (click)="repaymentForm.paymentMethod = 'UPI'"
+                                [class.border-[#75013f]]="repaymentForm.paymentMethod === 'UPI'"
+                                [class.bg-[#75013f]/5]="repaymentForm.paymentMethod === 'UPI'"
+                                class="w-full p-6 border-2 border-gray-100 dark:border-gray-700 rounded-[2rem] flex items-center justify-between hover:border-gray-200 dark:hover:border-gray-600 transition-all group">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-sm text-2xl">📱</div>
+                                    <div class="text-left">
+                                        <p class="text-[12px] font-black uppercase tracking-[0.1em] text-gray-700 dark:text-gray-200">UPI</p>
+                                    </div>
+                                </div>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center"
+                                    [class.border-[#75013f]]="repaymentForm.paymentMethod === 'UPI'">
+                                    <div *ngIf="repaymentForm.paymentMethod === 'UPI'" class="w-3 h-3 bg-[#75013f] rounded-full"></div>
+                                </div>
+                            </button>
+
+                            <!-- Card -->
+                            <button (click)="repaymentForm.paymentMethod = 'Card'"
+                                [class.border-[#75013f]]="repaymentForm.paymentMethod === 'Card'"
+                                [class.bg-[#75013f]/5]="repaymentForm.paymentMethod === 'Card'"
+                                class="w-full p-6 border-2 border-gray-100 dark:border-gray-700 rounded-[2rem] flex items-center justify-between hover:border-gray-200 dark:hover:border-gray-600 transition-all group">
+                                <div class="flex items-center gap-5">
+                                    <div class="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center shadow-sm text-2xl">💳</div>
+                                    <div class="text-left">
+                                        <p class="text-[12px] font-black uppercase tracking-[0.1em] text-gray-700 dark:text-gray-200">Credit/Debit Card</p>
+                                    </div>
+                                </div>
+                                <div class="w-6 h-6 rounded-full border-2 border-gray-200 flex items-center justify-center"
+                                    [class.border-[#75013f]]="repaymentForm.paymentMethod === 'Card'">
+                                    <div *ngIf="repaymentForm.paymentMethod === 'Card'" class="w-3 h-3 bg-[#75013f] rounded-full"></div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CTA Section -->
+                    <div class="pt-2">
+                        <button (click)="submitRepayment()" [disabled]="isProcessing || !isValidAmount"
+                            class="w-full py-6 bg-gray-900 text-white rounded-[2.5rem] font-black text-xs uppercase tracking-[0.1em] shadow-2xl hover:bg-black hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-20 disabled:cursor-not-allowed">
+                            {{ isProcessing ? 'Executing Transaction...' : 'Finalize Repayment' }}
+                        </button>
+
+                        <div class="text-center mt-8">
+                            <a routerLink="/customer-dashboard/my-loans" class="text-[10px] text-gray-400 hover:text-[#75013f] font-black uppercase transition-colors">
+                                ← Back
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="!loan" class="py-20 text-center">
+        <div class="animate-spin inline-block w-8 h-8 border-4 border-[#75013f] border-t-transparent rounded-full mb-4"></div>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Loading Loan Details...</p>
+    </div>
+</div>

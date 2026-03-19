@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +30,14 @@ namespace Infrastructure.Repositories
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Plan)
+                .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.PolicyNominees)
+                .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.PolicyMembers)
+                .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.Customer)
+                .Include(c => c.PolicyAssignment)
+                    .ThenInclude(p => p!.Payments)
                 .Include(c => c.PolicyMember)
                 .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
@@ -59,6 +67,7 @@ namespace Infrastructure.Repositories
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Plan)
                 .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
                 .Where(c => c.ClaimsOfficerId == officerId)
                 .OrderByDescending(c => c.FiledDate)
@@ -70,6 +79,7 @@ namespace Infrastructure.Repositories
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Plan)
                 .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
                 .Where(c => c.PolicyAssignment!.CustomerId == customerId)
                 .OrderByDescending(c => c.FiledDate)

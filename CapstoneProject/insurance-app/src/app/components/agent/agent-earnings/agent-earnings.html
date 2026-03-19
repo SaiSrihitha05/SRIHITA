@@ -1,0 +1,98 @@
+<div class="space-y-8 font-lato p-6 animate-in fade-in duration-500">
+  
+  <!-- Header -->
+  <div class="flex justify-between items-center bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-orange-50 dark:border-gray-700 transition-all">
+    <div>
+      <h1 class="text-3xl font-black text-[#75013f] dark:text-pink-300">My Earnings</h1>
+      <p class="text-gray-400 dark:text-gray-500 text-sm mt-1 uppercase tracking-widest font-black text-[10px]">Commission & Payout Breakdown</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <div class="p-3 bg-[#75013f]/5 rounded-2xl">
+            <span class="text-2xl">💰</span>
+        </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div *ngIf="earnings" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Total Earned -->
+    <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-xl shadow-[#75013f]/5 border border-gray-50 dark:border-gray-700">
+      <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Commission Earned</p>
+      <div class="flex items-end gap-2">
+        <h3 class="text-4xl font-black text-[#75013f] dark:text-pink-300">₹{{earnings.totalCommissionEarned | number}}</h3>
+        <span class="text-[10px] font-bold text-green-500 mb-2 uppercase tracking-tighter">Distributed</span>
+      </div>
+    </div>
+
+    <!-- total policies sold -->
+    <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-xl shadow-[#75013f]/5 border border-gray-50 dark:border-gray-700">
+      <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Policies Sold</p>
+      <div class="flex items-end gap-2">
+        <h3 class="text-4xl font-black text-gray-700 dark:text-gray-200">{{earnings.totalPoliciesSold}}</h3>
+        <span class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-tighter">Policies</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="py-20 text-center">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#75013f] border-t-transparent mb-4"></div>
+    <p class="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Calculating Earnings...</p>
+  </div>
+
+  <!-- Breakdown Table -->
+  <div *ngIf="!loading && earnings" class="bg-white dark:bg-gray-800 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+    <div class="p-8 border-b dark:border-gray-700 flex justify-between items-center">
+        <h2 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest">Policy-wise Breakdown</h2>
+        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">Updated Just Now</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="bg-gray-50 dark:bg-gray-900/50 text-[10px] font-black uppercase text-gray-400 dark:text-gray-500 border-b dark:border-gray-700">
+            <th class="px-8 py-5">Policy</th>
+            <th class="px-8 py-5">Customer</th>
+            <th class="px-8 py-5">Plan</th>
+            <th class="px-8 py-5 text-right">Premium Paid</th>
+            <th class="px-8 py-5 text-right">Commission</th>
+            <th class="px-8 py-5 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
+          <tr *ngFor="let row of earnings.commissionBreakdown" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all group">
+            <td class="px-8 py-6">
+              <p class="font-black text-[#75013f] dark:text-pink-400 text-sm tracking-tighter">{{row.policyNumber}}</p>
+              <p class="text-[9px] text-gray-400 uppercase font-bold">{{row.paymentDate | date:'dd MMM yyyy'}}</p>
+            </td>
+            <td class="px-8 py-6 text-sm font-bold text-gray-700 dark:text-gray-200">
+              {{row.customerName}}
+            </td>
+            <td class="px-8 py-6">
+              <p class="text-xs font-bold text-gray-600 dark:text-gray-400">{{row.planName}}</p>
+              <p class="text-[9px] text-gray-400 italic">Coverage: ₹{{row.coverageAmount | number}}</p>
+            </td>
+            <td class="px-8 py-6 text-right font-bold text-gray-600 dark:text-gray-400 text-sm">
+              ₹{{row.premiumPaid | number}}
+            </td>
+            <td class="px-8 py-6 text-right">
+              <p class="font-black text-green-600 dark:text-green-400">+₹{{row.commissionEarned | number}}</p>
+              <p class="text-[8px] text-gray-400 uppercase font-black tracking-widest">Fixed 20%</p>
+            </td>
+            <td class="px-8 py-6 text-center">
+              <span [ngClass]="getStatusClass(row.status)" class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
+                {{row.status}}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Empty State -->
+    <div *ngIf="earnings.commissionBreakdown.length === 0" class="py-20 text-center">
+        <p class="text-4xl mb-4">📉</p>
+        <p class="text-gray-400 font-bold uppercase tracking-widest text-xs">No Recent Commission Activity</p>
+    </div>
+  </div>
+
+</div>

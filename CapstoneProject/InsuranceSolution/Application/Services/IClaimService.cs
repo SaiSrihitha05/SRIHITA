@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +16,9 @@ namespace Application.Services
         Task<IEnumerable<ClaimResponseDto>> GetAllClaimsAsync(); 
 
         Task<IEnumerable<ClaimResponseDto>> GetMyAssignedClaimsAsync(int officerId);                                       
-
         Task<ClaimResponseDto> GetClaimByIdAsync(int id);
+
+        Task<(byte[] fileBytes, string fileName, string contentType)> DownloadClaimDocumentAsync(int claimId, int documentId, int userId, string role);
 
         Task AssignClaimsOfficerAsync(int claimId, AssignClaimsOfficerDto dto);         
 

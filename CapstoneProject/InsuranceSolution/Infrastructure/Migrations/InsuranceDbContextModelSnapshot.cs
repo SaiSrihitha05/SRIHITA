@@ -73,8 +73,14 @@ namespace Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CauseOfDeath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("ClaimAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ClaimForMemberId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ClaimType")
                         .IsRequired()
@@ -84,6 +90,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateOfDeath")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DeathCertificateNumber")
@@ -98,6 +107,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("NomineeName")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PlaceOfDeath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PolicyAssignmentId")
@@ -209,6 +221,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PaymentType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("PremiumPayment");
+
                     b.Property<int>("PolicyAssignmentId")
                         .HasColumnType("int");
 
@@ -258,7 +276,7 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("CoverageIncreasing")
                         .HasColumnType("bit");
 
-                    b.Property<int>("CoverageUntilAge")
+                    b.Property<int?>("CoverageUntilAge")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -286,6 +304,9 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsCoverageUntilAge")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsReturnOfPremium")
                         .HasColumnType("bit");
 
@@ -310,7 +331,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("MaxPolicyMembersAllowed")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaxTermYears")
+                    b.Property<int?>("MaxTermYears")
                         .HasColumnType("int");
 
                     b.Property<int>("MinAge")
@@ -322,7 +343,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("MinNominees")
                         .HasColumnType("int");
 
-                    b.Property<int>("MinTermYears")
+                    b.Property<int?>("MinTermYears")
                         .HasColumnType("int");
 
                     b.Property<string>("PlanName")
@@ -379,6 +400,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("PremiumFrequency")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Remarks")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
@@ -507,6 +531,9 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PolicyAssignmentId");
@@ -550,6 +577,37 @@ namespace Infrastructure.Migrations
                     b.ToTable("PolicyNominees");
                 });
 
+            modelBuilder.Entity("Domain.Entities.SystemConfig", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("LastAgentAssignmentIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LastClaimsOfficerIndex")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemConfigs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LastAgentAssignmentIndex = -1,
+                            LastClaimsOfficerIndex = -1,
+                            UpdatedAt = new DateTime(2026, 3, 18, 11, 18, 6, 13, DateTimeKind.Utc).AddTicks(2861)
+                        });
+                });
+
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -561,9 +619,15 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -601,11 +665,11 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 3, 8, 16, 43, 58, 277, DateTimeKind.Utc).AddTicks(7781),
+                            CreatedAt = new DateTime(2026, 3, 18, 11, 18, 6, 291, DateTimeKind.Utc).AddTicks(4552),
                             Email = "admin@insurance.com",
                             IsActive = true,
                             Name = "System Admin",
-                            PasswordHash = "$2a$11$jAm8IK5QtRCvZy5xtHi7r.AEYa4jd2akWMnxR8VoAEINOKShgtsCS",
+                            PasswordHash = "$2a$11$tE/xMmQAnwOm0zrgAR2kp.mYwm5Hgw8ErNqy9p1MVEk0EOQBeDBUq",
                             Phone = "9999999999",
                             Role = "Admin"
                         });

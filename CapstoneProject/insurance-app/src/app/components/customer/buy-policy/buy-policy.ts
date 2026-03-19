@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PolicyService } from '../../../services/policy-service';
 import { PlanService } from '../../../services/plan-service';
+import { UserService } from '../../../services/user-service';
 
 @Component({
   selector: 'app-buy-policy',
@@ -16,6 +17,7 @@ export class BuyPolicy implements OnInit {
   private router = inject(Router);
   private policyService = inject(PolicyService);
   private planService = inject(PlanService);
+  private userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
 
   step = 1;
@@ -26,6 +28,7 @@ export class BuyPolicy implements OnInit {
   processing: boolean = false;
   today: string = '';
   yesterday: string = '';
+  customerProfile: any = null;
 
   // Section 1: Basic Config (Matching PolicyService.cs logic)
   numMembers: number = 1;
@@ -44,7 +47,7 @@ export class BuyPolicy implements OnInit {
   memberDocuments: File[] = [];
 
   get isWholeLifePlan(): boolean {
-    return this.selectedPlan?.planType === 'WholeLife';
+    return !!this.selectedPlan?.isCoverageUntilAge;
   }
 
   ngOnInit() {
@@ -71,13 +74,27 @@ export class BuyPolicy implements OnInit {
       this.planId = Number(planIdParam);
       this.loadPlan(this.planId);
     }
+    this.loadUserProfile();
+  }
+
+  loadUserProfile() {
+    this.userService.getProfile().subscribe({
+      next: (profile) => {
+        this.customerProfile = profile;
+        if (this.members[0] && this.members[0].RelationshipToCustomer === 'Self') {
+          this.syncSelfMember();
+        }
+      }
+    });
   }
 
   loadPlan(planId: number) {
     this.planService.getPlanById(planId).subscribe(plan => {
       this.selectedPlan = plan;
       if (this.isWholeLifePlan) {
-        this.policyData.termYears = plan.maxTermYears;
+        // For lifelong/whole life, term is Target Age - Entry Age
+        const primaryAge = this.members[0] ? this.getAge(this.members[0].DateOfBirth) : 30;
+        this.policyData.termYears = Math.max(1, (this.selectedPlan.coverageUntilAge || 100) - primaryAge);
       } else if (!this.policyData.termYears) {
         this.policyData.termYears = plan.minTermYears;
       }
@@ -100,7 +117,8 @@ export class BuyPolicy implements OnInit {
         this.policyData.startDate = draft.startDate
           ? draft.startDate.split('T')[0]
           : '';
-        this.policyData.termYears = draft.termYears || (this.isWholeLifePlan ? this.selectedPlan?.maxTermYears : this.selectedPlan?.minTermYears);
+        this.policyData.termYears = draft.termYears || 
+          (this.isWholeLifePlan ? 0 : this.selectedPlan?.minTermYears);
         this.policyData.premiumFrequency = draft.premiumFrequency || 'Monthly';
 
         // Restore members
@@ -153,7 +171,40 @@ export class BuyPolicy implements OnInit {
         });
       }
     } else { this.members.splice(this.numMembers); }
+    
+    if (this.members[0] && !this.members[0].MemberName && this.customerProfile) {
+      this.syncSelfMember();
+    }
     this.cdr.detectChanges();
+  }
+
+  onRelationshipChange(index: number) {
+    const member = this.members[index];
+    if (member.RelationshipToCustomer === 'Self') {
+      this.syncSelfMember(index);
+    } else if (this.customerProfile) {
+      // If it was previously 'Self' (matching customer profile), clear the fields
+      if (member.MemberName === this.customerProfile.name &&
+          member.DateOfBirth === (this.customerProfile.dateOfBirth?.split('T')[0] || '') &&
+          member.Gender === (this.customerProfile.gender || 'Male')) {
+        member.MemberName = '';
+        member.DateOfBirth = '';
+        member.Gender = '';
+      }
+    }
+  }
+
+  syncSelfMember(index: number = 0) {
+    if (!this.customerProfile) return;
+    const member = this.members[index];
+    member.MemberName = this.customerProfile.name;
+    member.DateOfBirth = this.customerProfile.dateOfBirth?.split('T')[0] || '';
+    member.Gender = this.customerProfile.gender || 'Male';
+    this.cdr.detectChanges();
+  }
+
+  isSelfAlreadySelected(currentIndex: number): boolean {
+    return this.members.some((m, i) => i !== currentIndex && m.RelationshipToCustomer === 'Self');
   }
 
   syncNominees() {
@@ -188,10 +239,15 @@ export class BuyPolicy implements OnInit {
       // Only send members/nominees if they have at least a Name
       members: this.members.filter(m => m.MemberName).map(m => ({
         ...m,
-        DateOfBirth: m.DateOfBirth || null
+        DateOfBirth: m.DateOfBirth || null,
+        RelationshipToCustomer: m.RelationshipToCustomer || null,
+        Gender: m.Gender || null,
+        Occupation: m.Occupation || null
       })),
       nominees: this.nominees.filter(n => n.NomineeName).map(n => ({
         ...n,
+        RelationshipToPolicyHolder: n.RelationshipToPolicyHolder || null,
+        ContactNumber: n.ContactNumber || null,
         SharePercentage: n.SharePercentage || 0
       }))
     };
@@ -283,8 +339,10 @@ export class BuyPolicy implements OnInit {
 
     // --- Common Step 1 Validations (Always checked) ---
     const isDateValid = this.isFutureDate();
-    const isTermValid = this.policyData.termYears >= this.selectedPlan.minTermYears &&
-      this.policyData.termYears <= this.selectedPlan.maxTermYears;
+    const isTermValid = this.isWholeLifePlan ? true : (
+      this.policyData.termYears >= this.selectedPlan.minTermYears &&
+      this.policyData.termYears <= this.selectedPlan.maxTermYears
+    );
 
     // Strict Number Guards: Must be at least 1 and within plan limits
     const isMemberCountValid = this.numMembers >= 1 &&
@@ -315,8 +373,16 @@ export class BuyPolicy implements OnInit {
 
         // Check for member-specific document uploads
         const hasDocument = m.IsPrimaryInsured ? !!this.identityProof : !!this.memberDocuments[i];
+        
+        // Relationship Validation
+        const isSelf = m.RelationshipToCustomer === 'Self';
+        const nameMatchesProfile = m.MemberName?.toLowerCase() === this.customerProfile?.name?.toLowerCase();
+        
+        const isRelationshipConsistent = isSelf ? nameMatchesProfile : !nameMatchesProfile;
+        if (!isRelationshipConsistent && isSelf) console.log(`Member ${i} Fail: Self relation but name mismatch`);
+        if (!isRelationshipConsistent && !isSelf) console.log(`Member ${i} Fail: Non-self relation but name matches customer`);
 
-        return hasBasicInfo && hasValidAge && hasValidCoverage && hasDocument;
+        return hasBasicInfo && hasValidAge && hasValidCoverage && hasDocument && isRelationshipConsistent;
       });
 
       // Income proof is mandatory for the policy holder at Step 2
@@ -357,7 +423,27 @@ export class BuyPolicy implements OnInit {
     this.cdr.detectChanges();
   }
 
-  printProof() { window.print(); }
+  printProof() {
+    if (!this.draftId) {
+      alert('Please save your progress before printing.');
+      return;
+    }
+
+    this.policyService.downloadPolicyApplication(this.draftId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `PolicyApplication_${this.draftId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error downloading application proof:', err);
+        alert('Could not generate application proof. Please ensure your draft is saved.');
+      }
+    });
+  }
 
   submit() {
     this.processing = true;
@@ -403,7 +489,6 @@ export class BuyPolicy implements OnInit {
       }
     });
   }
-  // Add this to your BuyPolicy class
 
   calculateTotalPremium(): number {
     if (!this.selectedPlan || !this.members.length) return 0;
@@ -430,7 +515,8 @@ export class BuyPolicy implements OnInit {
 
       // 4. Term Factor
       let termFactor = 1.3;
-      if (term <= 10) termFactor = 1.0;
+      if (this.isWholeLifePlan) termFactor = 1.5; // Lifelong coverage premium factor
+      else if (term <= 10) termFactor = 1.0;
       else if (term <= 20) termFactor = 1.1;
       else if (term <= 30) termFactor = 1.2;
 
@@ -448,7 +534,6 @@ export class BuyPolicy implements OnInit {
     return Math.round(total * 100) / 100; // Round to 2 decimals
   }
 
-
   isSubmitted = false;
 
   nextStep() {
@@ -460,5 +545,6 @@ export class BuyPolicy implements OnInit {
       window.scrollTo(0, 0);
     }
   }
+
   prevStep() { this.step--; window.scrollTo(0, 0); }
 }

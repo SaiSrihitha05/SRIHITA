@@ -11,9 +11,10 @@
   </div>
 
   <div class="space-y-4">
-    <div *ngFor="let note of notifications" [class.bg-white]="note.isRead" [class.dark:bg-gray-800]="note.isRead"
+    <div *ngFor="let note of notifications" (click)="onNotificationClick(note)"
+      [class.bg-white]="note.isRead" [class.dark:bg-gray-800]="note.isRead"
       [class.bg-[#f5f2ef]]="!note.isRead" [class.dark:bg-gray-700]="!note.isRead"
-      class="p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex gap-4 items-start relative overflow-hidden transition-colors duration-300">
+      class="p-5 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all flex gap-4 items-start relative overflow-hidden transition-colors duration-300 cursor-pointer hover:border-[#fe3082]/30 dark:hover:border-[#fe3082]/30">
 
       <div *ngIf="!note.isRead" class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#fe3082]"></div>
 

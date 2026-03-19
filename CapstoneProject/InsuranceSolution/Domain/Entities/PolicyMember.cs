@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,6 +42,9 @@ namespace Domain.Entities
 
         // Flag to identify the main person responsible for the policy
         public bool IsPrimaryInsured { get; set; }
+
+        // Tracks if the member has died and their coverage consumed
+        public Domain.Enums.MemberStatus Status { get; set; } = Domain.Enums.MemberStatus.Active;
 
         // Audit timestamp
         public DateTime CreatedAt { get; set; }

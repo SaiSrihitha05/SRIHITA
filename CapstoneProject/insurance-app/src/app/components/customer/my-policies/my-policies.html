@@ -14,13 +14,37 @@
   <div *ngIf="loading" class="flex justify-center py-20">
     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#75013f]"></div>
   </div>
-  <div class="flex flex-wrap gap-3 mb-8">
-    <button *ngFor="let status of uniqueStatuses" (click)="selectedStatus = status" [class]="selectedStatus === status 
-            ? 'bg-[#75013f] text-white' 
-            : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-100 dark:border-gray-700'"
-      class="px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm">
-      {{ status }}
-    </button>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 ">
+    <!-- Search Bar -->
+    <div class="md:col-span-1 relative group">
+      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-1">Search Portfolio</label>
+      <div class="relative">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#75013f] transition-colors">🔍</span>
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Policy Number..."
+          class="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#75013f]/20 focus:border-[#75013f] transition-all shadow-sm">
+        <button *ngIf="searchTerm" (click)="searchTerm = ''" 
+          class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors text-xs font-bold">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Filters -->
+    <div class="md:col-span-3">
+      <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block ml-1">Filter by Status</label>
+      <div class="flex flex-wrap gap-2">
+        <button *ngFor="let status of uniqueStatuses" (click)="selectedStatus = status" [class]="selectedStatus === status 
+                ? 'bg-[#75013f] text-white shadow-lg shadow-[#75013f]/20 scale-105' 
+                : 'bg-white dark:bg-gray-800 text-gray-500 border border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'"
+          class="px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 flex items-center gap-2">
+          <span>{{ status }}</span>
+          <span [class]="selectedStatus === status ? 'bg-white/20 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400'"
+            class="px-2 py-0.5 rounded-lg text-[9px]">
+            {{ getStatusCount(status) }}
+          </span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- CASE 1: No policies in portfolio at all -->
@@ -85,7 +109,7 @@
         </div>
 
         <div
-          class="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6 py-6 lg:py-0 border-y lg:border-y-0 lg:border-x border-gray-50 dark:border-gray-700 px-0 lg:px-8">
+          class="flex-1 grid grid-cols-2 md:grid-cols-5 gap-6 py-6 lg:py-0 border-y lg:border-y-0 lg:border-x border-gray-50 dark:border-gray-700 px-0 lg:px-8">
           <div>
             <p class="text-[9px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Sum Assured</p>
             <p class="text-sm font-black text-gray-700 dark:text-gray-200">
@@ -102,6 +126,29 @@
           <div>
             <p class="text-[9px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Term</p>
             <p class="text-sm font-black text-gray-700 dark:text-gray-200">{{ policy.termYears }} Years</p>
+          </div>
+          <div>
+            <p class="text-[9px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Assigned Agent</p>
+            <div *ngIf="policy.agentName; else noAgent" class="group/agent relative">
+              <p class="text-sm font-black text-[#75013f] dark:text-pink-300 cursor-help">
+                {{ policy.agentName }}
+              </p>
+              <!-- Agent Contact Tooltip -->
+              <div class="invisible group-hover/agent:visible absolute bottom-full left-0 mb-2 w-48 p-3 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 text-[10px]">
+                <p class="font-black text-gray-400 uppercase mb-2">Contact Details</p>
+                <div class="space-y-1">
+                  <p class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                    <span>📧</span> {{ policy.agentEmail || 'N/A' }}
+                  </p>
+                  <p class="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                    <span>📞</span> {{ policy.agentPhone || 'N/A' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <ng-template #noAgent>
+              <p class="text-sm font-bold text-gray-400 italic">Self Managed</p>
+            </ng-template>
           </div>
           <div>
             <p class="text-[9px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">End Date</p>

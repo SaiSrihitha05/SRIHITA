@@ -6,23 +6,26 @@
 
       <div class="flex items-center gap-4">
         <a routerLink="/" class="hover:opacity-80 transition-opacity">
-          <img src="horizontal_logo.png" alt="The Hartford" class="h-8 w-auto" />
+          <!-- Light Mode Logo -->
+          <img src="horizontal_logo.png" alt="The Hartford" class="h-8 w-auto dark:hidden" />
+          <!-- Dark Mode Logo -->
+          <img src="dark-logo.png" alt="The Hartford" class="h-8 w-auto hidden dark:block" />
         </a>
         <app-theme-toggle />
       </div>
       @if(!isLoggedIn){
       <div class="hidden md:flex items-center gap-8">
-        <a href="#about"
+        <a [routerLink]="['/']" fragment="about"
           class="text-[#75013f] dark:text-pink-300 hover:text-[#fe3082] font-medium transition-colors">About</a>
-        <a href="#why-us"
+        <a [routerLink]="['/']" fragment="why-us"
           class="text-[#75013f] dark:text-pink-300 hover:text-[#fe3082] font-medium transition-colors">Why Us</a>
-        <a href="#contact"
+        <a [routerLink]="['/']" fragment="contact"
           class="text-[#75013f] dark:text-pink-300 hover:text-[#fe3082] font-medium transition-colors">Contact Us</a>
       </div>
 
       <div class="hidden md:flex items-center gap-3">
         <a routerLink="/login"
-          class="px-4 py-2 text-[#75013f] border border-[#75013f] rounded-lg font-medium hover:bg-[#75013f] hover:text-white transition-all">
+          class="px-4 py-2 text-[#75013f] dark:text-pink-300 border border-[#75013f] dark:border-pink-300 rounded-lg font-medium hover:bg-[#75013f] dark:hover:bg-[#75013f] hover:text-white transition-all">
           Login
         </a>
         <a routerLink="/register"
@@ -39,8 +42,15 @@
             }}</span>
         </div>
 
-        <!-- Notifications: Visible to Customers Only -->
-        <button *ngIf="userRole === 'Customer'" routerLink="/customer-dashboard/notifications"
+        <!-- Dashboard Button: Only visible when NOT on a dashboard page -->
+        <a *ngIf="!isOnDashboard" [routerLink]="dashboardLink"
+          class="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#75013f] text-white font-semibold text-sm hover:bg-[#5a0130] active:scale-95 transition-all shadow-sm"
+          title="Go to your Dashboard">
+          <span></span> Go to Dashboard 
+        </a>
+
+        <!-- Notifications: Visible to All Registered Users -->
+        <button [routerLink]="notificationLink"
           class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-[#75013f] dark:hover:text-pink-300 transition-all focus:outline-none"
           title="Notifications">
           <span class="text-2xl">🔔</span>
@@ -77,17 +87,22 @@
 
     <div *ngIf="isMobileMenuOpen"
       class="md:hidden bg-[#f5f2ef] dark:bg-gray-800 border-t border-[#75013f]/20 py-4 space-y-3">
-      <a href="#about" (click)="toggleMobileMenu()"
+      @if(isLoggedIn && !isOnDashboard){
+      <a [routerLink]="dashboardLink" (click)="toggleMobileMenu()"
+        class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">Dashboard</a>
+      } @else if(!isLoggedIn) {
+      <a [routerLink]="['/']" fragment="about" (click)="toggleMobileMenu()"
         class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">About</a>
-      <a href="#why-us" (click)="toggleMobileMenu()"
+      <a [routerLink]="['/']" fragment="why-us" (click)="toggleMobileMenu()"
         class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">Why Us</a>
-      <a href="#contact" (click)="toggleMobileMenu()"
+      <a [routerLink]="['/']" fragment="contact" (click)="toggleMobileMenu()"
         class="block px-4 py-2 text-[#75013f] dark:text-pink-300 font-medium">Contact Us</a>
       <div class="flex gap-3 px-4 pt-2">
         <a routerLink="/login"
           class="flex-1 text-center px-4 py-2 text-[#75013f] dark:text-pink-300 border border-[#75013f] rounded-lg">Login</a>
         <a routerLink="/register" class="flex-1 text-center px-4 py-2 bg-[#fe3082] text-white rounded-lg">Register</a>
       </div>
+      }
     </div>
   </div>
 

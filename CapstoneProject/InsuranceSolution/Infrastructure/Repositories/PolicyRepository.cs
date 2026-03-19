@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -69,8 +69,15 @@ namespace Infrastructure.Repositories
 
         public async Task<string> GeneratePolicyNumberAsync()
         {
-            var count = await _context.PolicyAssignments.CountAsync();
-            return $"POL{DateTime.UtcNow.Year}{(count + 1):D5}";
+            var datePart = DateTime.UtcNow.ToString("yyyyMMdd");
+            var randomPart = new Random().Next(1000, 9999);
+            var policyNumber = $"POL-{datePart}-{randomPart}";
+
+            // Double check uniqueness (recursive or just retry logic could be added here if needed)
+            var exists = await _context.PolicyAssignments.AnyAsync(p => p.PolicyNumber == policyNumber);
+            if (exists) return await GeneratePolicyNumberAsync(); 
+
+            return policyNumber;
         }
 
         public async Task AddAsync(PolicyAssignment policy) =>

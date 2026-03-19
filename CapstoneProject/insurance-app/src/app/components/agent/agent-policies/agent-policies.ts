@@ -15,8 +15,10 @@ export class AgentPolicies implements OnInit {
 
   policies: any[] = [];
   loading = true;
-  selectedPolicy: any = null; // For viewing deep details like members/documents
+  selectedPolicy: any = null;
   showDetailsModal = false;
+  agentRemarks: string = '';
+  processingAction: 'Approve' | 'Reject' | null = null;
 
   statusOptions = ['Pending', 'Active', 'Expired', 'Cancelled', 'Rejected', 'Matured', 'Closed'];
 
@@ -31,11 +33,9 @@ export class AgentPolicies implements OnInit {
   }
 
   onUpdateStatus(policy: any) {
-    // Collect remarks from the agent
     const remarks = window.prompt(`Please provide a reason for changing the status of policy ${policy.policyNumber}:`, 'Verification check complete');
 
     if (remarks === null) {
-      // User cancelled the prompt, revert the status change
       this.loadMyPolicies();
       return;
     }
@@ -47,18 +47,100 @@ export class AgentPolicies implements OnInit {
 
     this.policyService.updatePolicyStatus(policy.id, dto).subscribe({
       next: () => {
-        // Status is already updated in UI via ngModel
         this.cdr.detectChanges();
       },
       error: () => {
         alert('Status update failed');
-        this.loadMyPolicies(); // Revert on error
+        this.loadMyPolicies();
       }
     });
   }
 
   viewPolicyDetails(policy: any) {
     this.selectedPolicy = policy;
+    this.agentRemarks = '';
     this.showDetailsModal = true;
   }
-}
+
+  approvePolicy() {
+    this.updateStatus('Active', 'Approve');
+  }
+
+  rejectPolicy() {
+    this.updateStatus('Rejected', 'Reject');
+  }
+
+  private updateStatus(status: string, actionName: 'Approve' | 'Reject') {
+    if (!this.agentRemarks) {
+      alert('Please enter remarks before making a decision.');
+      return;
+    }
+
+    this.processingAction = actionName;
+    this.cdr.detectChanges(); // Force immediate update for the spinner
+
+    const dto = {
+      status: status,
+      remarks: this.agentRemarks
+    };
+
+    this.policyService.updatePolicyStatus(this.selectedPolicy.id, dto).subscribe({
+      next: () => {
+        this.selectedPolicy.status = status;
+        this.showDetailsModal = false;
+        this.processingAction = null;
+        this.loadMyPolicies();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.processingAction = null;
+        this.cdr.detectChanges();
+        alert('Status update failed');
+      }
+    });
+  }
+
+  isEligibleCheck(p: any) {
+    if (!p) return null;
+
+    const ages = p.members.map((m: any) => this.getAge(m.dateOfBirth));
+    const isAgeValid = ages.every((a: number) => a >= p.planMinAge && a <= p.planMaxAge);
+
+    const coverages = p.members.map((m: any) => m.coverageAmount);
+    const isCoverageValid = coverages.every((c: number) => c >= p.planMinCoverageAmount && c <= p.planMaxCoverageAmount);
+
+    const isMembersValid = p.members.length >= 1 && p.members.length <= p.planMaxMembers;
+
+    const totalShare = p.nominees.reduce((sum: number, n: any) => sum + n.sharePercentage, 0);
+    const isNomineesValid = p.nominees.length >= p.planMinNominees && 
+                           p.nominees.length <= p.planMaxNominees && 
+                           Math.abs(totalShare - 100) < 0.01;
+
+    return {
+      age: isAgeValid,
+      coverage: isCoverageValid,
+      members: isMembersValid,
+      nominees: isNomineesValid
+    };
+  }
+
+  downloadDocument(docId: number) {
+    this.policyService.downloadFile(docId).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `document_${docId}`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    });
+  }
+
+  getAge(dob: string): number {
+    if (!dob) return 0;
+    const birth = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    if (today < new Date(today.getFullYear(), birth.getMonth(), birth.getDate())) age--;
+    return age;
+  }
+}

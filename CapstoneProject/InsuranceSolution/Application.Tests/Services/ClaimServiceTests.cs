@@ -20,14 +20,20 @@ namespace Application.Tests.Services
 {
     public class ClaimServiceTests
     {
-        private (InsuranceDbContext db,
-                 Mock<INotificationService> mockNote,
-                 Mock<IEmailService> mockEmail,
-                 Mock<IWebHostEnvironment> mockEnv,
-                 Mock<IPaymentRepository> mockPayment,
-                 Mock<ILoanRepository> mockLoan,
-                 Mock<IPolicyService> mockPolicyService,
-                 ClaimService service) BuildTestContextAndService()
+        public class ClaimTestContext
+        {
+            public InsuranceDbContext Db { get; set; }
+            public Mock<INotificationService> MockNote { get; set; }
+            public Mock<IEmailService> MockEmail { get; set; }
+            public Mock<IWebHostEnvironment> MockEnv { get; set; }
+            public Mock<IPaymentRepository> MockPayment { get; set; }
+            public Mock<ILoanRepository> MockLoan { get; set; }
+            public Mock<IPolicyService> MockPolicyService { get; set; }
+            public Mock<ISystemConfigRepository> MockConfig { get; set; }
+            public ClaimService Service { get; set; }
+        }
+
+        private ClaimTestContext BuildTestContextAndService()
         {
             var options = new DbContextOptionsBuilder<InsuranceDbContext>()
                 .UseInMemoryDatabase($"ClaimServiceTestDb_{Guid.NewGuid()}")
@@ -46,6 +52,10 @@ namespace Application.Tests.Services
             var mockPayment = new Mock<IPaymentRepository>();
             var mockLoan = new Mock<ILoanRepository>();
             var mockPolicyService = new Mock<IPolicyService>();
+            var mockConfig = new Mock<ISystemConfigRepository>();
+
+            mockConfig.Setup(c => c.GetConfigAsync())
+                .ReturnsAsync(new SystemConfig { Id = 1, LastClaimsOfficerIndex = -1 });
 
             mockLoan.Setup(l => l.GetActiveLoanByPolicyAsync(It.IsAny<int>()))
                 .Returns(Task.FromResult<PolicyLoan?>(null));
@@ -69,10 +79,22 @@ namespace Application.Tests.Services
                 mockEnv.Object,
                 mockPayment.Object,
                 mockLoan.Object,
-                mockPolicyService.Object
+                mockPolicyService.Object,
+                mockConfig.Object
             );
 
-            return (dbContext, mockNote, mockEmail, mockEnv, mockPayment, mockLoan, mockPolicyService, service);
+            return new ClaimTestContext
+            {
+                Db = dbContext,
+                MockNote = mockNote,
+                MockEmail = mockEmail,
+                MockEnv = mockEnv,
+                MockPayment = mockPayment,
+                MockLoan = mockLoan,
+                MockPolicyService = mockPolicyService,
+                MockConfig = mockConfig,
+                Service = service
+            };
         }
 
         private async Task<(User customer, Plan plan, PolicyAssignment policy, PolicyMember member)> SeedPolicyAsync(InsuranceDbContext db)
@@ -106,47 +128,61 @@ namespace Application.Tests.Services
         [Fact]
         public async Task FileClaimAsync_ShouldThrowNotFound_WhenPolicyDoesNotExist()
         {
-            var (_, _, _, _, _, _, _, service) = BuildTestContextAndService();
+            var ctx = BuildTestContextAndService();
             var dto = new FileClaimDto { PolicyAssignmentId = 999 };
-            await Assert.ThrowsAsync<NotFoundException>(() => service.FileClaimAsync(1, dto));
+            try {
+                var res = await ctx.Service.FileClaimAsync(1, dto);
+                throw new Exception($"Test failed. Returned cleanly: {System.Text.Json.JsonSerializer.Serialize(res)}");
+            } catch (NotFoundException) {
+                Assert.True(true);
+            } catch (Exception ex) {
+                throw new Exception($"Test failed. Threw wrong ex: {ex.GetType()} - {ex.Message}");
+            }
         }
 
 
         [Fact]
         public async Task FileClaimAsync_ShouldThrowForbidden_WhenCustomerDoesNotOwnPolicy()
         {
-            var (db, _, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (_, _, policy, _) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (_, _, policy, _) = await SeedPolicyAsync(ctx.Db);
 
             var dto = new FileClaimDto { PolicyAssignmentId = policy.Id };
             // Using customerId = policy.CustomerId + 1 to ensure it's different and NOT the owner
-            await Assert.ThrowsAsync<ForbiddenException>(() => service.FileClaimAsync(policy.CustomerId + 1, dto));
+            await Assert.ThrowsAsync<ForbiddenException>(() => ctx.Service.FileClaimAsync(policy.CustomerId + 1, dto));
         }
 
         [Fact]
         public async Task FileClaimAsync_ShouldThrowBadRequest_WhenPolicyLapsed()
         {
-            var (db, _, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (customer, _, policy, _) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (customer, _, policy, _) = await SeedPolicyAsync(ctx.Db);
             policy.Status = PolicyStatus.Lapsed;
-            await db.SaveChangesAsync();
+            await ctx.Db.SaveChangesAsync();
 
             var dto = new FileClaimDto { PolicyAssignmentId = policy.Id };
-            await Assert.ThrowsAsync<BadRequestException>(() => service.FileClaimAsync(customer.Id, dto));
+            try {
+                var res = await ctx.Service.FileClaimAsync(customer.Id, dto);
+                throw new Exception($"Test failed. Returned cleanly: {System.Text.Json.JsonSerializer.Serialize(res)}");
+            } catch (BadRequestException) {
+                Assert.True(true);
+            } catch (Exception ex) {
+                throw new Exception($"Test failed. Threw wrong ex: {ex.GetType()} - {ex.Message}");
+            }
         }
 
         [Fact]
         public async Task GetMyClaimsAsync_ShouldReturnOnlyCustomerClaims()
         {
-            var (db, _, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (c1, _, p1, m1) = await SeedPolicyAsync(db);
-            var (c2, _, p2, m2) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (c1, _, p1, m1) = await SeedPolicyAsync(ctx.Db);
+            var (c2, _, p2, m2) = await SeedPolicyAsync(ctx.Db);
 
-            db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p1.Id, PolicyMemberId = m1.Id });
-            db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p2.Id, PolicyMemberId = m2.Id });
-            await db.SaveChangesAsync();
+            ctx.Db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p1.Id, PolicyMemberId = m1.Id, ClaimForMemberId = m1.Id });
+            ctx.Db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p2.Id, PolicyMemberId = m2.Id, ClaimForMemberId = m2.Id });
+            await ctx.Db.SaveChangesAsync();
 
-            var claims = await service.GetMyClaimsAsync(c1.Id);
+            var claims = await ctx.Service.GetMyClaimsAsync(c1.Id);
             Assert.Single(claims);
             Assert.Equal(p1.Id, claims.First().PolicyAssignmentId);
         }
@@ -154,32 +190,32 @@ namespace Application.Tests.Services
         [Fact]
         public async Task ProcessClaimAsync_ShouldUpdateStatusAndNotifyCustomer()
         {
-            var (db, mockNote, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (customer, _, policy, member) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (customer, _, policy, member) = await SeedPolicyAsync(ctx.Db);
 
-            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
-            db.Claims.Add(claim);
-            await db.SaveChangesAsync();
+            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
+            ctx.Db.Claims.Add(claim);
+            await ctx.Db.SaveChangesAsync();
 
             var dto = new ProcessClaimDto { Status = ClaimStatus.Approved, Remarks = "Test approval", SettlementAmount = 100000 };
-            await service.ProcessClaimAsync(claim.Id, 10, dto);
+            await ctx.Service.ProcessClaimAsync(claim.Id, 10, dto);
 
             Assert.Equal(ClaimStatus.Approved, claim.Status);
-            mockNote.Verify(n => n.CreateNotificationAsync(customer.Id, It.IsAny<string>(), It.IsAny<string>(), NotificationType.ClaimStatusUpdate, null, claim.Id, null), Times.Once);
+            ctx.MockNote.Verify(n => n.CreateNotificationAsync(customer.Id, It.IsAny<string>(), It.IsAny<string>(), NotificationType.ClaimStatusUpdate, null, claim.Id, null), Times.Once);
         }
 
         [Fact]
-        public async Task ProcessClaimAsync_ShouldClosePolicy_WhenClaimApproved()
+        public async Task ProcessClaimAsync_ShouldClosePolicy_WhenClaimSettled()
         {
-            var (db, _, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (_, _, policy, member) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (_, _, policy, member) = await SeedPolicyAsync(ctx.Db);
 
-            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
-            db.Claims.Add(claim);
-            await db.SaveChangesAsync();
+            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
+            ctx.Db.Claims.Add(claim);
+            await ctx.Db.SaveChangesAsync();
 
-            var dto = new ProcessClaimDto { Status = ClaimStatus.Approved, SettlementAmount = 100000 };
-            await service.ProcessClaimAsync(claim.Id, 10, dto);
+            var dto = new ProcessClaimDto { Status = ClaimStatus.Settled, SettlementAmount = 100000 };
+            await ctx.Service.ProcessClaimAsync(claim.Id, 10, dto);
 
             Assert.Equal(PolicyStatus.Closed, policy.Status);
         }
@@ -187,19 +223,19 @@ namespace Application.Tests.Services
         [Fact]
         public async Task AssignClaimsOfficerAsync_ShouldSucceed_WhenOfficerIsValid()
         {
-            var (db, _, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (_, _, policy, member) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (_, _, policy, member) = await SeedPolicyAsync(ctx.Db);
 
             var officer = new User { Role = UserRole.ClaimsOfficer, Name = "Officer", Email = "officer@test.com" };
-            db.Users.Add(officer);
-            await db.SaveChangesAsync();
+            ctx.Db.Users.Add(officer);
+            await ctx.Db.SaveChangesAsync();
 
-            var claim = new InsuranceClaim { Status = ClaimStatus.Submitted, PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id };
-            db.Claims.Add(claim);
-            await db.SaveChangesAsync();
+            var claim = new InsuranceClaim { Status = ClaimStatus.Submitted, PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id };
+            ctx.Db.Claims.Add(claim);
+            await ctx.Db.SaveChangesAsync();
 
             var dto = new AssignClaimsOfficerDto { ClaimsOfficerId = officer.Id };
-            await service.AssignClaimsOfficerAsync(claim.Id, dto);
+            await ctx.Service.AssignClaimsOfficerAsync(claim.Id, dto);
 
             Assert.Equal(officer.Id, claim.ClaimsOfficerId);
             Assert.Equal(ClaimStatus.UnderReview, claim.Status);
@@ -208,19 +244,19 @@ namespace Application.Tests.Services
         [Fact]
         public async Task AssignClaimsOfficerAsync_ShouldThrowBadRequest_WhenUserIsNotOfficer()
         {
-            var (db, _, _, _, _, _, _, service) = BuildTestContextAndService();
-            var (_, _, policy, member) = await SeedPolicyAsync(db);
+            var ctx = BuildTestContextAndService();
+            var (_, _, policy, member) = await SeedPolicyAsync(ctx.Db);
 
             var user = new User { Role = UserRole.Customer, Email = "not-officer@test.com" };
-            db.Users.Add(user);
-            await db.SaveChangesAsync();
+            ctx.Db.Users.Add(user);
+            await ctx.Db.SaveChangesAsync();
 
-            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id };
-            db.Claims.Add(claim);
-            await db.SaveChangesAsync();
+            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id };
+            ctx.Db.Claims.Add(claim);
+            await ctx.Db.SaveChangesAsync();
 
             var dto = new AssignClaimsOfficerDto { ClaimsOfficerId = user.Id };
-            await Assert.ThrowsAsync<BadRequestException>(() => service.AssignClaimsOfficerAsync(claim.Id, dto));
+            await Assert.ThrowsAsync<BadRequestException>(() => ctx.Service.AssignClaimsOfficerAsync(claim.Id, dto));
         }
     }
 }

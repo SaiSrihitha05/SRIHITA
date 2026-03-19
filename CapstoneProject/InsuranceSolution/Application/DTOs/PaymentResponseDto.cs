@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +18,7 @@ namespace Application.DTOs
         public string Status { get; set; } = string.Empty;
         public string CommissionStatus { get; set; } = string.Empty;
         public string InvoiceNumber { get; set; } = string.Empty;
+        public string PaymentType { get; set; } = string.Empty;
         public DateTime NextDueDate { get; set; }
         public DateTime CreatedAt { get; set; }
     }

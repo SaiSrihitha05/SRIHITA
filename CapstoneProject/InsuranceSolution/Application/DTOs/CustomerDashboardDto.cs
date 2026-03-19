@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +13,7 @@ namespace Application.DTOs
         public decimal TotalPremiumPaid { get; set; }
         public DateTime? NextDueDate { get; set; }
         public decimal? NextDueAmount { get; set; }
+        public int? NextDuePolicyId { get; set; }
         public bool IsPaymentDueSoon { get; set; }   // due within 30 days
         public int TotalClaims { get; set; }
         public int PendingClaims { get; set; }

@@ -44,7 +44,8 @@
           </td>
           <td class="px-6 py-4 text-right">
             <!-- Assignment Control: Only active if agent is not yet assigned -->
-            <select [disabled]="!!policy.agentName" (change)="onAssignAgent(policy.id, $event)"
+            <select *ngIf="policy.status !== 'Cancelled'" 
+              [disabled]="!!policy.agentName" (change)="onAssignAgent(policy.id, $event)"
               [class]="!!policy.agentName ? 'bg-gray-100 dark:bg-gray-900 dark:text-gray-500 cursor-not-allowed opacity-60' : 'bg-white dark:bg-gray-900 dark:text-gray-100 border-gray-200 dark:border-gray-700'"
               class="text-xs p-2 border rounded-lg outline-none focus:border-[#fe3082] dark:focus:border-pink-500 transition-all shadow-sm">
 
@@ -56,6 +57,8 @@
                 </option>
               </ng-container>
             </select>
+            
+            <span *ngIf="policy.status === 'Cancelled'" class="text-xs text-gray-400 font-bold italic">N/A</span>
           </td>
         </tr>
       </tbody>

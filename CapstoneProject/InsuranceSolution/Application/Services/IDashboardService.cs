@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +12,7 @@ namespace Application.Services
         Task<AdminDashboardDto> GetAdminDashboardAsync();
         Task<CustomerDashboardDto> GetCustomerDashboardAsync(int customerId);
         Task<AgentDashboardDto> GetAgentDashboard(int agentId);
+        Task<AgentEarningsSummaryDto> GetAgentEarningsAsync(int agentId);
         Task<ClaimsOfficerDashboardDto> GetClaimsOfficerDashboardAsync(int officerId);
     }
 }

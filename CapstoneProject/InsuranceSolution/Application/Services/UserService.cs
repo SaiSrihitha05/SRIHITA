@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
@@ -90,6 +90,8 @@ namespace Application.Services
             user.Name = dto.Name;
             user.Phone = dto.Phone;
             user.IsActive = dto.IsActive;
+            user.DateOfBirth = dto.DateOfBirth;
+            user.Gender = dto.Gender;
 
             _userRepository.Update(user);
             await _userRepository.SaveChangesAsync();
@@ -144,6 +146,8 @@ namespace Application.Services
 
             user.Name = dto.Name;
             user.Phone = dto.Phone;
+            user.DateOfBirth = dto.DateOfBirth;
+            user.Gender = dto.Gender;
 
             _userRepository.Update(user);
             await _userRepository.SaveChangesAsync();
@@ -179,6 +183,8 @@ namespace Application.Services
             Phone = user.Phone,
             Role = user.Role.ToString(),
             IsActive = user.IsActive,
+            DateOfBirth = user.DateOfBirth,
+            Gender = user.Gender,
             CreatedAt = user.CreatedAt
         };
     }

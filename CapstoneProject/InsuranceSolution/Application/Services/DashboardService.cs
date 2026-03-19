@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
@@ -271,7 +271,10 @@ namespace Application.Services
                     Message = n.Message,
                     Type = n.Type.ToString(),
                     IsRead = n.IsRead,
-                    CreatedAt = n.CreatedAt
+                    CreatedAt = n.CreatedAt,
+                    PolicyId = n.PolicyAssignmentId,
+                    ClaimId = n.ClaimId,
+                    PaymentId = n.PaymentId
                 }).ToList();
 
             return new CustomerDashboardDto
@@ -284,6 +287,7 @@ namespace Application.Services
                 TotalPremiumPaid = myPayments.Sum(p => p.Amount),
                 NextDueDate = nextDuePolicy?.NextDueDate,
                 NextDueAmount = nextDuePolicy?.TotalPremiumAmount,
+                NextDuePolicyId = nextDuePolicy?.Id,
                 IsPaymentDueSoon = isDueSoon,
                 TotalClaims = myClaims.Count(),
                 PendingClaims = myClaims
@@ -292,6 +296,7 @@ namespace Application.Services
                 RecentPayments = recentPayments
                     .Select(p => MapPaymentToDto(p)).ToList(),
                 MyPolicies = myPolicies
+                    .OrderByDescending(p => p.CreatedAt)
                     .Select(MapPolicyToDto).ToList(),
                 HasOverduePayment = hasOverdue,
                 DaysOverdue = daysOverdue,
@@ -394,11 +399,61 @@ namespace Application.Services
                 IsBonusRateApplied = isBonusApplied,
                 MonthlyPoliciesSold = monthlyPolicies,
                 PoliciesByPlanType = byPlanType,
+                TotalCoverageAmountSold = policiesList.SelectMany(p => p.PolicyMembers).Sum(m => m.CoverageAmount),
                 RecentAssignedPolicies = policiesList
                     .OrderByDescending(p => p.CreatedAt)
                     .Take(5)
                     .Select(MapPolicyToDto).ToList(),
                 MonthlyCommission = monthlyCommission,
+            };
+        }
+
+        public async Task<AgentEarningsSummaryDto> GetAgentEarningsAsync(int agentId)
+        {
+            var myPolicies = await _policyRepository.GetByAgentIdAsync(agentId);
+            var myPayments = await _paymentRepository.GetAllAsync(); // Join locally or via repo if efficient
+
+            var agentPolicyIds = myPolicies.Select(p => p.Id).ToList();
+            
+            // Filter payments for this agent's policies
+            var relevantPayments = myPayments
+                .Where(p => agentPolicyIds.Contains(p.PolicyAssignmentId) && p.Status == PaymentStatus.Completed)
+                .ToList();
+
+            var breakdown = relevantPayments.Select(p =>
+            {
+                var policy = myPolicies.First(poly => poly.Id == p.PolicyAssignmentId);
+                var rate = policy.Plan?.CommissionRate ?? 20m; // Default to 20% if not set
+                var earned = p.Amount * rate / 100;
+
+                return new AgentCommissionBreakdownDto
+                {
+                    PolicyNumber = policy.PolicyNumber,
+                    CustomerName = policy.Customer?.Name ?? "Unknown",
+                    PlanName = policy.Plan?.PlanName ?? "Unknown",
+                    CoverageAmount = policy.PolicyMembers.Sum(m => m.CoverageAmount),
+                    PremiumPaid = p.Amount,
+                    CommissionEarned = Math.Round(earned, 2),
+                    PaymentDate = p.PaymentDate,
+                    Status = policy.Status.ToString()
+                };
+            })
+            .OrderByDescending(b => b.PaymentDate)
+            .ToList();
+
+            var totalEarned = breakdown.Sum(b => b.CommissionEarned);
+            
+            // Pending commission: Policies that are active but haven't had commission "Processed" if we had that flag.
+            // For now, let's say pending is anything on a policy where CommissionStatus is Pending.
+            var pendingPolicies = myPolicies.Where(p => p.CommissionStatus == CommissionStatus.Pending).ToList();
+            var pendingAmt = pendingPolicies.Sum(p => p.TotalPremiumAmount * (p.Plan?.CommissionRate ?? 20m) / 100);
+
+            return new AgentEarningsSummaryDto
+            {
+                TotalPoliciesSold = myPolicies.Count(),
+                TotalCommissionEarned = totalEarned,
+                PendingCommission = Math.Round(pendingAmt, 2),
+                CommissionBreakdown = breakdown
             };
         }
 
@@ -470,6 +525,8 @@ namespace Application.Services
             CustomerName = p.Customer?.Name ?? string.Empty,
             AgentId = p.AgentId,
             AgentName = p.Agent?.Name,
+            AgentEmail = p.Agent?.Email,
+            AgentPhone = p.Agent?.Phone,
             PlanId = p.PlanId,
             PlanName = p.Plan?.PlanName ?? string.Empty,
             StartDate = p.StartDate,
@@ -488,7 +545,7 @@ namespace Application.Services
             Id = c.Id,
             PolicyAssignmentId = c.PolicyAssignmentId,
             PolicyNumber = c.PolicyAssignment?.PolicyNumber ?? string.Empty,
-            PolicyMemberId = c.PolicyMemberId,
+            ClaimForMemberId = c.ClaimForMemberId > 0 ? c.ClaimForMemberId : c.PolicyMemberId,
             PolicyMemberName = c.PolicyMember?.MemberName ?? string.Empty,
             ClaimsOfficerId = c.ClaimsOfficerId,
             ClaimsOfficerName = c.ClaimsOfficer?.Name,

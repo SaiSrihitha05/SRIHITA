@@ -31,4 +31,5 @@ export interface ApplyLoanDto {
 export interface RepayLoanDto {
     policyLoanId: number;
     amount: number;
+    paymentMethod: string;
 }

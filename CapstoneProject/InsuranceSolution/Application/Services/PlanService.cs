@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
@@ -56,9 +56,13 @@ namespace Application.Services
                 throw new BadRequestException(
                     "MinCoverageAmount must be less than MaxCoverageAmount");
 
-            if (dto.MinTermYears >= dto.MaxTermYears)
+            if (!dto.IsCoverageUntilAge && dto.MinTermYears >= dto.MaxTermYears)
                 throw new BadRequestException(
                     "MinTermYears must be less than MaxTermYears");
+
+            if (dto.IsCoverageUntilAge && !dto.CoverageUntilAge.HasValue)
+                throw new BadRequestException(
+                    "CoverageUntilAge is required when lifelong coverage is enabled");
 
 
             var plan = new Plan
@@ -71,8 +75,8 @@ namespace Application.Services
                 MaxAge = dto.MaxAge,
                 MinCoverageAmount = dto.MinCoverageAmount,
                 MaxCoverageAmount = dto.MaxCoverageAmount,
-                MinTermYears = dto.MinTermYears,
-                MaxTermYears = dto.MaxTermYears,
+                MinTermYears = dto.IsCoverageUntilAge ? null : dto.MinTermYears,
+                MaxTermYears = dto.IsCoverageUntilAge ? null : dto.MaxTermYears,
                 MinNominees = dto.MinNominees,
                 MaxNominees = dto.MaxNominees,
                 GracePeriodDays = dto.GracePeriodDays,
@@ -87,10 +91,13 @@ namespace Application.Services
                 HasLoanFacility = dto.HasLoanFacility,
                 CoverageIncreasing = dto.CoverageIncreasing,
                 CoverageIncreaseRate = dto.CoverageIncreaseRate,
-                CoverageUntilAge = dto.CoverageUntilAge,
+                IsCoverageUntilAge = dto.IsCoverageUntilAge,
+                CoverageUntilAge = dto.IsCoverageUntilAge ? dto.CoverageUntilAge : null,
                 LoanEligibleAfterYears = dto.LoanEligibleAfterYears,
                 MaxLoanPercentage = dto.MaxLoanPercentage,
-                LoanInterestRate = dto.LoanInterestRate
+                LoanInterestRate = dto.LoanInterestRate,
+                BonusRate = dto.BonusRate,
+                TerminalBonusRate = dto.TerminalBonusRate
             };
 
             await _planRepository.AddAsync(plan);
@@ -112,7 +119,7 @@ namespace Application.Services
                 throw new BadRequestException(
                     "MinCoverageAmount must be less than MaxCoverageAmount");
 
-            if (dto.MinTermYears >= dto.MaxTermYears)
+            if (!dto.IsCoverageUntilAge && dto.MinTermYears >= dto.MaxTermYears)
                 throw new BadRequestException(
                     "MinTermYears must be less than MaxTermYears");
 
@@ -124,8 +131,9 @@ namespace Application.Services
             plan.MaxAge = dto.MaxAge;
             plan.MinCoverageAmount = dto.MinCoverageAmount;
             plan.MaxCoverageAmount = dto.MaxCoverageAmount;
-            plan.MinTermYears = dto.MinTermYears;
-            plan.MaxTermYears = dto.MaxTermYears;
+            plan.MinTermYears = dto.IsCoverageUntilAge ? null : dto.MinTermYears;
+            plan.MaxTermYears = dto.IsCoverageUntilAge ? null : dto.MaxTermYears;
+            plan.CoverageUntilAge = dto.IsCoverageUntilAge ? dto.CoverageUntilAge : null;
             plan.MinNominees = dto.MinNominees;
             plan.MaxNominees = dto.MaxNominees;
             plan.GracePeriodDays = dto.GracePeriodDays;
@@ -139,10 +147,12 @@ namespace Application.Services
             plan.HasLoanFacility = dto.HasLoanFacility;
             plan.CoverageIncreasing = dto.CoverageIncreasing;
             plan.CoverageIncreaseRate = dto.CoverageIncreaseRate;
-            plan.CoverageUntilAge = dto.CoverageUntilAge;
+            plan.IsCoverageUntilAge = dto.IsCoverageUntilAge;
             plan.LoanEligibleAfterYears = dto.LoanEligibleAfterYears;
             plan.MaxLoanPercentage = dto.MaxLoanPercentage;
             plan.LoanInterestRate = dto.LoanInterestRate;
+            plan.BonusRate = dto.BonusRate;
+            plan.TerminalBonusRate = dto.TerminalBonusRate;
 
             _planRepository.Update(plan);
             await _planRepository.SaveChangesAsync();
@@ -186,10 +196,13 @@ namespace Application.Services
             HasLoanFacility = plan.HasLoanFacility,
             CoverageIncreasing = plan.CoverageIncreasing,
             CoverageIncreaseRate = plan.CoverageIncreaseRate,
+            IsCoverageUntilAge = plan.IsCoverageUntilAge,
             CoverageUntilAge = plan.CoverageUntilAge,
             LoanEligibleAfterYears = plan.LoanEligibleAfterYears,
             MaxLoanPercentage = plan.MaxLoanPercentage,
-            LoanInterestRate = plan.LoanInterestRate
+            LoanInterestRate = plan.LoanInterestRate,
+            BonusRate = plan.BonusRate,
+            TerminalBonusRate = plan.TerminalBonusRate
         };
         public async Task<IEnumerable<PlanResponseDto>> GetFilteredPlansAsync(
             PlanFilterDto filter, string role)

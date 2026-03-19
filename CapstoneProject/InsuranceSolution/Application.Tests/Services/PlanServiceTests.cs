@@ -444,7 +444,7 @@ namespace Application.Tests.Services
         }
 
         [Fact]
-        public async Task GetFilteredPlansAsync_ShouldThrowNotFoundException_WhenNoPlansMatchForAdmin()
+        public async Task GetFilteredPlansAsync_ShouldReturnEmptyList_WhenNoPlansMatchForAdmin()
         {
             var (db, service) = BuildTestContextAndService();
             db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = PlanCategory.TermLife });
@@ -452,11 +452,12 @@ namespace Application.Tests.Services
 
             var filter = new PlanFilterDto { PlanType = PlanCategory.Savings };
 
-            await Assert.ThrowsAsync<NotFoundException>(() => service.GetFilteredPlansAsync(filter, "Admin"));
+            var result = await service.GetFilteredPlansAsync(filter, "Admin");
+            Assert.Empty(result);
         }
 
         [Fact]
-        public async Task GetFilteredPlansAsync_ShouldThrowNotFoundException_WhenPlansMatchButAreInactiveForCustomer()
+        public async Task GetFilteredPlansAsync_ShouldReturnEmptyList_WhenPlansMatchButAreInactiveForCustomer()
         {
             var (db, service) = BuildTestContextAndService();
             db.Plans.Add(new Plan { PlanName = "PlanA", PlanType = PlanCategory.TermLife, IsActive = false });
@@ -464,8 +465,9 @@ namespace Application.Tests.Services
 
             var filter = new PlanFilterDto { PlanType = PlanCategory.TermLife };
 
-            // Throws because only inactive plans exist for this filter, and customer needs active ones
-            await Assert.ThrowsAsync<NotFoundException>(() => service.GetFilteredPlansAsync(filter, "Customer"));
+            // Return empty because only inactive plans exist for this filter, and customer needs active ones
+            var result = await service.GetFilteredPlansAsync(filter, "Customer");
+            Assert.Empty(result);
         }
 
         [Fact]

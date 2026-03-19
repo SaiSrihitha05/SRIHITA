@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
@@ -13,6 +14,7 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 export class CustomerDashboard implements OnInit {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   stats: any = null;
   loading: boolean = true;
@@ -72,6 +74,14 @@ export class CustomerDashboard implements OnInit {
 
       this.claimsChartData.labels = labels;
       this.claimsChartData.datasets[0].data = values;
+    }
+  }
+
+  navigateToPayment(policyId: number | undefined) {
+    if (policyId) {
+      this.router.navigate(['/customer-dashboard/pay-premium'], { queryParams: { policyId: policyId } });
+    } else {
+      this.router.navigate(['/customer-dashboard/my-policies']);
     }
   }
 }

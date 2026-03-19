@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { PolicyService } from '../../../services/policy-service';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-my-policies',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './my-policies.html'
 })
 export class MyPolicies implements OnInit {
@@ -17,6 +18,7 @@ export class MyPolicies implements OnInit {
   policies: any[] = [];
   loading = true;
   selectedStatus: string = 'All';
+  searchTerm: string = '';
   uniqueStatuses: string[] = [];
 
   ngOnInit() {
@@ -38,9 +40,29 @@ export class MyPolicies implements OnInit {
       }
     });
   }
+
+  getStatusCount(status: string): number {
+    if (status === 'All') return this.policies.length;
+    return this.policies.filter(p => p.status === status).length;
+  }
+
   get filteredPolicies() {
-    if (this.selectedStatus === 'All') return this.policies;
-    return this.policies.filter(p => p.status === this.selectedStatus);
+    let filtered = this.policies;
+
+    // Filter by Status
+    if (this.selectedStatus !== 'All') {
+      filtered = filtered.filter(p => p.status === this.selectedStatus);
+    }
+
+    // Filter by Search Term (Policy Number)
+    if (this.searchTerm && this.searchTerm.trim() !== '') {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(p =>
+        p.policyNumber.toLowerCase().includes(term)
+      );
+    }
+
+    return filtered;
   }
 
   // Logic to determine if a premium is due or in grace period

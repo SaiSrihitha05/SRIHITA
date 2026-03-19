@@ -15,6 +15,7 @@ export class Login {
   submitted = false;
   errorMessage = '';
   captchaCode = '';
+  showPassword = false;
 
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -37,6 +38,19 @@ export class Login {
   get password() { return this.loginForm.get('password'); }
   get captcha() { return this.loginForm.get('captcha'); }
 
+  get isCaptchaVerified() {
+    return this.captcha?.value === this.captchaCode && this.captchaCode !== '';
+  }
+
+  get isCaptchaIncorrect() {
+    const val = this.captcha?.value;
+    return val && val.length > 0 && val !== this.captchaCode;
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+
   loadCaptcha() {
     this.authService.getCaptcha().subscribe({
       next: (res) => {
@@ -54,8 +68,8 @@ export class Login {
 
     if (this.loginForm.invalid) return;
 
-    // Validation for captcha
-    if (this.captcha?.value.toUpperCase() !== this.captchaCode) {
+    // Validation for captcha - Case Sensitive
+    if (this.captcha?.value !== this.captchaCode) {
       this.errorMessage = 'Incorrect CAPTCHA. Please try again.';
       this.loadCaptcha();
       return;

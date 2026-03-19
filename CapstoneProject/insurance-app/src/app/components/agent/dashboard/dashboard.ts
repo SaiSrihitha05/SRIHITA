@@ -18,6 +18,16 @@ export class AgentDashboard implements OnInit {
   stats: any = null;
   loading = true;
 
+  formatCurrency(value: number): string {
+    if (!value) return '₹0';
+    if (value >= 10000000) {
+      return `₹${(value / 10000000).toFixed(2)} Crore`;
+    } else if (value >= 100000) {
+      return `₹${(value / 100000).toFixed(2)} Lakh`;
+    }
+    return `₹${value.toLocaleString()}`;
+  }
+
   // Chart Properties
   public earningsTrendData: ChartData<'line'> = {
     labels: [],

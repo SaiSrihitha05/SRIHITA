@@ -11,6 +11,7 @@ namespace Application.Interfaces
         Task<IEnumerable<LoanResponseDto>> GetMyLoansAsync(int customerId);
         Task<LoanResponseDto?> GetLoanByIdAsync(int id);
         Task<decimal> GetOutstandingLoanAsync(int policyId);
+        Task<LoanEligibilityResponseDto> CheckLoanEligibilityAsync(int policyId);
 
         // Admin methods
         Task<IEnumerable<LoanResponseDto>> GetAllLoansAsync();

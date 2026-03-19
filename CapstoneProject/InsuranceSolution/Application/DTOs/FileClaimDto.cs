@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -15,15 +15,16 @@ namespace Application.DTOs
         public int PolicyAssignmentId { get; set; }
 
         [Required]
-        public int PolicyMemberId { get; set; }   // which member passed away
+        public int ClaimForMemberId { get; set; }   // which member passed away
 
         [Required]
         public ClaimType ClaimType { get; set; }
 
-        // For death claims
+        // Death claim details
         public string? DeathCertificateNumber { get; set; }
-        public string? NomineeName { get; set; }
-        public string? NomineeContact { get; set; }
+        public DateTime? DateOfDeath { get; set; }
+        public string? CauseOfDeath { get; set; }
+        public string? PlaceOfDeath { get; set; }
 
         public string? Remarks { get; set; }
 

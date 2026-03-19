@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -11,6 +11,9 @@ namespace Domain.Entities
 
         // The specific person whose coverage is being claimed
         public int PolicyMemberId { get; set; }
+        
+        // Ensure this exactly tracks the deceased member causing the payout
+        public int ClaimForMemberId { get; set; }
 
         // The officer assigned to investigate and process this claim
         public int? ClaimsOfficerId { get; set; }
@@ -30,6 +33,11 @@ namespace Domain.Entities
         // Mandatory legal ID for death-related claims
         public string? DeathCertificateNumber { get; set; }
 
+        // Precise death details for verification
+        public DateTime? DateOfDeath { get; set; }
+        public string? CauseOfDeath { get; set; }
+        public string? PlaceOfDeath { get; set; }
+
         // When the initial request was submitted
         public DateTime FiledDate { get; set; }
 
@@ -38,6 +46,7 @@ namespace Domain.Entities
 
         // Reasoning for approval, rejection, or requests for more info
         public string? Remarks { get; set; }
+        public string? OfficerRemarks { get; set; }
 
         // The final actual payout amount approved by the officer
         public decimal? SettlementAmount { get; set; }

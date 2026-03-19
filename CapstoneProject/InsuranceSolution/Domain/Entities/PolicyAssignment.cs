@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,6 +48,7 @@ namespace Domain.Entities
 
         // Timestamp for when an agent was assigned to this policy
         public DateTime? AssignedDate { get; set; }
+        public string? Remarks { get; set; }
 
         // Navigation properties for easy data access
         public User? Customer { get; set; }

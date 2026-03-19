@@ -41,10 +41,30 @@ export class PlanService {
       params = params.set('coverageAmount', filter.coverageAmount);
     if (filter.termYears != null) 
       params = params.set('termYears', filter.termYears);
-    if (filter.hasMaturityBenefit != null) 
+    if (filter.hasMaturityBenefit) 
       params = params.set('hasMaturityBenefit', filter.hasMaturityBenefit);
-    if (filter.isReturnOfPremium != null) 
+    if (filter.isReturnOfPremium) 
       params = params.set('isReturnOfPremium', filter.isReturnOfPremium);
+    if (filter.maxNominees != null)
+      params = params.set('maxNominees', filter.maxNominees);
+    if (filter.maxPolicyMembersAllowed != null)
+      params = params.set('maxPolicyMembersAllowed', filter.maxPolicyMembersAllowed);
+    if (filter.hasBonus)
+      params = params.set('hasBonus', filter.hasBonus);
+    if (filter.hasLoanFacility)
+      params = params.set('hasLoanFacility', filter.hasLoanFacility);
+    if (filter.coverageIncreasing)
+      params = params.set('coverageIncreasing', filter.coverageIncreasing);
+    if (filter.maxLoanInterestRate != null)
+      params = params.set('maxLoanInterestRate', filter.maxLoanInterestRate);
+    if (filter.minMaxLoanPercentage != null)
+      params = params.set('minMaxLoanPercentage', filter.minMaxLoanPercentage);
+    if (filter.maxLoanEligibleAfterYears != null)
+      params = params.set('maxLoanEligibleAfterYears', filter.maxLoanEligibleAfterYears);
+    if (filter.minCoverageUntilAge != null)
+      params = params.set('minCoverageUntilAge', filter.minCoverageUntilAge);
+    if (filter.minCoverageIncreaseRate != null)
+      params = params.set('minCoverageIncreaseRate', filter.minCoverageIncreaseRate);
 
     return this.http.get<any[]>(`${this.baseUrl}/filter`, { params });
   }

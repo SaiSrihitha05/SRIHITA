@@ -22,7 +22,7 @@
         </p>
         <div class="flex flex-wrap gap-4 pt-4">
           <a href="#about"
-            class="px-10 py-4 bg-[#75013f] text-white rounded-2xl font-bold hover:bg-[#fe3082] transition-all shadow-xl shadow-[#75013f]/20 hover:-translate-y-1">
+            class="px-10 py-4 bg-[#75013f] text-white rounded-2xl font-bold hover:bg-[#fe3082] transition-all shadow-xl shadow-[#75013f]/20">
             Explore
           </a>
           <button (click)="toggleExpertAlert()"
@@ -48,7 +48,7 @@
     </div>
   </div>
 </section>
-<section class="py-20 px-10">
+<section class="py-20 px-10 bg-white dark:bg-gray-900 transition-colors duration-300">
   <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
     <!-- Left Image -->
@@ -59,40 +59,40 @@
 
     <!-- Right Content -->
     <div class="space-y-6">
-      <h1 class="text-4xl md:text-5xl font-black text-[#75013f]">
+      <h1 class="text-4xl md:text-5xl font-black text-[#75013f] dark:text-pink-300">
         Why Life Insurance?
       </h1>
 
-      <p class="text-gray-600 text-lg leading-relaxed">
+      <p class="text-gray-600 dark:text-gray-400 text-lg leading-relaxed">
         Life insurance provides financial security and peace of mind for you and your loved ones.
         It ensures that your family is protected financially in case of unexpected events and
         helps them maintain their lifestyle even in your absence.
       </p>
 
-      <ul class="space-y-3 text-gray-700">
+      <ul class="space-y-3 text-gray-700 dark:text-gray-300">
         <li class="flex items-start gap-3">
-          <span class="text-[#fe3082] text-xl">✔</span>
+          <span class="text-[#fe3082] dark:text-pink-400 text-xl">✔</span>
           Financial protection for your family
         </li>
 
         <li class="flex items-start gap-3">
-          <span class="text-[#fe3082] text-xl">✔</span>
+          <span class="text-[#fe3082] dark:text-pink-400 text-xl">✔</span>
           Helps cover debts and future expenses
         </li>
 
         <li class="flex items-start gap-3">
-          <span class="text-[#fe3082] text-xl">✔</span>
+          <span class="text-[#fe3082] dark:text-pink-400 text-xl">✔</span>
           Supports long-term financial planning
         </li>
 
         <li class="flex items-start gap-3">
-          <span class="text-[#fe3082] text-xl">✔</span>
+          <span class="text-[#fe3082] dark:text-pink-400 text-xl">✔</span>
           Provides peace of mind for the future
         </li>
       </ul>
 
-      <button (click)="navigateToExplore()"
-        class="mt-4 px-8 py-4 bg-[#75013f] text-white rounded-2xl font-semibold hover:bg-[#5c0131] transition">
+      <button *ngIf="userRole !== 'ClaimsOfficer'" (click)="navigateToExplore()"
+        class="group relative inline-flex items-center gap-6 px-12 py-5 bg-[#75013f] text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl hover:bg-black transition-all duration-500 overflow-hidden">
         Explore Plans →
       </button>
     </div>
@@ -139,12 +139,12 @@
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div
-            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20">
+            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20 shadow-sm">
             <p class="text-3xl font-black text-[#75013f] dark:text-pink-300">₹12,000Cr+</p>
             <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mt-1">Total Sum Assured</p>
           </div>
           <div
-            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20">
+            class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl transition-all border border-transparent hover:border-[#fe3082]/20 shadow-sm">
             <p class="text-3xl font-black text-[#75013f] dark:text-pink-300">98%</p>
             <p class="text-gray-500 dark:text-gray-400 text-sm font-bold mt-1">First-Try Approval</p>
           </div>
@@ -167,7 +167,7 @@
     </div>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       <div *ngFor="let card of whyUsCards"
-        class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-xl shadow-gray-200/50 dark:shadow-none border border-transparent hover:border-[#fe3082]/30 transition-all duration-300 hover:-translate-y-2 group">
+        class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-10 shadow-xl shadow-gray-200/50 dark:shadow-none border border-transparent hover:border-[#fe3082]/30 transition-all duration-300 group">
         <h3
           class="text-2xl font-black text-[#75013f] dark:text-pink-300 mb-4 group-hover:text-[#fe3082] transition-colors">
           {{ card.title }}</h3>
@@ -191,13 +191,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
       <div class="space-y-8">
         <div
-          class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all">
+          class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all shadow-sm">
           <h4 class="font-black text-xs uppercase tracking-[0.2em] text-[#fe3082] mb-2">Corporate Headquarters</h4>
           <p class="text-xl font-bold text-[#75013f] dark:text-pink-100">One Hartford Plaza, <br />Hartford, CT 06155
           </p>
         </div>
         <div
-          class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all">
+          class="p-8 bg-[#f5f2ef] dark:bg-gray-800 rounded-3xl border border-transparent hover:border-[#75013f]/10 transition-all shadow-sm">
           <h4 class="font-black text-xs uppercase tracking-[0.2em] text-[#fe3082] mb-2">Dedicated Support Line</h4>
           <p class="text-xl font-bold text-[#75013f] dark:text-pink-100">1-860-547-5000</p>
         </div>

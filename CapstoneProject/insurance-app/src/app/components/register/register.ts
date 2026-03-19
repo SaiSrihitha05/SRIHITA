@@ -14,6 +14,7 @@ export class Register {
   registerForm: FormGroup;
   submitted = false;
   errorMessage = '';
+  showPassword = false;
 
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -25,7 +26,9 @@ export class Register {
       name: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      dateOfBirth: ['', [Validators.required]],
+      gender: ['Male', [Validators.required]]
     });
   }
 
@@ -43,6 +46,16 @@ export class Register {
 
   get password() {
     return this.registerForm.get('password');
+  }
+  get dateOfBirth() {
+    return this.registerForm.get('dateOfBirth');
+  }
+  get gender() {
+    return this.registerForm.get('gender');
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 
 

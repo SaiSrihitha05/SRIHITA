@@ -11,6 +11,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
+using Unit = QuestPDF.Infrastructure.Unit;
 
 namespace Application.Services
 {
@@ -21,6 +25,7 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IWebHostEnvironment _environment;
+        private readonly ISystemConfigRepository _systemConfigRepository;
         private readonly INotificationService _notificationService;
         private readonly IEmailService _emailService;
 
@@ -31,7 +36,8 @@ namespace Application.Services
             IDocumentRepository documentRepository,
             INotificationService notificationService,
             IEmailService emailService,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            ISystemConfigRepository systemConfigRepository)
         {
             _policyRepository = policyRepository;
             _planRepository = planRepository;
@@ -40,6 +46,7 @@ namespace Application.Services
             _notificationService = notificationService;
             _emailService = emailService;
             _environment = environment;
+            _systemConfigRepository = systemConfigRepository;
         }
 
         public async Task<PolicyResponseDto> CreatePolicyAsync(
@@ -58,6 +65,33 @@ namespace Application.Services
             if (!plan.IsActive)
                 throw new BadRequestException("Selected plan is not active");
 
+            var customer = await _userRepository.GetByIdAsync(customerId);
+            if (customer == null) throw new NotFoundException("Customer", customerId);
+
+            // Enforce Profile Consistency for "Self" Relationship
+            foreach (var member in members)
+            {
+                var isSelf = member.RelationshipToCustomer.Equals("Self", StringComparison.OrdinalIgnoreCase);
+                if (isSelf)
+                {
+                    if (!member.MemberName.Equals(customer.Name, StringComparison.OrdinalIgnoreCase))
+                        throw new BadRequestException($"Member marked as 'Self' must match customer name '{customer.Name}'");
+
+                    if (customer.DateOfBirth.HasValue && member.DateOfBirth?.Date != customer.DateOfBirth.Value.Date)
+                        throw new BadRequestException($"Member marked as 'Self' must match customer DOB '{customer.DateOfBirth:yyyy-MM-dd}'");
+
+                    if (!string.IsNullOrEmpty(customer.Gender) && !member.Gender.Equals(customer.Gender, StringComparison.OrdinalIgnoreCase))
+                        throw new BadRequestException($"Member marked as 'Self' must match customer gender '{customer.Gender}'");
+                }
+                else
+                {
+                    // If relationship is NOT self, ensure name is NOT exactly matching customer name 
+                    // to prevent accidental duplicate entries of the same person under wrong relation.
+                    if (member.MemberName.Equals(customer.Name, StringComparison.OrdinalIgnoreCase))
+                        throw new BadRequestException($"Member '{member.MemberName}' cannot have relationship '{member.RelationshipToCustomer}' if name matches customer. Did you mean 'Self'?");
+                }
+            }
+
             if (dto.StartDate.Date < DateTime.Today)
                 throw new BadRequestException(
                     "Policy start date cannot be in the past");
@@ -65,13 +99,25 @@ namespace Application.Services
                 throw new BadRequestException(
                     "Policy start date cannot be more than 1 year in the future");
 
-            // Validate TermYears against plan 
-            if (dto.TermYears < plan.MinTermYears || dto.TermYears > plan.MaxTermYears)
-                throw new BadRequestException(
-                    $"Term years must be between {plan.MinTermYears} " +
-                    $"and {plan.MaxTermYears} years for this plan");
+            // Validate TermYears against plan (Skip if lifelong coverage)
+            if (!plan.IsCoverageUntilAge)
+            {
+                if (dto.TermYears < plan.MinTermYears || dto.TermYears > plan.MaxTermYears)
+                    throw new BadRequestException(
+                        $"Term years must be between {plan.MinTermYears} " +
+                        $"and {plan.MaxTermYears} years for this plan");
+            }
 
             // EndDate auto calculated from TermYears 
+            if (plan.IsCoverageUntilAge)
+            {
+                var primaryMember = members.FirstOrDefault(m => m.IsPrimaryInsured);
+                if (primaryMember == null) throw new BadRequestException("Primary insured is missing");
+
+                var entryAge = CalculateAge(primaryMember.DateOfBirth ?? DateTime.Today);
+                dto.TermYears = (plan.CoverageUntilAge ?? 100) - entryAge;
+            }
+
             var endDate = dto.StartDate.AddYears(dto.TermYears);
 
             // Validate member count against plan limit
@@ -90,7 +136,7 @@ namespace Application.Services
             // Validate member ages against plan limits
             foreach (var member in members)
             {
-                var age = CalculateAge(member.DateOfBirth);
+                var age = CalculateAge(member.DateOfBirth ?? DateTime.Today);
                 if (age < plan.MinAge || age > plan.MaxAge)
                     throw new BadRequestException(
                         $"Member '{member.MemberName}' age {age} is outside " +
@@ -131,9 +177,9 @@ namespace Application.Services
                     plan.BaseRate,
                     m.CoverageAmount,
                     dto.TermYears,
-                    m.DateOfBirth,
+                    m.DateOfBirth ?? DateTime.Today,
                     m.IsSmoker,
-                    m.Gender,
+                    m.Gender ?? string.Empty,
                     dto.PremiumFrequency
                 ));
             var nextDueDate = dto.StartDate;
@@ -143,7 +189,7 @@ namespace Application.Services
             {
                 PolicyNumber = await _policyRepository.GeneratePolicyNumberAsync(),
                 CustomerId = customerId,
-                AgentId = null,         
+                AgentId = null,
                 PlanId = dto.PlanId,
                 StartDate = dto.StartDate,
                 TermYears = dto.TermYears,
@@ -157,7 +203,7 @@ namespace Application.Services
                 {
                     MemberName = m.MemberName,
                     RelationshipToCustomer = m.RelationshipToCustomer,
-                    DateOfBirth = m.DateOfBirth,
+                    DateOfBirth = m.DateOfBirth ?? DateTime.MinValue,
                     Gender = m.Gender,
                     CoverageAmount = m.CoverageAmount,
                     IsSmoker = m.IsSmoker,
@@ -177,8 +223,42 @@ namespace Application.Services
                 }).ToList()
             };
 
+            // Round Robin assignment for Agent at submission time
+            var submissionAgents = (await _userRepository.GetByRoleAsync(UserRole.Agent))
+                                    .Where(u => u.IsActive)
+                                    .OrderBy(u => u.Id)
+                                    .ToList();
+            Console.WriteLine($"[PolicyService][CreatePolicy] Active agents found: {submissionAgents.Count}");
+            if (submissionAgents.Any())
+            {
+                var config = await _systemConfigRepository.GetConfigAsync();
+                int nextIndex = (config.LastAgentAssignmentIndex + 1) % submissionAgents.Count;
+                policy.AgentId = submissionAgents[nextIndex].Id;
+                config.LastAgentAssignmentIndex = nextIndex;
+                _systemConfigRepository.Update(config);
+                await _systemConfigRepository.SaveChangesAsync();
+            Console.WriteLine($"[PolicyService][CreatePolicy] Assigned AgentId={policy.AgentId} (index={nextIndex})");
+            }
+            else
+            {
+                Console.WriteLine("[PolicyService][CreatePolicy] WARNING: No active agents found – policy will be Unassigned.");
+            }
+
             await _policyRepository.AddAsync(policy);
             await _policyRepository.SaveChangesAsync();
+
+            // Notify assigned agent (if any) — after policy is saved and has an ID
+            if (policy.AgentId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: policy.AgentId.Value,
+                    title: "New Policy Assigned",
+                    message: $"A new policy application {policy.PolicyNumber} has been assigned to you for review.",
+                    type: NotificationType.General,
+                    policyId: policy.Id,
+                    claimId: null,
+                    paymentId: null);
+            }
 
             await SaveCustomerDocumentsAsync(
                     customerDocuments, policy.Id, customerId);
@@ -195,6 +275,31 @@ namespace Application.Services
             }
 
             var created = await _policyRepository.GetByIdWithDetailsAsync(policy.Id);
+
+            // Notify Customer
+            await _notificationService.CreateNotificationAsync(
+                userId: customerId,
+                title: "Policy Submitted",
+                message: $"Your application for {created!.Plan?.PlanName} has been submitted for review. Policy Number: {created.PolicyNumber}",
+                type: NotificationType.General,
+                policyId: created.Id,
+                claimId: null,
+                paymentId: null);
+
+            // Notify Admin
+            var admins = await _userRepository.GetByRoleAsync(UserRole.Admin);
+            foreach (var admin in admins)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: admin.Id,
+                    title: "New Policy Submitted",
+                    message: $"A new policy application {created.PolicyNumber} has been submitted by {created.Customer?.Name}.",
+                    type: NotificationType.General,
+                    policyId: created.Id,
+                    claimId: null,
+                    paymentId: null);
+            }
+
             return MapToDto(created!);
         }
 
@@ -210,7 +315,9 @@ namespace Application.Services
         public async Task<IEnumerable<PolicyResponseDto>> GetAllPoliciesAsync()
         {
             var policies = await _policyRepository.GetAllAsync();
-            return policies.Select(MapToDto);
+            return policies
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(MapToDto);
         }
 
         public async Task<IEnumerable<PolicyResponseDto>> GetMyPoliciesAsync(
@@ -218,14 +325,18 @@ namespace Application.Services
         {
             var policies = await _policyRepository
                 .GetByCustomerIdAsync(customerId);
-            return policies.Select(MapToDto);
+            return policies
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(MapToDto);
         }
 
         public async Task<IEnumerable<PolicyResponseDto>> GetAgentPoliciesAsync(
             int agentId)
         {
             var policies = await _policyRepository.GetByAgentIdAsync(agentId);
-            return policies.Select(MapToDto);
+            return policies
+                .OrderByDescending(p => p.CreatedAt)
+                .Select(MapToDto);
         }
 
         public async Task UpdatePolicyStatusAsync(int id, UpdatePolicyStatusDto dto)
@@ -235,8 +346,31 @@ namespace Application.Services
                 throw new NotFoundException("Policy", id);
 
             policy.Status = dto.Status;
+            policy.Remarks = dto.Remarks;
             if (dto.Status == PolicyStatus.Active)
+            {
                 policy.AssignedDate = DateTime.UtcNow;
+
+                // Round Robin assignment for Agent if not already assigned
+                if (policy.AgentId == null)
+                {
+                    var agents = (await _userRepository.GetByRoleAsync(UserRole.Agent))
+                                    .Where(u => u.IsActive)
+                                    .OrderBy(u => u.Id)
+                                    .ToList();
+
+                    if (agents.Any())
+                    {
+                        var config = await _systemConfigRepository.GetConfigAsync();
+                        int nextIndex = (config.LastAgentAssignmentIndex + 1) % agents.Count;
+                        policy.AgentId = agents[nextIndex].Id;
+
+                        config.LastAgentAssignmentIndex = nextIndex;
+                        _systemConfigRepository.Update(config);
+                        await _systemConfigRepository.SaveChangesAsync();
+                    }
+                }
+            }
 
             _policyRepository.Update(policy);
             await _policyRepository.SaveChangesAsync();
@@ -244,22 +378,44 @@ namespace Application.Services
             // Get customer details
             var customer = await _userRepository.GetByIdAsync(policy.CustomerId);
 
-            // Send in-app notification
-            await _notificationService.CreateNotificationAsync(
-                userId: policy.CustomerId,
-                title: "Policy Status Updated",
-                message: $"Your policy {policy.PolicyNumber} status changed to {dto.Status}",
-                type: NotificationType.PolicyStatusUpdate,
-                policyId: policy.Id,
-                claimId: null,
-                paymentId: null);
+            try
+            {
+                // Send in-app notification
+                await _notificationService.CreateNotificationAsync(
+                    userId: policy.CustomerId,
+                    title: "Policy Status Updated",
+                    message: $"Your policy {policy.PolicyNumber} status changed to {dto.Status}",
+                    type: NotificationType.PolicyStatusUpdate,
+                    policyId: policy.Id,
+                    claimId: null,
+                    paymentId: null);
 
-            // Send email
-            await _emailService.SendPolicyStatusChangedAsync(
-                customer!.Email,
-                customer.Name,
-                policy.PolicyNumber,
-                dto.Status.ToString());
+                // Send email
+                await _emailService.SendPolicyStatusChangedAsync(
+                    customer!.Email,
+                    customer.Name,
+                    policy.PolicyNumber,
+                    dto.Status.ToString());
+
+                // Notify Agent if assigned
+                if (policy.AgentId.HasValue)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        userId: policy.AgentId.Value,
+                        title: "Policy Status Updated",
+                        message: $"Policy {policy.PolicyNumber} for {customer.Name} has been {dto.Status}.",
+                        type: NotificationType.PolicyStatusUpdate,
+                        policyId: policy.Id,
+                        claimId: null,
+                        paymentId: null);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Simply swallow the exception so the HTTP request still succeeds.
+                // In a production system, use ILogger to log this failure here.
+                Console.WriteLine($"Failed to send post-update notifications for policy {policy.Id}: {ex.Message}");
+            }
         }
 
         public async Task AssignAgentAsync(int id, AssignAgentDto dto)
@@ -267,6 +423,9 @@ namespace Application.Services
             var policy = await _policyRepository.GetByIdAsync(id);
             if (policy == null)
                 throw new NotFoundException("Policy", id);
+
+            if (policy.Status == Domain.Enums.PolicyStatus.Cancelled)
+                throw new BadRequestException("Cannot assign an agent to a cancelled policy.");
 
             var agent = await _userRepository.GetByIdAsync(dto.AgentId);
             if (agent == null || agent.Role != UserRole.Agent)
@@ -277,6 +436,40 @@ namespace Application.Services
 
             _policyRepository.Update(policy);
             await _policyRepository.SaveChangesAsync();
+
+            // Notify customer
+            await _notificationService.CreateNotificationAsync(
+                userId: policy.CustomerId,
+                title: "Agent Assigned",
+                message: $"Agent {agent.Name} (ID: {agent.Id}) has been assigned to your policy {policy.PolicyNumber}. They will assist you with any queries.",
+                type: NotificationType.General,
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: null);
+
+            // Notify agent
+            await _notificationService.CreateNotificationAsync(
+                userId: dto.AgentId,
+                title: "New Policy Assigned",
+                message: $"You have been assigned to manage policy {policy.PolicyNumber}.",
+                type: NotificationType.General,
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: null);
+
+            // Notify Admin
+            var admins = await _userRepository.GetByRoleAsync(UserRole.Admin);
+            foreach (var admin in admins)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: admin.Id,
+                    title: "Agent Assigned to Policy",
+                    message: $"Agent {agent.Name} has been assigned to policy {policy.PolicyNumber}.",
+                    type: NotificationType.General,
+                    policyId: policy.Id,
+                    claimId: null,
+                    paymentId: null);
+            }
         }
 
         // Customer Documents 
@@ -308,7 +501,7 @@ namespace Application.Services
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
-                var document = new Document
+                var document = new Domain.Entities.Document
                 {
                     FileName = uniqueName,
                     FilePath = $"uploads/policies/{policyId}/customer/{uniqueName}",
@@ -355,7 +548,7 @@ namespace Application.Services
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
-                var document = new Document
+                var document = new Domain.Entities.Document
                 {
                     FileName = uniqueName,
                     FilePath = $"uploads/policies/{policyId}/members/{member.Id}/{uniqueName}",
@@ -383,7 +576,7 @@ namespace Application.Services
         {
             var annualPremium = (coverageAmount / 1000) * baseRate;
 
-            var age = CalculateAge(dateOfBirth);  
+            var age = CalculateAge(dateOfBirth);
 
             var ageFactor = age switch
             {
@@ -476,17 +669,25 @@ namespace Application.Services
                 CustomerName = p.Customer?.Name ?? string.Empty,
                 AgentId = p.AgentId,
                 AgentName = p.Agent?.Name,
+                AgentEmail = p.Agent?.Email,
+                AgentPhone = p.Agent?.Phone,
                 PlanId = p.PlanId,
                 PlanName = p.Plan?.PlanName ?? string.Empty,
                 StartDate = p.StartDate,
                 TermYears = p.TermYears,
                 EndDate = p.EndDate,
                 Status = p.Status.ToString(),
+                Remarks = p.Remarks,
                 CommissionStatus = p.CommissionStatus.ToString(),
                 TotalPremiumAmount = p.TotalPremiumAmount,
                 PremiumFrequency = p.PremiumFrequency.ToString(),
                 NextDueDate = p.NextDueDate,
                 CreatedAt = p.CreatedAt,
+                CustomerPhone = p.Customer?.Phone ?? string.Empty,
+                CustomerEmail = p.Customer?.Email ?? string.Empty,
+                CustomerAge = p.PolicyMembers?.FirstOrDefault(m => m.IsPrimaryInsured)?.DateOfBirth != null
+                    ? CalculateAge(p.PolicyMembers.First(m => m.IsPrimaryInsured).DateOfBirth)
+                    : 0,
                 PlanHasLoanFacility = p.Plan?.HasLoanFacility ?? false,
                 PlanLoanEligibleAfterYears = p.Plan?.LoanEligibleAfterYears ?? 0,
                 PlanMaxLoanPercentage = p.Plan?.MaxLoanPercentage ?? 0,
@@ -495,7 +696,15 @@ namespace Application.Services
                 PlanHasBonus = p.Plan?.HasBonus ?? false,
                 PlanBonusRate = p.Plan?.BonusRate ?? 0,
                 PlanTerminalBonusRate = p.Plan?.TerminalBonusRate ?? 0,
+                PlanIsCoverageUntilAge = p.Plan?.IsCoverageUntilAge ?? false,
                 PlanCoverageUntilAge = p.Plan?.CoverageUntilAge ?? 0,
+                PlanMinAge = p.Plan?.MinAge ?? 0,
+                PlanMaxAge = p.Plan?.MaxAge ?? 0,
+                PlanMinCoverageAmount = p.Plan?.MinCoverageAmount ?? 0,
+                PlanMaxCoverageAmount = p.Plan?.MaxCoverageAmount ?? 0,
+                PlanMinNominees = p.Plan?.MinNominees ?? 0,
+                PlanMaxNominees = p.Plan?.MaxNominees ?? 0,
+                PlanMaxMembers = p.Plan?.MaxPolicyMembersAllowed ?? 0,
                 Nominees = p.PolicyNominees?.Select(n => new PolicyNomineeResponseDto
                 {
                     Id = n.Id,
@@ -510,6 +719,7 @@ namespace Application.Services
                     FileName = d.FileName,
                     FilePath = d.FilePath,
                     DocumentCategory = d.DocumentCategory,
+                    UploadedByName = d.UploadedByUser?.Name ?? "Customer",
                     UploadedAt = d.UploadedAt
                 }).ToList() ?? new()
             };
@@ -528,7 +738,8 @@ namespace Application.Services
                 HasPreExistingDiseases = m.HasPreExistingDiseases,
                 DiseaseDescription = m.DiseaseDescription,
                 Occupation = m.Occupation,
-                IsPrimaryInsured = m.IsPrimaryInsured
+                IsPrimaryInsured = m.IsPrimaryInsured,
+                Status = m.Status.ToString()
             }).ToList() ?? new();
 
             var primaryMember = p.PolicyMembers?.FirstOrDefault(m => m.IsPrimaryInsured);
@@ -573,7 +784,7 @@ namespace Application.Services
                     throw new BadRequestException("Selected plan is not active");
             }
 
-            // Build draft policy � all validations are skipped
+            // Build draft policy — all validations are skipped
             var draft = new PolicyAssignment
             {
                 PolicyNumber = await _policyRepository
@@ -597,15 +808,15 @@ namespace Application.Services
                 // Save partial members if provided
                 PolicyMembers = dto.Members?.Select(m => new PolicyMember
                 {
-                    MemberName = m.MemberName,
-                    RelationshipToCustomer = m.RelationshipToCustomer,
-                    DateOfBirth = m.DateOfBirth,
-                    Gender = m.Gender,
+                    MemberName = m.MemberName ?? string.Empty,
+                    RelationshipToCustomer = m.RelationshipToCustomer ?? string.Empty,
+                    DateOfBirth = m.DateOfBirth ?? DateTime.MinValue,
+                    Gender = m.Gender ?? string.Empty,
                     CoverageAmount = m.CoverageAmount,
                     IsSmoker = m.IsSmoker,
                     HasPreExistingDiseases = m.HasPreExistingDiseases,
                     DiseaseDescription = m.DiseaseDescription,
-                    Occupation = m.Occupation,
+                    Occupation = m.Occupation ?? string.Empty,
                     IsPrimaryInsured = m.IsPrimaryInsured,
                     CreatedAt = DateTime.UtcNow
                 }).ToList() ?? new(),
@@ -613,9 +824,9 @@ namespace Application.Services
                 // Save partial nominees if provided
                 PolicyNominees = dto.Nominees?.Select(n => new PolicyNominee
                 {
-                    NomineeName = n.NomineeName,
-                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
-                    ContactNumber = n.ContactNumber,
+                    NomineeName = n.NomineeName ?? string.Empty,
+                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder ?? string.Empty,
+                    ContactNumber = n.ContactNumber ?? string.Empty,
                     SharePercentage = n.SharePercentage,
                     CreatedAt = DateTime.UtcNow
                 }).ToList() ?? new()
@@ -671,33 +882,33 @@ namespace Application.Services
             if (draft.StartDate != default && draft.TermYears > 0)
                 draft.EndDate = draft.StartDate.AddYears(draft.TermYears);
 
-            // Update members � replace all
+            // Update members — replace all
             if (dto.Members != null)
             {
                 draft.PolicyMembers = dto.Members.Select(m => new PolicyMember
                 {
-                    MemberName = m.MemberName,
-                    RelationshipToCustomer = m.RelationshipToCustomer,
-                    DateOfBirth = m.DateOfBirth,
-                    Gender = m.Gender,
+                    MemberName = m.MemberName ?? string.Empty,
+                    RelationshipToCustomer = m.RelationshipToCustomer ?? string.Empty,
+                    DateOfBirth = m.DateOfBirth ?? DateTime.MinValue,
+                    Gender = m.Gender ?? string.Empty,
                     CoverageAmount = m.CoverageAmount,
                     IsSmoker = m.IsSmoker,
                     HasPreExistingDiseases = m.HasPreExistingDiseases,
                     DiseaseDescription = m.DiseaseDescription,
-                    Occupation = m.Occupation,
+                    Occupation = m.Occupation ?? string.Empty,
                     IsPrimaryInsured = m.IsPrimaryInsured,
                     CreatedAt = DateTime.UtcNow
                 }).ToList();
             }
 
-            // Update nominees � replace all
+            // Update nominees — replace all
             if (dto.Nominees != null)
             {
                 draft.PolicyNominees = dto.Nominees.Select(n => new PolicyNominee
                 {
-                    NomineeName = n.NomineeName,
-                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder,
-                    ContactNumber = n.ContactNumber,
+                    NomineeName = n.NomineeName ?? string.Empty,
+                    RelationshipToPolicyHolder = n.RelationshipToPolicyHolder ?? string.Empty,
+                    ContactNumber = n.ContactNumber ?? string.Empty,
                     SharePercentage = n.SharePercentage,
                     CreatedAt = DateTime.UtcNow
                 }).ToList();
@@ -750,11 +961,14 @@ namespace Application.Services
                 throw new BadRequestException(
                     "Start date cannot be more than 1 year in the future");
 
-            if (dto.TermYears < plan.MinTermYears ||
-                dto.TermYears > plan.MaxTermYears)
-                throw new BadRequestException(
-                    $"Term years must be between {plan.MinTermYears} " +
-                    $"and {plan.MaxTermYears}");
+            if (!plan.IsCoverageUntilAge)
+            {
+                if (dto.TermYears < plan.MinTermYears ||
+                    dto.TermYears > plan.MaxTermYears)
+                    throw new BadRequestException(
+                        $"Term years must be between {plan.MinTermYears} " +
+                        $"and {plan.MaxTermYears}");
+            }
 
             if (members.Count > plan.MaxPolicyMembersAllowed)
                 throw new BadRequestException(
@@ -767,7 +981,7 @@ namespace Application.Services
 
             foreach (var member in members)
             {
-                var age = CalculateAge(member.DateOfBirth);
+                var age = CalculateAge(member.DateOfBirth ?? DateTime.Today);
                 if (age < plan.MinAge || age > plan.MaxAge)
                     throw new BadRequestException(
                         $"Member '{member.MemberName}' age {age} is outside " +
@@ -799,9 +1013,9 @@ namespace Application.Services
                     plan.BaseRate,
                     m.CoverageAmount,
                     dto.TermYears,
-                    m.DateOfBirth,
+                    m.DateOfBirth ?? DateTime.Today,
                     m.IsSmoker,
-                    m.Gender,
+                    m.Gender ?? string.Empty,
                     dto.PremiumFrequency));
 
             // Update draft ? Pending
@@ -813,14 +1027,48 @@ namespace Application.Services
             draft.TotalPremiumAmount = totalPremium;
             draft.NextDueDate = dto.StartDate;
             draft.Status = PolicyStatus.Pending;
-            draft.AgentId = null;
+
+            // Round Robin assignment for Agent at draft submission time
+            var draftAgents = (await _userRepository.GetByRoleAsync(UserRole.Agent))
+                                .Where(u => u.IsActive)
+                                .OrderBy(u => u.Id)
+                                .ToList();
+            Console.WriteLine($"[PolicyService][SubmitDraft] Active agents found: {draftAgents.Count}");
+            if (draftAgents.Any())
+            {
+                var config = await _systemConfigRepository.GetConfigAsync();
+                int nextIndex = (config.LastAgentAssignmentIndex + 1) % draftAgents.Count;
+                draft.AgentId = draftAgents[nextIndex].Id;
+                config.LastAgentAssignmentIndex = nextIndex;
+                _systemConfigRepository.Update(config);
+                await _systemConfigRepository.SaveChangesAsync();
+                Console.WriteLine($"[PolicyService][SubmitDraft] Assigned AgentId={draft.AgentId} (index={nextIndex})");
+            }
+            else
+            {
+                draft.AgentId = null;
+                Console.WriteLine("[PolicyService][SubmitDraft] WARNING: No active agents found – policy will be Unassigned.");
+            }
+
+            // Notify assigned agent (if any)
+            if (draft.AgentId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: draft.AgentId.Value,
+                    title: "New Policy Assigned",
+                    message: $"A new policy application {draft.PolicyNumber} has been assigned to you for review.",
+                    type: NotificationType.General,
+                    policyId: draft.Id,
+                    claimId: null,
+                    paymentId: null);
+            }
 
             // Replace members and nominees
             draft.PolicyMembers = members.Select(m => new PolicyMember
             {
                 MemberName = m.MemberName,
                 RelationshipToCustomer = m.RelationshipToCustomer,
-                DateOfBirth = m.DateOfBirth,
+                DateOfBirth = m.DateOfBirth ?? DateTime.MinValue,
                 Gender = m.Gender,
                 CoverageAmount = m.CoverageAmount,
                 IsSmoker = m.IsSmoker,
@@ -879,6 +1127,7 @@ namespace Application.Services
 
             return policies
                 .Where(p => p.Status == PolicyStatus.Draft)
+                .OrderByDescending(p => p.CreatedAt)
                 .Select(MapToDto);
         }
 
@@ -945,6 +1194,158 @@ namespace Application.Services
 
             // Cap at MaxCoverageAmount
             return Math.Min(currentCoverage, policy.Plan.MaxCoverageAmount);
+        }
+        public async Task<(byte[] fileBytes, string fileName)> GeneratePolicyApplicationPdfAsync(int policyId, int customerId)
+        {
+            var policy = await _policyRepository.GetByIdWithDetailsAsync(policyId);
+            if (policy == null)
+                throw new NotFoundException("Policy", policyId);
+
+            if (policy.CustomerId != customerId)
+                throw new ForbiddenException("You can only download summary for your own policies");
+
+            var fileBytes = GenerateApplicationPdfBytes(policy);
+            var fileName = $"PolicyApplication_{policy.PolicyNumber}.pdf";
+
+            return (fileBytes, fileName);
+        }
+
+        private byte[] GenerateApplicationPdfBytes(PolicyAssignment policy)
+        {
+            return QuestPDF.Fluent.Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(2, Unit.Centimetre);
+                    page.DefaultTextStyle(x => x.FontSize(11));
+
+                    // Header
+                    page.Header().Column(col =>
+                    {
+                        col.Item().AlignCenter().Text("POLICY APPLICATION SUMMARY")
+                            .FontSize(22).Bold().Underline().FontColor(Colors.Pink.Medium);
+                        col.Item().AlignCenter().Text("Hartford Insurance Solution")
+                            .FontSize(14).Italic();
+                        col.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten1);
+                    });
+
+                    // Content
+                    page.Content().PaddingVertical(1, Unit.Centimetre).Column(col =>
+                    {
+                        // 1. Basic Policy Info
+                        col.Item().Background(Colors.Grey.Lighten4).Padding(8).Text("BASIC POLICY INFORMATION").Bold().FontSize(12);
+                        col.Item().PaddingBottom(15).Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn();
+                                cols.RelativeColumn();
+                            });
+
+                            AddRow(table, "Policy Number", policy.PolicyNumber);
+                            AddRow(table, "Plan Name", policy.Plan?.PlanName ?? "N/A");
+                            AddRow(table, "Start Date", policy.StartDate.ToString("dd MMM yyyy"));
+                            AddRow(table, "Policy Duration", policy.Plan?.IsCoverageUntilAge == true ? $"Lifelong (Until Age {policy.Plan.CoverageUntilAge})" : $"{policy.TermYears} Years");
+                            AddRow(table, "Premium Frequency", policy.PremiumFrequency.ToString());
+
+                            var totalPremium = policy.TotalPremiumAmount;
+                            if (totalPremium == 0 && policy.Plan != null && policy.PolicyMembers != null && policy.PolicyMembers.Any())
+                            {
+                                totalPremium = policy.PolicyMembers.Sum(m =>
+                                    CalculatePremium(
+                                        policy.Plan.BaseRate,
+                                        m.CoverageAmount,
+                                        policy.TermYears,
+                                        m.DateOfBirth,
+                                        m.IsSmoker,
+                                        m.Gender,
+                                        policy.PremiumFrequency));
+                            }
+                            AddRow(table, "Total Premium", $"INR {totalPremium:N2}");
+                        });
+
+                        // 2. Insured Members
+                        col.Item().Background(Colors.Grey.Lighten4).Padding(8).Text("INSURED MEMBERS").Bold().FontSize(12);
+                        col.Item().PaddingBottom(15).Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn(3); // Name
+                                cols.RelativeColumn(2); // Relation
+                                cols.RelativeColumn(2); // Age/Gender
+                                cols.RelativeColumn(2); // Coverage
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Text("Name").Bold();
+                                header.Cell().Text("Relation").Bold();
+                                header.Cell().Text("Details").Bold();
+                                header.Cell().Text("Coverage").Bold();
+                            });
+
+                            foreach (var member in policy.PolicyMembers ?? new List<PolicyMember>())
+                            {
+                                table.Cell().PaddingVertical(2).Text(member.MemberName);
+                                table.Cell().PaddingVertical(2).Text(member.RelationshipToCustomer);
+                                table.Cell().PaddingVertical(2).Text($"{CalculateAge(member.DateOfBirth)}Y / {member.Gender}");
+                                table.Cell().PaddingVertical(2).Text($"INR {member.CoverageAmount:N0}");
+                            }
+                        });
+
+                        // 3. Nominees
+                        col.Item().Background(Colors.Grey.Lighten4).Padding(8).Text("NOMINEES / BENEFICIARIES").Bold().FontSize(12);
+                        col.Item().PaddingBottom(15).Table(table =>
+                        {
+                            table.ColumnsDefinition(cols =>
+                            {
+                                cols.RelativeColumn(3); // Name
+                                cols.RelativeColumn(2); // Relation
+                                cols.RelativeColumn(2); // Contact
+                                cols.RelativeColumn(1); // Share
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Text("Name").Bold();
+                                header.Cell().Text("Relation").Bold();
+                                header.Cell().Text("Contact").Bold();
+                                header.Cell().Text("Share").Bold();
+                            });
+
+                            foreach (var nominee in policy.PolicyNominees ?? new List<PolicyNominee>())
+                            {
+                                table.Cell().PaddingVertical(2).Text(nominee.NomineeName);
+                                table.Cell().PaddingVertical(2).Text(nominee.RelationshipToPolicyHolder);
+                                table.Cell().PaddingVertical(2).Text(nominee.ContactNumber);
+                                table.Cell().PaddingVertical(2).Text($"{nominee.SharePercentage}%");
+                            }
+                        });
+
+                        // 4. Declaration
+                        col.Item().PaddingTop(20).Text("DECLARATION").Bold();
+                        col.Item().Text("I hereby declare that the information provided in this application is true and complete to the best of my knowledge. I understand that any false statement or omission may lead to rejection of this application or cancellation of the policy.").FontSize(9).Italic();
+                    });
+
+                    // Footer
+                    page.Footer().AlignCenter().Column(f =>
+                    {
+                        f.Item().LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+                        f.Item().PaddingTop(5).Text(x =>
+                        {
+                            x.Span("Generated on ");
+                            x.Span(DateTime.Now.ToString("dd-MMM-yyyy HH:mm:ss"));
+                        });
+                    });
+                });
+            }).GeneratePdf();
+        }
+
+        private static void AddRow(QuestPDF.Fluent.TableDescriptor table, string label, string value)
+        {
+            table.Cell().PaddingVertical(2).Text(label).Bold();
+            table.Cell().PaddingVertical(2).Text(value);
         }
     }
 }

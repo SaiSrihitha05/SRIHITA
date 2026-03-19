@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,5 +47,6 @@ namespace Application.Services
         Task<IEnumerable<PolicyResponseDto>> GetMyDraftsAsync(int customerId);
 
         Task DeleteDraftAsync(int policyId, int customerId);
+        Task<(byte[] fileBytes, string fileName)> GeneratePolicyApplicationPdfAsync(int policyId, int customerId);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Services;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -99,6 +99,20 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         {
             var result = await _claimService.GetClaimByIdAsync(id);
             return Ok(result);
+        }
+
+        [HttpGet("{id}/documents/{documentId}/download")]
+        [Authorize(Roles = "Admin,Customer,ClaimsOfficer")]
+        public async Task<IActionResult> DownloadDocument(int id, int documentId)
+        {
+            var userId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var role = User.FindFirst(ClaimTypes.Role)!.Value;
+
+            var (fileBytes, fileName, contentType) =
+                await _claimService.DownloadClaimDocumentAsync(id, documentId, userId, role);
+
+            return File(fileBytes, contentType, fileName);
         }
     }
 }

@@ -1,4 +1,4 @@
-<div class="space-y-8 font-lato">
+<div class="font-lato">
 
   <!-- Header -->
   <div class="flex justify-between items-center">
@@ -6,7 +6,10 @@
       <h1 class="text-3xl font-black text-[#75013f] dark:text-pink-300">My Claims</h1>
       <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">Track all your filed insurance claims</p>
     </div>
-
+    <button routerLink="/customer-dashboard/file-claim" 
+            class="px-6 py-3 bg-[#75013f] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg hover:shadow-[#75013f]/20 hover:scale-[1.05] transition-all flex items-center gap-2">
+      <span>📑</span> File a New Claim
+    </button>
   </div>
 
   <!-- Loading -->
@@ -36,92 +39,246 @@
       <thead class="bg-gray-50 dark:bg-gray-900/50 text-[10px] font-black uppercase
                     text-gray-400 dark:text-gray-500 border-b dark:border-gray-700 transition-colors">
         <tr>
-          <th class="px-8 py-5">Claim ID & Date</th>
-          <th class="px-8 py-5">Policy</th>
-          <th class="px-8 py-5">Member</th>
-          <th class="px-8 py-5">Type</th>
-          <th class="px-8 py-5">Status</th>
-          <th class="px-8 py-5 text-right">Claim Amount</th>
-          <th class="px-8 py-5 text-right">Settlement</th>
+          <th class="px-8 py-5">Claim ID</th>
+          <th class="px-8 py-5">Policy & Member</th>
+          <th class="px-8 py-5 text-center">Type</th>
+          <th class="px-8 py-5">Status & Officer</th>
+          <th class="px-8 py-5">Last Update</th>
+          <th class="px-8 py-5 text-right">Amount</th>
+          <th class="px-8 py-5 text-right">Actions</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-50 dark:divide-gray-700 transition-colors">
-        <ng-container *ngFor="let claim of claims">
-          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all">
-            <td class="px-8 py-6">
-              <p class="font-bold text-gray-700 dark:text-gray-200">#{{claim.id}}</p>
-              <p class="text-[9px] text-gray-400 dark:text-gray-500">
-                {{claim.filedDate | date:'dd MMM yyyy'}}
-              </p>
-            </td>
+        <tr *ngFor="let claim of claims" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all group">
+          <td class="px-8 py-6">
+            <p class="font-black text-[#75013f] dark:text-pink-400 text-sm">#{{claim.id}}</p>
+            <p class="text-[9px] text-gray-400 uppercase font-bold tracking-tighter">ID Reference</p>
+          </td>
 
-            <td class="px-8 py-6 font-medium text-sm dark:text-gray-300">
-              {{claim.policyNumber}}
-            </td>
+          <td class="px-8 py-6">
+            <p class="font-bold text-gray-700 dark:text-gray-200 text-sm">{{claim.policyNumber}}</p>
+            <p
+              class="text-[10px] text-gray-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
+              Member: {{claim.policyMemberName}}</p>
+          </td>
 
-            <td class="px-8 py-6 text-sm text-gray-600 dark:text-gray-400 text-truncate max-w-[150px]"
-              [title]="claim.nomineeName">
-              {{claim.policyMemberName}}
-            </td>
+          <td class="px-8 py-6 text-center">
+            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg dark:text-gray-300
+                         text-[10px] font-bold uppercase tracking-wider">
+              {{claim.claimType}}
+            </span>
+          </td>
 
-            <td class="px-8 py-6">
-              <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg dark:text-gray-300
-                           text-[10px] font-bold uppercase transition-colors">
-                {{claim.claimType}}
-              </span>
-            </td>
+          <td class="px-8 py-6">
+            <span [ngClass]="getStatusBadgeClass(claim.status)" class="px-3 py-0.5 rounded-full text-[8px]
+                         font-black text-white uppercase shadow-sm whitespace-nowrap">
+              {{claim.status}}
+            </span>
+            <p *ngIf="claim.claimsOfficerName" class="text-[9px] text-gray-400 dark:text-gray-500 mt-1 font-bold">
+              Officer: {{claim.claimsOfficerName}}
+            </p>
+          </td>
 
-            <td class="px-8 py-6">
-              <span [ngClass]="getStatusBadgeClass(claim.status)" class="px-4 py-1 rounded-full text-[9px]
-                           font-black text-white uppercase shadow-sm transition-all">
-                {{claim.status}}
-              </span>
-            </td>
+          <td class="px-8 py-6">
+            <p class="text-xs font-bold text-gray-600 dark:text-gray-400">
+              {{ (getLatestUpdate(claim) | date:'dd MMM yyyy') || 'N/A' }}
+            </p>
+          </td>
 
-            <td class="px-8 py-6 text-right font-black text-[#75013f] dark:text-pink-400">
-              ₹{{claim.claimAmount | number}}
-            </td>
+          <td class="px-8 py-6 text-right">
+            <p class="font-black text-[#75013f] dark:text-pink-400">₹{{claim.claimAmount | number}}</p>
+            <p *ngIf="claim.settlementAmount" class="text-[10px] text-green-600 font-bold">Settled:
+              ₹{{claim.settlementAmount | number}}</p>
+          </td>
 
-            <td class="px-8 py-6 text-right font-bold text-green-600 dark:text-green-400">
-              <span *ngIf="claim.settlementAmount">
-                ₹{{claim.settlementAmount | number}}
-              </span>
-              <span *ngIf="!claim.settlementAmount" class="text-gray-300 dark:text-gray-600">
-                —
-              </span>
-            </td>
-          </tr>
-
-          <!-- Settlement Breakdown Row (Only if Settled and has breakdown) -->
-          <tr *ngIf="claim.status === 'Settled' && claim.settlementBreakdown?.length > 0">
-            <td colspan="7" class="px-8 py-0">
-              <div
-                class="bg-green-50/50 dark:bg-green-900/10 border-x border-b border-green-100 dark:border-green-900/30 rounded-b-3xl mb-4 p-6 animate-in slide-in-from-top duration-300">
-                <div class="flex items-center gap-2 mb-4">
-                  <span class="text-sm">💰</span>
-                  <p class="text-[10px] font-black text-green-800 dark:text-green-300 uppercase tracking-widest">Nominee
-                    Settlement Distribution</p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div *ngFor="let s of claim.settlementBreakdown"
-                    class="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-green-100 dark:border-green-800 shadow-sm">
-                    <div class="flex justify-between items-start">
-                      <p class="text-xs font-black text-gray-700 dark:text-gray-200">{{s.nomineeName}}</p>
-                      <span
-                        class="text-[9px] font-bold text-green-600 bg-green-50 dark:bg-green-900/40 px-2 py-0.5 rounded-full">{{s.sharePercentage}}%</span>
-                    </div>
-                    <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">Approved Payout</p>
-                    <p class="text-lg font-black text-[#75013f] dark:text-pink-400 mt-0.5">₹{{s.settlementAmount |
-                      number}}</p>
-                  </div>
-                </div>
-              </div>
-            </td>
-          </tr>
-        </ng-container>
+          <td class="px-8 py-6 text-right">
+            <button (click)="viewClaimDetails(claim)"
+              class="p-2 transition-all hover:bg-[#75013f] hover:text-white rounded-xl bg-gray-50 dark:bg-gray-900 border border-transparent shadow-sm">
+              <span class="text-[10px] font-black uppercase px-2">View Details</span>
+            </button>
+          </td>
+        </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Claim Details Modal -->
+  <div *ngIf="selectedClaim"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+    <div
+      class="bg-white dark:bg-gray-900 w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[3rem] shadow-2xl border border-gray-100 dark:border-gray-800 animate-in zoom-in duration-300">
+
+      <!-- Modal Header -->
+      <div
+        class="sticky top-0 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md px-8 py-5 border-b dark:border-gray-800 flex justify-between items-center">
+        <div>
+          <h2 class="text-xl font-black text-[#75013f] dark:text-pink-300">Claim Details #{{selectedClaim.id}}</h2>
+          <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+            Status: {{selectedClaim.status}} • Officer: {{selectedClaim.claimsOfficerName || 'Not Assigned'}}
+          </p>
+        </div>
+        <button (click)="closeDetailsModal()"
+          class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-all">
+          <span class="text-lg font-bold">×</span>
+        </button>
+      </div>
+
+      <div class="px-8 py-6 space-y-8">
+        <!-- 1. Policy & Member Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-4">
+            <h3
+              class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b pb-2 dark:border-gray-800">
+              Policy Information</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Policy Number</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.policyNumber}}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Plan Name</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.planName}}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Start Date</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.policyStartDate | date:'dd MMM
+                  yyyy'}}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Policy Term</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.policyTerm}} Years</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <h3
+              class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b pb-2 dark:border-gray-800">
+              Member Details</h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Deceased Member</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.policyMemberName}}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Relationship</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.memberRelationship}}</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Age at Death</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{selectedClaim.memberAge}} Yrs</p>
+              </div>
+              <div>
+                <p class="text-[9px] text-gray-400 font-bold uppercase">Date of Death</p>
+                <p class="font-bold text-gray-700 dark:text-gray-200">{{ (selectedClaim.dateOfDeath | date:'dd MMM
+                  yyyy') || 'N/A' }}</p>
+              </div>
+            </div>
+            <p *ngIf="selectedClaim.placeOfDeath"
+              class="mt-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl text-xs text-gray-600 dark:text-gray-400">
+              <span class="font-black text-[9px] uppercase block mb-1">Place of Death</span>
+              {{selectedClaim.placeOfDeath}}
+            </p>
+          </div>
+        </div>
+
+        <!-- 2. Financial Breakdown -->
+        <div class="bg-[#fcf8f5] dark:bg-gray-900/40 p-6 rounded-[2.5rem] border border-orange-50 dark:border-gray-800">
+          <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6">Settlement Summary</h3>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div class="p-4 bg-white dark:bg-gray-800 rounded-3xl shadow-sm border dark:border-gray-700">
+              <p class="text-[9px] text-gray-400 font-bold uppercase mb-1">Base Coverage</p>
+              <p class="text-xl font-black text-gray-700 dark:text-gray-200">₹{{selectedClaim.baseCoverageAmount |
+                number}}</p>
+            </div>
+            <div class="p-4 bg-white dark:bg-gray-800 rounded-3xl shadow-sm border dark:border-gray-700">
+              <p class="text-[9px] text-gray-400 font-bold uppercase mb-1">Accumulated Bonuses</p>
+              <p class="text-xl font-black text-green-600 dark:text-green-400">+₹{{selectedClaim.accumulatedBonus |
+                number}}</p>
+            </div>
+            <div
+              class="p-4 bg-white dark:bg-gray-800 rounded-3xl shadow-sm border dark:border-gray-700 border-red-50 dark:border-red-900/20">
+              <p class="text-[9px] text-red-400 font-bold uppercase mb-1">Outstanding Loan</p>
+              <p class="text-xl font-black text-red-600 dark:text-red-400">-₹{{selectedClaim.outstandingLoanAmount |
+                number}}</p>
+            </div>
+            <div class="p-4 bg-[#75013f] rounded-3xl shadow-xl shadow-[#75013f]/20">
+              <p class="text-[9px] text-pink-200/60 font-black uppercase mb-1 tracking-widest">Net Payable</p>
+              <p class="text-xl font-black text-white">₹{{selectedClaim.netSettlementAmount | number}}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Nominee Distribution (If Settled) -->
+        <div *ngIf="selectedClaim.settlementBreakdown?.length > 0" class="space-y-4">
+          <h3
+            class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b pb-2 dark:border-gray-800">
+            Nominee Payout Distribution</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div *ngFor="let s of selectedClaim.settlementBreakdown"
+              class="bg-white dark:bg-gray-800 p-6 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-sm">
+              <div class="flex justify-between items-center mb-2">
+                <p class="text-sm font-black text-gray-700 dark:text-gray-200">{{s.nomineeName}}</p>
+                <span
+                  class="bg-[#75013f]/5 text-[#75013f] text-[10px] font-black px-2 py-0.5 rounded-full">{{s.sharePercentage}}%</span>
+              </div>
+              <p class="text-[9px] text-gray-400 font-bold uppercase mb-3">Allocated Amount</p>
+              <p class="text-xl font-black text-[#75013f] dark:text-pink-400">₹{{s.settlementAmount | number}}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Documents & Remarks -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="space-y-4">
+            <h3
+              class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b pb-2 dark:border-gray-800">
+              Verification Documents</h3>
+            <div class="space-y-2">
+              <div *ngFor="let doc of selectedClaim.documents"
+                class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+                <div class="flex items-center gap-3">
+                  <span class="text-xl">📄</span>
+                  <div>
+                    <p class="text-xs font-bold text-gray-700 dark:text-gray-300">{{doc.documentCategory}}</p>
+                    <p class="text-[9px] text-gray-400 uppercase">{{doc.fileName}}</p>
+                  </div>
+                </div>
+                <a [href]="'https://localhost:7027/' + doc.filePath" target="_blank"
+                  class="text-[9px] font-black text-[#75013f] dark:text-pink-400 uppercase tracking-widest hover:underline px-3 py-1 bg-white dark:bg-gray-900 rounded-lg shadow-sm">View
+                  File</a>
+              </div>
+              <p *ngIf="selectedClaim.documents?.length === 0" class="text-xs text-gray-400 font-medium italic">No
+                documents uploaded yet.</p>
+            </div>
+          </div>
+
+          <!-- Officer Feedback Display (Only if available) -->
+          <div *ngIf="selectedClaim.officerRemarks" class="space-y-4">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b pb-2 dark:border-gray-800">
+              Officer Feedback</h3>
+            <div class="p-4 bg-[#75013f]/5 dark:bg-pink-900/10 border border-[#75013f]/10 dark:border-pink-900/20 rounded-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <p class="text-[9px] text-[#75013f] dark:text-pink-400 font-black uppercase mb-1 tracking-widest">Processing Note</p>
+              <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-relaxed italic">
+                "{{selectedClaim.officerRemarks}}"
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div
+        class="px-8 py-6 bg-gray-50 dark:bg-gray-900/50 border-t dark:border-gray-800 flex justify-end items-center gap-4">
+        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mr-auto">Filed on: {{
+          (selectedClaim.filedDate | date:'dd MMM yyyy HH:mm') || 'N/A' }}</p>
+        <button (click)="closeDetailsModal()"
+          class="px-8 py-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-300 dark:hover:bg-gray-700 transition-all">
+          Close Window
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

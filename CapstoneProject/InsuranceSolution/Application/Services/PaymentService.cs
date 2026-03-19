@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Exceptions;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
@@ -60,12 +60,7 @@ namespace Application.Services
             if (policy.Status != PolicyStatus.Active)
                 throw new BadRequestException(
                     "Payments can only be made on Active policies.");
-            // Validate payment is not too early
-            if (DateTime.UtcNow.Date < policy.NextDueDate.Date.AddDays(-30))
-                throw new BadRequestException(
-                    $"Payment is too early. Next due date is " +
-                    $"{policy.NextDueDate:dd-MMM-yyyy}. " +
-                    $"You can pay 30 days before due date.");
+            // Removed validation so customers can pay at any time
 
             // Total installments = 1 (current) + extra
             var totalInstallments = 1 + dto.ExtraInstallments;
@@ -84,6 +79,7 @@ namespace Application.Services
                 PaymentMethod = dto.PaymentMethod,
                 TransactionReference = transactionRef,
                 Status = PaymentStatus.Completed,
+                PaymentType = PaymentType.PremiumPayment,
                 InvoiceNumber = await _paymentRepository
                                            .GenerateInvoiceNumberAsync(),
                 CreatedAt = DateTime.UtcNow
@@ -114,6 +110,19 @@ namespace Application.Services
                 policyId: policy.Id,
                 claimId: null,
                 paymentId: payment.Id);
+
+            // Notify Agent if assigned
+            if (policy.AgentId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: policy.AgentId.Value,
+                    title: "Premium Paid",
+                    message: $"Premium of ₹{totalAmount:N2} has been paid for policy {policy.PolicyNumber} by {customer?.Name}.",
+                    type: NotificationType.PaymentConfirmation,
+                    policyId: policy.Id,
+                    claimId: null,
+                    paymentId: payment.Id);
+            }
 
             // Send email confirmation
             try
@@ -173,26 +182,32 @@ namespace Application.Services
             var payments = await _paymentRepository
                 .GetByCustomerIdAsync(customerId);
 
-            return payments.Select(p =>
-                MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty,
-                p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
+            return payments
+                .OrderByDescending(p => p.PaymentDate)
+                .Select(p =>
+                    MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty,
+                    p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
         }
 
         public async Task<IEnumerable<PaymentResponseDto>> GetPaymentsByPolicyAsync(
             int policyId)
         {
             var payments = await _paymentRepository.GetByPolicyIdAsync(policyId);
-            return payments.Select(p =>
-                MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty,
-                p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
+            return payments
+                .OrderByDescending(p => p.PaymentDate)
+                .Select(p =>
+                    MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty,
+                    p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
         }
 
         public async Task<IEnumerable<PaymentResponseDto>> GetAllPaymentsAsync()
         {
             var payments = await _paymentRepository.GetAllAsync();
-            return payments.Select(p =>
-                MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty
-                , p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
+            return payments
+                .OrderByDescending(p => p.PaymentDate)
+                .Select(p =>
+                    MapToDto(p, p.PolicyAssignment?.PolicyNumber ?? string.Empty
+                    , p.PolicyAssignment?.NextDueDate ?? DateTime.MinValue));
         }
 
         public async Task<byte[]> GenerateInvoicePdfAsync(
@@ -334,6 +349,7 @@ namespace Application.Services
                 PaymentMethod = payment.PaymentMethod,
                 TransactionReference = payment.TransactionReference,
                 Status = payment.Status.ToString(),
+                PaymentType = payment.PaymentType.ToString(),
                 CommissionStatus = payment.PolicyAssignment?.CommissionStatus.ToString() ?? string.Empty,
                 InvoiceNumber = payment.InvoiceNumber,
                 NextDueDate = nextDueDate,
