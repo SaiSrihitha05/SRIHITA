@@ -10,17 +10,27 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
+    private readonly IEmailTemplateService _templateService;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public AuthService(IUserRepository userRepository,
-                       IConfiguration configuration)
+                       IConfiguration configuration,
+                       IEmailService emailService,
+                       IEmailTemplateService templateService,
+                       IServiceScopeFactory scopeFactory)
     {
         _userRepository = userRepository;
         _configuration = configuration;
+        _emailService = emailService;
+        _templateService = templateService;
+        _scopeFactory = scopeFactory;
     }
 
     public async Task<string> RegisterAsync(RegisterDto dto)
@@ -110,16 +120,37 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
     // No email sending, just validate email exists and return token directly
-    public async Task<string?> CreatePasswordResetTokenAsync(string email)
+    public async Task<bool> CreatePasswordResetTokenAsync(string email)
     {
         var user = await _userRepository.GetByEmailAsync(email);
-        if (user == null) return null;
+        if (user == null) return false;
 
         string token = Guid.NewGuid().ToString();
         DateTime expiry = DateTime.UtcNow.AddHours(1);
 
         await _userRepository.UpdateResetTokenAsync(user.Id, token, expiry);
-        return token; // return token directly to frontend
+
+        // Send Email (Safe Background Task)
+        _ = Task.Run(async () => {
+            using var scope = _scopeFactory.CreateScope();
+            var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+            var templateService = scope.ServiceProvider.GetRequiredService<IEmailTemplateService>();
+
+            try {
+                var resetLink = $"http://localhost:4200/reset-password?token={token}";
+                var body = templateService.GetForgotPasswordTemplate(user.Name, resetLink);
+                
+                await emailService.SendEmailAsync(new EmailRequest 
+                { 
+                    ToEmail = user.Email, 
+                    ToName = user.Name, 
+                    Subject = "Reset Your Password", 
+                    HtmlContent = body 
+                });
+            } catch { /* log error if needed */ }
+        });
+
+        return true;
     }
     public async Task<bool> ResetPasswordAsync(ResetPasswordDto dto)
     {
@@ -136,6 +167,18 @@ public class AuthService : IAuthService
 
         _userRepository.Update(user); 
         await _userRepository.SaveChangesAsync(); 
+
+        // Send Confirmation Email
+        var body = _templateService.GetGenericNotificationTemplate("Password Reset Successful", 
+            "Your password has been reset successfully. If you did not perform this action, please contact support immediately.");
+        
+        await _emailService.SendEmailAsync(new EmailRequest
+        {
+            ToEmail = user.Email,
+            ToName = user.Name,
+            Subject = "Password Reset Successful",
+            HtmlContent = body
+        });
 
         return true;
     }

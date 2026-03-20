@@ -36,6 +36,8 @@ namespace Application.Tests.Services
 
             var mockNotify = new Mock<INotificationService>();
             var mockEmail = new Mock<IEmailService>();
+            var mockTemplate = new Mock<IEmailTemplateService>();
+            var mockPdf = new Mock<IPdfService>();
             var mockEnv = new Mock<IWebHostEnvironment>();
 
             // Set up a mock root path for uploads
@@ -52,6 +54,8 @@ namespace Application.Tests.Services
                 docRepo,
                 mockNotify.Object,
                 mockEmail.Object,
+                mockTemplate.Object,
+                mockPdf.Object,
                 mockEnv.Object,
                 mockConfig.Object);
 

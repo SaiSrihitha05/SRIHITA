@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Domain.Enums;
@@ -58,6 +59,8 @@ namespace InsuranceAPI.BackgroundServices
                 .GetRequiredService<INotificationService>();
             var emailService = scope.ServiceProvider
                 .GetRequiredService<IEmailService>();
+            var templateService = scope.ServiceProvider
+                .GetRequiredService<IEmailTemplateService>();
 
             // 1. Find all policies that should lapse
             var candidates = await policyRepo.GetLapsedCandidatesAsync();
@@ -88,11 +91,14 @@ namespace InsuranceAPI.BackgroundServices
                 // 4. Send email to customer
                 if (policy.Customer != null)
                 {
-                    await emailService.SendPolicyStatusChangedAsync(
-                        policy.Customer.Email,
-                        policy.Customer.Name,
-                        policy.PolicyNumber,
-                        "Lapsed");
+                    var body = templateService.GetPolicyLapsedTemplate(policy.Customer.Name, policy.PolicyNumber);
+                    await emailService.SendEmailAsync(new EmailRequest
+                    {
+                        ToEmail = policy.Customer.Email,
+                        ToName = policy.Customer.Name,
+                        Subject = $"Policy Lapsed - {policy.PolicyNumber}",
+                        HtmlContent = body
+                    });
                 }
             }
 

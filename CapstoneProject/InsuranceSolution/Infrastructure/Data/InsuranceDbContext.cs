@@ -141,9 +141,9 @@ namespace Infrastructure.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<InsuranceClaim>()
-                .HasOne(c => c.PolicyMember)
+                .HasOne(c => c.ClaimMember)
                 .WithMany()
-                .HasForeignKey(c => c.PolicyMemberId)
+                .HasForeignKey(c => c.ClaimForMemberId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<InsuranceClaim>()

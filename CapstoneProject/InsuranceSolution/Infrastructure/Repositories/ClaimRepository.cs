@@ -38,7 +38,7 @@ namespace Infrastructure.Repositories
                     .ThenInclude(p => p!.Customer)
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Payments)
-                .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimMember)
                 .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -47,7 +47,7 @@ namespace Infrastructure.Repositories
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Plan)
-                .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimMember)
                 .Include(c => c.ClaimsOfficer)
                 .OrderByDescending(c => c.FiledDate)
                 .ToListAsync();
@@ -55,7 +55,7 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<InsuranceClaim>> GetByPolicyIdAsync(
             int policyId) =>
             await _context.Claims
-                .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimMember)
                 .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
                 .Where(c => c.PolicyAssignmentId == policyId)
@@ -66,7 +66,7 @@ namespace Infrastructure.Repositories
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Plan)
-                .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimMember)
                 .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
                 .Where(c => c.ClaimsOfficerId == officerId)
@@ -78,7 +78,7 @@ namespace Infrastructure.Repositories
             await _context.Claims
                 .Include(c => c.PolicyAssignment)
                     .ThenInclude(p => p!.Plan)
-                .Include(c => c.PolicyMember)
+                .Include(c => c.ClaimMember)
                 .Include(c => c.ClaimsOfficer)
                 .Include(c => c.Documents)
                 .Where(c => c.PolicyAssignment!.CustomerId == customerId)
@@ -87,7 +87,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> HasActiveclaimAsync(int policyMemberId) =>
             await _context.Claims
-                .AnyAsync(c => c.PolicyMemberId == policyMemberId &&
+                .AnyAsync(c => c.ClaimForMemberId == policyMemberId &&
                                c.Status != ClaimStatus.Rejected &&
                                c.Status != ClaimStatus.Settled);
 

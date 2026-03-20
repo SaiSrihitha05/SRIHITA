@@ -28,6 +28,8 @@ namespace Application.Services
         private readonly ISystemConfigRepository _systemConfigRepository;
         private readonly INotificationService _notificationService;
         private readonly IEmailService _emailService;
+        private readonly IEmailTemplateService _templateService;
+        private readonly IPdfService _pdfService;
 
         public PolicyService(
             IPolicyRepository policyRepository,
@@ -36,6 +38,8 @@ namespace Application.Services
             IDocumentRepository documentRepository,
             INotificationService notificationService,
             IEmailService emailService,
+            IEmailTemplateService templateService,
+            IPdfService pdfService,
             IWebHostEnvironment environment,
             ISystemConfigRepository systemConfigRepository)
         {
@@ -45,6 +49,8 @@ namespace Application.Services
             _documentRepository = documentRepository;
             _notificationService = notificationService;
             _emailService = emailService;
+            _templateService = templateService;
+            _pdfService = pdfService;
             _environment = environment;
             _systemConfigRepository = systemConfigRepository;
         }
@@ -391,11 +397,37 @@ namespace Application.Services
                     paymentId: null);
 
                 // Send email
-                await _emailService.SendPolicyStatusChangedAsync(
-                    customer!.Email,
-                    customer.Name,
-                    policy.PolicyNumber,
-                    dto.Status.ToString());
+                string emailBody;
+                var emailRequest = new EmailRequest
+                {
+                    ToEmail = customer!.Email,
+                    ToName = customer.Name,
+                    Subject = $"Policy Status Update - {policy.PolicyNumber}"
+                };
+
+                if (dto.Status == PolicyStatus.Active)
+                {
+                    emailBody = _templateService.GetPolicyApprovedTemplate(customer.Name, policy.PolicyNumber);
+                    var policyDto = MapToDto(policy);
+                    var pdfBytes = await _pdfService.GeneratePolicyPdfAsync(policyDto);
+                    
+                    emailRequest.Attachments = new List<EmailAttachment>
+                    {
+                        new EmailAttachment { Name = $"Policy_{policy.PolicyNumber}.pdf", Content = pdfBytes }
+                    };
+                }
+                else if (dto.Status == PolicyStatus.Rejected)
+                {
+                    emailBody = _templateService.GetPolicyRejectedTemplate(customer.Name, policy.Remarks ?? "Documents incomplete or invalid.");
+                }
+                else
+                {
+                    emailBody = _templateService.GetGenericNotificationTemplate("Policy Status Updated", 
+                        $"Your policy {policy.PolicyNumber} status has been updated to {dto.Status}.");
+                }
+
+                emailRequest.HtmlContent = emailBody;
+                await _emailService.SendEmailAsync(emailRequest);
 
                 // Notify Agent if assigned
                 if (policy.AgentId.HasValue)

@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
@@ -45,14 +45,13 @@ namespace Infrastructure.Repositories
 
         public void Delete(User user) =>
             _context.Users.Remove(user);
-        public async Task UpdateResetTokenAsync(
-    int userId, string token, DateTime expiry)
+        public async Task UpdateResetTokenAsync(int userId, string token, DateTime expiry)
         {
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null) return;
-            user.ResetToken = token;
-            user.ResetTokenExpiry = expiry;
-            await _context.SaveChangesAsync();
+            await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.ResetToken, token)
+                    .SetProperty(u => u.ResetTokenExpiry, expiry));
         }
 
         public async Task<User?> GetUserByResetTokenAsync(string token)

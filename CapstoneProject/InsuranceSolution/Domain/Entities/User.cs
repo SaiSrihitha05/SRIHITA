@@ -34,5 +34,15 @@ namespace Domain.Entities
         public string? Gender { get; set; }
         public string? ResetToken { get; set; }
         public DateTime? ResetTokenExpiry { get; set; }
+
+        // KYC Verification Fields
+        public string? IdProofType { get; set; }        // Aadhaar, PAN, Passport
+        public string? IdProofNumber { get; set; }
+        public string? IdProofDocumentPath { get; set; }
+        public bool IsKycVerified { get; set; } = false;
+        public string KycVerificationStatus { get; set; } = "Pending"; // Pending, Verified, Failed
+        public string? ExtractedName { get; set; }
+        public string? ExtractedIdNumber { get; set; }
+        public DateTime? KycVerifiedAt { get; set; }
     }
 }

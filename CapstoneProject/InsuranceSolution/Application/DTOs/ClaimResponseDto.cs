@@ -31,7 +31,7 @@ namespace Application.DTOs
 
         // Deceased Member Details
         public int ClaimForMemberId { get; set; }
-        public string PolicyMemberName { get; set; } = string.Empty;
+        public string ClaimForMemberName { get; set; } = string.Empty;
         public string MemberRelationship { get; set; } = string.Empty;
         public DateTime? MemberDob { get; set; }
         public int MemberAge { get; set; }
@@ -52,13 +52,14 @@ namespace Application.DTOs
         public decimal AccumulatedBonus { get; set; }
         public decimal TerminalBonus { get; set; }
 
-        // Claimed Death Details
-        public string NomineeName { get; set; } = string.Empty;
-        public string NomineeContact { get; set; } = string.Empty;
         public string? DeathCertificateNumber { get; set; }
         public DateTime? DateOfDeath { get; set; }
         public string? CauseOfDeath { get; set; }
         public string? PlaceOfDeath { get; set; }
+
+        public string IssuedAuthority { get; set; } = string.Empty;
+        public bool VerifiedByOfficer { get; set; } = false;
+        public DateTime? VerificationDate { get; set; }
 
         public DateTime FiledDate { get; set; }
         public string Status { get; set; } = string.Empty;

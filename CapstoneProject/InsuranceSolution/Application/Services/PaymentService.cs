@@ -24,19 +24,22 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly INotificationService _notificationService;
         private readonly IEmailService _emailService;
+        private readonly IEmailTemplateService _templateService;
 
         public PaymentService(
             IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             IPolicyRepository policyRepository,
             INotificationService notificationService,
-            IEmailService emailService)
+            IEmailService emailService,
+            IEmailTemplateService templateService)
         {
             _paymentRepository = paymentRepository;
             _policyRepository = policyRepository;
             _userRepository = userRepository;
             _notificationService = notificationService;
             _emailService = emailService;
+            _templateService = templateService;
         }
 
         public async Task<PaymentResponseDto> MakePaymentAsync(
@@ -132,13 +135,16 @@ namespace Application.Services
                 {
                     try
                     {
-                        await _emailService.SendPaymentConfirmationAsync(
-                            customer!.Email,
-                            customer.Name,
-                            policy.PolicyNumber,
-                            payment.InvoiceNumber,
-                            totalAmount,
-                            payment.PaymentDate);
+                        var body = _templateService.GetPaymentConfirmationTemplate(
+                            customer!.Name, policy.PolicyNumber, payment.InvoiceNumber, totalAmount);
+
+                        await _emailService.SendEmailAsync(new EmailRequest
+                        {
+                            ToEmail = customer!.Email,
+                            ToName = customer.Name,
+                            Subject = $"Payment Confirmation - {payment.InvoiceNumber}",
+                            HtmlContent = body
+                        });
                     }
                     catch (Exception ex)
                     {

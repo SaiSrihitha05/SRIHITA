@@ -28,9 +28,11 @@ namespace InsuranceAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            // Email settings
             builder.Services.Configure<EmailSettingsDto>(
                 builder.Configuration.GetSection("EmailSettings"));
+
+            builder.Services.Configure<BrevoSettings>(
+                builder.Configuration.GetSection("BrevoSettings"));
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -157,7 +159,9 @@ namespace InsuranceAPI
             builder.Services.AddScoped<IPaymentService, PaymentService>();
 
             // Services for email and notifications
-            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddHttpClient<IEmailService, BrevoEmailService>();
+            builder.Services.AddScoped<IPdfService, QuestPdfService>();
+            builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
@@ -174,6 +178,11 @@ namespace InsuranceAPI
 
             // System configuration
             builder.Services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
+            
+            // Register KYC Services
+            builder.Services.AddScoped<IPolicyMemberRepository, PolicyMemberRepository>();
+            builder.Services.AddScoped<IOcrService, TesseractOcrService>();
+            builder.Services.AddScoped<IKycService, KycService>();
             
             // Background services
             builder.Services.AddHostedService<PremiumReminderService>();

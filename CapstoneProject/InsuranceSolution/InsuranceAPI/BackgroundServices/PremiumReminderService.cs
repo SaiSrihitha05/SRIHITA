@@ -1,3 +1,4 @@
+using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Services;
@@ -46,6 +47,8 @@ namespace InsuranceAPI.BackgroundServices
                 .GetRequiredService<IUserRepository>();
             var emailService = scope.ServiceProvider
                 .GetRequiredService<IEmailService>();
+            var templateService = scope.ServiceProvider
+                .GetRequiredService<IEmailTemplateService>();
             var notificationService = scope.ServiceProvider
                 .GetRequiredService<INotificationService>();
 
@@ -77,12 +80,14 @@ namespace InsuranceAPI.BackgroundServices
                     paymentId: null);
 
                 // Email reminder
-                await emailService.SendPremiumReminderAsync(
-                    customer.Email,
-                    customer.Name,
-                    policy.PolicyNumber,
-                    policy.NextDueDate,
-                    policy.TotalPremiumAmount);
+                var body = templateService.GetPremiumReminderTemplate(customer.Name, policy.PolicyNumber, policy.TotalPremiumAmount, policy.NextDueDate);
+                await emailService.SendEmailAsync(new EmailRequest
+                {
+                    ToEmail = customer.Email,
+                    ToName = customer.Name,
+                    Subject = $"Premium Due Reminder - {policy.PolicyNumber}",
+                    HtmlContent = body
+                });
             }
         }
     }

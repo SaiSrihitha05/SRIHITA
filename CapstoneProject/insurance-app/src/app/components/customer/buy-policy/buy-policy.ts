@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PolicyService } from '../../../services/policy-service';
 import { PlanService } from '../../../services/plan-service';
 import { UserService } from '../../../services/user-service';
+import { KycService } from '../../../services/kyc-service';
 
 @Component({
   selector: 'app-buy-policy',
@@ -18,6 +19,7 @@ export class BuyPolicy implements OnInit {
   private policyService = inject(PolicyService);
   private planService = inject(PlanService);
   private userService = inject(UserService);
+  private kycService = inject(KycService);
   private cdr = inject(ChangeDetectorRef);
 
   step = 1;
@@ -136,7 +138,12 @@ export class BuyPolicy implements OnInit {
             HasPreExistingDiseases: m.hasPreExistingDiseases,
             DiseaseDescription: m.diseaseDescription || '',
             Occupation: m.occupation,
-            IsPrimaryInsured: m.isPrimaryInsured
+            IsPrimaryInsured: m.isPrimaryInsured,
+            IdProofType: m.idProofType || 'Aadhar Card',
+            IdProofNumber: m.idProofNumber || '',
+            KycStatus: m.kycVerificationStatus || 'Pending',
+            ExtractedData: m.extractedIdNumber ? { isSuccess: true, extractedName: m.extractedName, extractedIdNumber: m.extractedIdNumber } : null,
+            IdError: ''
           }));
         }
 
@@ -167,8 +174,12 @@ export class BuyPolicy implements OnInit {
           MemberName: '', RelationshipToCustomer: i === 0 ? 'Self' : '',
           DateOfBirth: '', Gender: 'Male', CoverageAmount: this.selectedPlan.minCoverageAmount,
           IsSmoker: false, HasPreExistingDiseases: false, DiseaseDescription: '',
-          Occupation: '', IsPrimaryInsured: i === 0
-        });
+          Occupation: '', IsPrimaryInsured: i === 0,
+           IdProofType: 'Aadhar Card', IdProofNumber: '',
+           KycStatus: 'Pending', // Pending, Processing, Verified, Failed
+           ExtractedData: null as any,
+           IdError: ''
+         });
       }
     } else { this.members.splice(this.numMembers); }
     
@@ -374,6 +385,12 @@ export class BuyPolicy implements OnInit {
         // Check for member-specific document uploads
         const hasDocument = m.IsPrimaryInsured ? !!this.identityProof : !!this.memberDocuments[i];
         
+        // KYC Verification Guard: Must be 'Verified'
+        const isKycVerified = m.KycStatus === 'Verified';
+        if (!isKycVerified) {
+          console.warn(`Member ${i} Fail: KYC not verified (Current Status: ${m.KycStatus})`);
+        }
+        
         // Relationship Validation
         const isSelf = m.RelationshipToCustomer === 'Self';
         const nameMatchesProfile = m.MemberName?.toLowerCase() === this.customerProfile?.name?.toLowerCase();
@@ -382,7 +399,7 @@ export class BuyPolicy implements OnInit {
         if (!isRelationshipConsistent && isSelf) console.log(`Member ${i} Fail: Self relation but name mismatch`);
         if (!isRelationshipConsistent && !isSelf) console.log(`Member ${i} Fail: Non-self relation but name matches customer`);
 
-        return hasBasicInfo && hasValidAge && hasValidCoverage && hasDocument && isRelationshipConsistent;
+        return hasBasicInfo && hasValidAge && hasValidCoverage && hasDocument && isRelationshipConsistent && isKycVerified;
       });
 
       // Income proof is mandatory for the policy holder at Step 2
@@ -417,9 +434,74 @@ export class BuyPolicy implements OnInit {
   }
   onFileChange(event: any, type: string, index?: number) {
     const file = event.target.files[0];
-    if (type === 'id') this.identityProof = file;
+    if (type === 'id') {
+      this.identityProof = file;
+      this.performKycCheck(0); // Primary insured is always index 0
+    }
     if (type === 'income') this.incomeProof = file;
-    if (type === 'member' && index !== undefined) this.memberDocuments[index] = file;
+    if (type === 'member' && index !== undefined) {
+      this.memberDocuments[index] = file;
+      this.performKycCheck(index);
+    }
+    this.cdr.detectChanges();
+  }
+
+  performKycCheck(index: number) {
+    const m = this.members[index];
+    const file = m.IsPrimaryInsured ? this.identityProof : this.memberDocuments[index];
+
+    if (!file || !m.IdProofNumber || !m.MemberName || m.IdError) {
+      if (m.KycStatus !== 'Pending' || m.ExtractedData) this.resetKyc(index);
+      return;
+    }
+
+    m.KycStatus = 'Processing';
+    this.cdr.detectChanges();
+
+    this.kycService.verifyNewMemberKyc(m.IdProofType, m.IdProofNumber, m.MemberName, file).subscribe({
+      next: (res) => {
+        m.KycStatus = res.isSuccess ? 'Verified' : 'Failed';
+        m.ExtractedData = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('KYC Error:', err);
+        m.KycStatus = 'Failed';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  resetKyc(index: number) {
+    const m = this.members[index];
+    // If it's already reset, don't clear the IdError which might have been set by validateIdField
+    if (m.KycStatus === 'Pending' && !m.ExtractedData) return;
+    
+    m.KycStatus = 'Pending';
+    m.ExtractedData = null;
+    m.IdError = ''; 
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
+  }
+
+  validateIdField(index: number) {
+    const m = this.members[index];
+    this.resetKyc(index); 
+    
+    if (!m.IdProofType || !m.IdProofNumber) {
+      m.IdError = '';
+      return;
+    }
+
+    const idType = m.IdProofType.toUpperCase().replace(/\s/g, ''); 
+    const pattern = KycService.ID_PATTERNS[idType];
+    const sanitizedId = m.IdProofNumber.replace(/\s/g, '');
+    
+    if (pattern && !pattern.test(sanitizedId)) {
+      m.IdError = `Invalid ${m.IdProofType} format.`;
+    } else {
+      m.IdError = '';
+    }
     this.cdr.detectChanges();
   }
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Application.DTOs;
 using Application.Interfaces;
@@ -34,14 +34,13 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         public async Task<IActionResult> ForgotPassword(
     [FromBody] ForgotPasswordDto dto)
         {
-            var token = await _authService
+            var success = await _authService
                 .CreatePasswordResetTokenAsync(dto.Email);
 
-            if (token == null)
+            if (!success)
                 return BadRequest(new { message = "No account found with this email." });
 
-            // ✅ Return token directly — no email sent
-            return Ok(new { token = token });
+            return Ok(new { message = "Password reset link has been sent to your email." });
         }
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(

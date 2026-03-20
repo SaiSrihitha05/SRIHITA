@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ClaimService } from '../../../services/claim-service';
+import { KycService } from '../../../services/kyc-service';
 import { PolicyService } from '../../../services/policy-service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -14,6 +15,7 @@ import { CommonModule } from '@angular/common';
 export class FileClaim implements OnInit {
   private route = inject(ActivatedRoute);
   private claimService = inject(ClaimService);
+  private kycService = inject(KycService);
   private policyService = inject(PolicyService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -24,6 +26,16 @@ export class FileClaim implements OnInit {
   selectedFiles: File[] = [];
   submitAttempted = false;
   isLoading = true;
+
+  // OCR Verification for Death Certificate
+  deathCertificateVerification: 'Pending' | 'Processing' | 'Verified' | 'Failed' = 'Pending';
+  deathCertError: string = '';
+  verificationRes: any = null;
+
+  // Nominee Identity Verification (Filer)
+  filerNomineeId: number | null = null;
+  nomineeVerification: 'Pending' | 'Processing' | 'Verified' | 'Failed' = 'Pending';
+  nomineeCertError: string = '';
 
   // Eligibility Feedback
   eligibilityResult: { isEligible: boolean; reason: string } | null = null;
@@ -175,13 +187,93 @@ export class FileClaim implements OnInit {
 
   onFileSelect(event: any) {
     this.selectedFiles = Array.from(event.target.files);
+    
+    // Auto-trigger OCR if it's a death claim and certificate number is present
+    if (this.claimData.claimType === 'Death' && this.claimData.deathCertificateNumber && this.selectedFiles.length > 0) {
+      this.performDeathCertOcr();
+    }
+  }
+
+  performDeathCertOcr() {
+    if (!this.claimData.deathCertificateNumber || !this.claimData.dateOfDeath || this.selectedFiles.length === 0) return;
+
+    this.deathCertificateVerification = 'Processing';
+    this.deathCertError = '';
+    this.cdr.detectChanges();
+
+    const file = this.selectedFiles[0]; // Assuming first file is the certificate
+    this.kycService.verifyDeathCertificate(file, this.claimData.deathCertificateNumber, this.claimData.dateOfDeath, this.selectedMemberObj.memberName).subscribe({
+      next: (res: any) => {
+        this.deathCertificateVerification = res.isSuccess ? 'Verified' : 'Failed';
+        this.verificationRes = res;
+        if (!res.isSuccess) this.deathCertError = res.message;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.deathCertificateVerification = 'Failed';
+        this.deathCertError = 'OCR Service error. Please try again.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  performNomineeOcr(event: any) {
+    const file = event.target.files[0];
+    if (!file || !this.filerNomineeId) return;
+
+    const nominee = this.policy.nominees.find((n: any) => n.id == this.filerNomineeId);
+    if (!nominee) return;
+
+    this.nomineeVerification = 'Processing';
+    this.nomineeCertError = '';
+    this.cdr.detectChanges();
+
+    this.kycService.verifyNomineeIdentity(file, nominee.nomineeName).subscribe({
+      next: (res: any) => {
+        this.nomineeVerification = res.isSuccess ? 'Verified' : 'Failed';
+        if (!res.isSuccess) {
+          this.nomineeCertError = res.message;
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.nomineeVerification = 'Failed';
+        this.nomineeCertError = 'Verification service error.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  resetDeathKyc() {
+    if (this.deathCertificateVerification === 'Pending' && !this.verificationRes) return;
+    
+    this.deathCertificateVerification = 'Pending';
+    this.deathCertError = '';
+    this.verificationRes = null;
+    this.cdr.detectChanges();
+  }
+
+  validateDeathCertNumber() {
+    this.resetDeathKyc();
+    const val = this.claimData.deathCertificateNumber;
+    if (val && val.length < 4) {
+      this.deathCertError = 'Certificate number too short.';
+    } else if (val && !/^[A-Z0-9\-/]+$/i.test(val)) {
+      this.deathCertError = 'Invalid characters in certificate number.';
+    } else {
+      this.deathCertError = '';
+    }
+    this.cdr.detectChanges();
   }
 
   isClaimValid(): boolean {
     if (!this.claimData.claimForMemberId) return false;
 
     if (this.claimData.claimType === 'Death') {
-      return !!this.claimData.deathCertificateNumber && this.selectedFiles.length > 0;
+      return !!this.claimData.deathCertificateNumber && 
+             this.selectedFiles.length > 0 && 
+             this.deathCertificateVerification === 'Verified' &&
+             this.nomineeVerification === 'Verified';
     }
 
     return true;

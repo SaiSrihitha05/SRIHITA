@@ -25,6 +25,8 @@ namespace Application.Tests.Services
             public InsuranceDbContext Db { get; set; }
             public Mock<INotificationService> MockNote { get; set; }
             public Mock<IEmailService> MockEmail { get; set; }
+            public Mock<IEmailTemplateService> MockTemplate { get; set; }
+            public Mock<IPdfService> MockPdf { get; set; }
             public Mock<IWebHostEnvironment> MockEnv { get; set; }
             public Mock<IPaymentRepository> MockPayment { get; set; }
             public Mock<ILoanRepository> MockLoan { get; set; }
@@ -43,10 +45,12 @@ namespace Application.Tests.Services
 
             var mockNote = new Mock<INotificationService>();
             var mockEmail = new Mock<IEmailService>();
-            var mockEnv = new Mock<IWebHostEnvironment>();
+            var mockTemplate = new Mock<IEmailTemplateService>();
+            var mockPdf = new Mock<IPdfService>();
 
-            var tempPath = Path.Combine(Path.GetTempPath(), "InsuranceAppTest_" + Guid.NewGuid().ToString());
-            mockEnv.SetupProperty(e => e.WebRootPath, tempPath);
+            var mockEnv = new Mock<IWebHostEnvironment>();
+            var tempPath = Path.Combine(Path.GetTempPath(), "TestUploads");
+            Directory.CreateDirectory(tempPath);
             mockEnv.SetupProperty(e => e.ContentRootPath, tempPath);
 
             var mockPayment = new Mock<IPaymentRepository>();
@@ -76,6 +80,8 @@ namespace Application.Tests.Services
                 docRepo,
                 mockNote.Object,
                 mockEmail.Object,
+                mockTemplate.Object,
+                mockPdf.Object,
                 mockEnv.Object,
                 mockPayment.Object,
                 mockLoan.Object,
@@ -88,6 +94,8 @@ namespace Application.Tests.Services
                 Db = dbContext,
                 MockNote = mockNote,
                 MockEmail = mockEmail,
+                MockTemplate = mockTemplate,
+                MockPdf = mockPdf,
                 MockEnv = mockEnv,
                 MockPayment = mockPayment,
                 MockLoan = mockLoan,
@@ -178,8 +186,8 @@ namespace Application.Tests.Services
             var (c1, _, p1, m1) = await SeedPolicyAsync(ctx.Db);
             var (c2, _, p2, m2) = await SeedPolicyAsync(ctx.Db);
 
-            ctx.Db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p1.Id, PolicyMemberId = m1.Id, ClaimForMemberId = m1.Id });
-            ctx.Db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p2.Id, PolicyMemberId = m2.Id, ClaimForMemberId = m2.Id });
+            ctx.Db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p1.Id, ClaimForMemberId = m1.Id });
+            ctx.Db.Claims.Add(new InsuranceClaim { PolicyAssignmentId = p2.Id, ClaimForMemberId = m2.Id });
             await ctx.Db.SaveChangesAsync();
 
             var claims = await ctx.Service.GetMyClaimsAsync(c1.Id);
@@ -193,7 +201,7 @@ namespace Application.Tests.Services
             var ctx = BuildTestContextAndService();
             var (customer, _, policy, member) = await SeedPolicyAsync(ctx.Db);
 
-            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
+            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, ClaimForMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
             ctx.Db.Claims.Add(claim);
             await ctx.Db.SaveChangesAsync();
 
@@ -210,7 +218,7 @@ namespace Application.Tests.Services
             var ctx = BuildTestContextAndService();
             var (_, _, policy, member) = await SeedPolicyAsync(ctx.Db);
 
-            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
+            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, ClaimForMemberId = member.Id, Status = ClaimStatus.UnderReview, ClaimAmount = 100000 };
             ctx.Db.Claims.Add(claim);
             await ctx.Db.SaveChangesAsync();
 
@@ -230,7 +238,7 @@ namespace Application.Tests.Services
             ctx.Db.Users.Add(officer);
             await ctx.Db.SaveChangesAsync();
 
-            var claim = new InsuranceClaim { Status = ClaimStatus.Submitted, PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id };
+            var claim = new InsuranceClaim { Status = ClaimStatus.Submitted, PolicyAssignmentId = policy.Id, ClaimForMemberId = member.Id };
             ctx.Db.Claims.Add(claim);
             await ctx.Db.SaveChangesAsync();
 
@@ -251,7 +259,7 @@ namespace Application.Tests.Services
             ctx.Db.Users.Add(user);
             await ctx.Db.SaveChangesAsync();
 
-            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, PolicyMemberId = member.Id, ClaimForMemberId = member.Id };
+            var claim = new InsuranceClaim { PolicyAssignmentId = policy.Id, ClaimForMemberId = member.Id };
             ctx.Db.Claims.Add(claim);
             await ctx.Db.SaveChangesAsync();
 

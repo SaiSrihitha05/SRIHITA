@@ -32,10 +32,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                     router.navigate(['/server-error']);
                     break;
 
-                // For 400 (Bad Request) and 409 (Conflict)
-                // let the calling component handle them with the error message
+                // For 400, 409, and connection errors (0)
+                // let the calling component handle them
                 case 400:
                 case 409:
+                case 0:
                     break;
 
                 default:

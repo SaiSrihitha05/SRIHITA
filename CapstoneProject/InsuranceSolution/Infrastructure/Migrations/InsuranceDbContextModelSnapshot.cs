@@ -101,21 +101,17 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("FiledDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("NomineeContact")
+                    b.Property<string>("IssuedAuthority")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("NomineeName")
-                        .IsRequired()
+                    b.Property<string>("OfficerRemarks")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PlaceOfDeath")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("PolicyAssignmentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PolicyMemberId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("ProcessedDate")
@@ -131,13 +127,19 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("VerificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("VerifiedByOfficer")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ClaimForMemberId");
 
                     b.HasIndex("ClaimsOfficerId");
 
                     b.HasIndex("PolicyAssignmentId");
-
-                    b.HasIndex("PolicyMemberId");
 
                     b.ToTable("Claims");
                 });
@@ -503,6 +505,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("DiseaseDescription")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ExtractedIdNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtractedName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -510,11 +518,30 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("HasPreExistingDiseases")
                         .HasColumnType("bit");
 
+                    b.Property<string>("IdProofDocumentPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdProofNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdProofType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsKycVerified")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsPrimaryInsured")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsSmoker")
                         .HasColumnType("bit");
+
+                    b.Property<string>("KycVerificationStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("KycVerifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("MemberName")
                         .IsRequired()
@@ -604,7 +631,7 @@ namespace Infrastructure.Migrations
                             Id = 1,
                             LastAgentAssignmentIndex = -1,
                             LastClaimsOfficerIndex = -1,
-                            UpdatedAt = new DateTime(2026, 3, 18, 11, 18, 6, 13, DateTimeKind.Utc).AddTicks(2861)
+                            UpdatedAt = new DateTime(2026, 3, 19, 13, 9, 11, 985, DateTimeKind.Utc).AddTicks(8860)
                         });
                 });
 
@@ -626,11 +653,36 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ExtractedIdNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtractedName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdProofDocumentPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdProofNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdProofType")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsKycVerified")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("KycVerificationStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("KycVerifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -665,11 +717,13 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 3, 18, 11, 18, 6, 291, DateTimeKind.Utc).AddTicks(4552),
+                            CreatedAt = new DateTime(2026, 3, 19, 13, 9, 12, 467, DateTimeKind.Utc).AddTicks(6960),
                             Email = "admin@insurance.com",
                             IsActive = true,
+                            IsKycVerified = false,
+                            KycVerificationStatus = "Pending",
                             Name = "System Admin",
-                            PasswordHash = "$2a$11$tE/xMmQAnwOm0zrgAR2kp.mYwm5Hgw8ErNqy9p1MVEk0EOQBeDBUq",
+                            PasswordHash = "$2a$11$fzHcByMIcKSsSisZMnsQc.t0QeAjl85c2JPj2xM6hOvWbfE16V3QO",
                             Phone = "9999999999",
                             Role = "Admin"
                         });
@@ -702,6 +756,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.InsuranceClaim", b =>
                 {
+                    b.HasOne("Domain.Entities.PolicyMember", "ClaimMember")
+                        .WithMany()
+                        .HasForeignKey("ClaimForMemberId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.User", "ClaimsOfficer")
                         .WithMany()
                         .HasForeignKey("ClaimsOfficerId")
@@ -713,17 +773,11 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.PolicyMember", "PolicyMember")
-                        .WithMany()
-                        .HasForeignKey("PolicyMemberId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Navigation("ClaimMember");
 
                     b.Navigation("ClaimsOfficer");
 
                     b.Navigation("PolicyAssignment");
-
-                    b.Navigation("PolicyMember");
                 });
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>

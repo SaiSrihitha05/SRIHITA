@@ -49,6 +49,16 @@ namespace Domain.Entities
         // Audit timestamp
         public DateTime CreatedAt { get; set; }
 
+        // KYC Verification Fields
+        public string? IdProofType { get; set; }
+        public string? IdProofNumber { get; set; }
+        public string? IdProofDocumentPath { get; set; }
+        public bool IsKycVerified { get; set; } = false;
+        public string KycVerificationStatus { get; set; } = "Pending";
+        public string? ExtractedName { get; set; }
+        public string? ExtractedIdNumber { get; set; }
+        public DateTime? KycVerifiedAt { get; set; }
+
         // Navigation back to the parent policy
         public PolicyAssignment? PolicyAssignment { get; set; }
     }

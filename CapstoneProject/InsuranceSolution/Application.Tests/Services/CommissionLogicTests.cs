@@ -36,13 +36,15 @@ namespace Application.Tests.Services
 
             var mockNotify = new Mock<INotificationService>();
             var mockEmail = new Mock<IEmailService>();
+            var mockTemplate = new Mock<IEmailTemplateService>();
 
             var paymentService = new PaymentService(
                 paymentRepo,
                 userRepo,
                 policyRepo,
                 mockNotify.Object,
-                mockEmail.Object);
+                mockEmail.Object,
+                mockTemplate.Object);
 
             var dashboardService = new DashboardService(
                 userRepo,

@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Exceptions;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
@@ -8,6 +9,7 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -33,7 +35,11 @@ namespace Application.Tests.Services
             mockConfig.Setup(c => c["Jwt:Issuer"]).Returns("TestIssuer");
             mockConfig.Setup(c => c["Jwt:Audience"]).Returns("TestAudience");
 
-            var service = new AuthService(userRepo, mockConfig.Object);
+            var mockEmail = new Mock<IEmailService>();
+            var mockTemplate = new Mock<IEmailTemplateService>();
+            var mockScopeFactory = new Mock<IServiceScopeFactory>();
+
+            var service = new AuthService(userRepo, mockConfig.Object, mockEmail.Object, mockTemplate.Object, mockScopeFactory.Object);
 
             return (dbContext, service);
         }
@@ -122,26 +128,27 @@ namespace Application.Tests.Services
 
 
         [Fact]
-        public async Task CreatePasswordResetTokenAsync_ShouldReturnToken_WhenEmailExists()
+        public async Task CreatePasswordResetTokenAsync_ShouldReturnTrue_WhenEmailExists()
         {
             var (db, service) = BuildTestContextAndService();
             db.Users.Add(new User { Email = "reset@example.com", PasswordHash = "h", Role = UserRole.Customer, IsActive = true });
             await db.SaveChangesAsync();
 
-            var token = await service.CreatePasswordResetTokenAsync("reset@example.com");
+            var result = await service.CreatePasswordResetTokenAsync("reset@example.com");
 
-            Assert.NotNull(token);
-            Assert.False(string.IsNullOrWhiteSpace(token));
+            Assert.True(result);
+            var user = await db.Users.FirstAsync(u => u.Email == "reset@example.com");
+            Assert.NotNull(user.ResetToken);
         }
 
         [Fact]
-        public async Task CreatePasswordResetTokenAsync_ShouldReturnNull_WhenEmailDoesNotExist()
+        public async Task CreatePasswordResetTokenAsync_ShouldReturnFalse_WhenEmailDoesNotExist()
         {
             var (_, service) = BuildTestContextAndService();
 
-            var token = await service.CreatePasswordResetTokenAsync("nobody@example.com");
+            var result = await service.CreatePasswordResetTokenAsync("nobody@example.com");
 
-            Assert.Null(token);
+            Assert.False(result);
         }
 
         [Fact]
@@ -151,8 +158,13 @@ namespace Application.Tests.Services
             db.Users.Add(new User { Email = "u@example.com", PasswordHash = "h", Role = UserRole.Customer, IsActive = true });
             await db.SaveChangesAsync();
 
-            var token1 = await service.CreatePasswordResetTokenAsync("u@example.com");
-            var token2 = await service.CreatePasswordResetTokenAsync("u@example.com");
+            await service.CreatePasswordResetTokenAsync("u@example.com");
+            var user1 = await db.Users.AsNoTracking().FirstAsync(u => u.Email == "u@example.com");
+            var token1 = user1.ResetToken;
+
+            await service.CreatePasswordResetTokenAsync("u@example.com");
+            var user2 = await db.Users.AsNoTracking().FirstAsync(u => u.Email == "u@example.com");
+            var token2 = user2.ResetToken;
 
             Assert.NotEqual(token1, token2);
         }

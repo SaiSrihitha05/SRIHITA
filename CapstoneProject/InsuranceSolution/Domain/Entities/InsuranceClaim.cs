@@ -9,11 +9,12 @@ namespace Domain.Entities
         // The policy under which the claim is being filed
         public int PolicyAssignmentId { get; set; }
 
-        // The specific person whose coverage is being claimed
-        public int PolicyMemberId { get; set; }
-        
         // Ensure this exactly tracks the deceased member causing the payout
         public int ClaimForMemberId { get; set; }
+
+        public string IssuedAuthority { get; set; } = string.Empty;
+        public bool VerifiedByOfficer { get; set; } = false;
+        public DateTime? VerificationDate { get; set; }
 
         // The officer assigned to investigate and process this claim
         public int? ClaimsOfficerId { get; set; }
@@ -23,12 +24,6 @@ namespace Domain.Entities
 
         // The total sum assured being requested
         public decimal ClaimAmount { get; set; }
-
-        // Name of the person (usually a nominee) requesting the funds
-        public string NomineeName { get; set; } = string.Empty;
-
-        // Contact info for the person filing the claim
-        public string NomineeContact { get; set; } = string.Empty;
 
         // Mandatory legal ID for death-related claims
         public string? DeathCertificateNumber { get; set; }
@@ -59,7 +54,7 @@ namespace Domain.Entities
 
         // Navigation references
         public PolicyAssignment? PolicyAssignment { get; set; }
-        public PolicyMember? PolicyMember { get; set; }
+        public PolicyMember? ClaimMember { get; set; }
         public User? ClaimsOfficer { get; set; }
 
         // Supporting evidence (Death Certificates, ID proofs, etc.)
