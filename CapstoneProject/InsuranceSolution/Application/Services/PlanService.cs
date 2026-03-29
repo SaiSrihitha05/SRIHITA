@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Exceptions;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Domain.Entities;
 using System;
@@ -14,10 +15,12 @@ namespace Application.Services
     public class PlanService : IPlanService
     {
         private readonly IPlanRepository _planRepository;
+        private readonly IAiService _aiService;
 
-        public PlanService(IPlanRepository planRepository)
+        public PlanService(IPlanRepository planRepository, IAiService aiService)
         {
             _planRepository = planRepository;
+            _aiService = aiService;
         }
 
         public async Task<IEnumerable<PlanResponseDto>> GetAllPlansAsync()
@@ -97,7 +100,9 @@ namespace Application.Services
                 MaxLoanPercentage = dto.MaxLoanPercentage,
                 LoanInterestRate = dto.LoanInterestRate,
                 BonusRate = dto.BonusRate,
-                TerminalBonusRate = dto.TerminalBonusRate
+                TerminalBonusRate = dto.TerminalBonusRate,
+                ReinstatementPenaltyAmount = dto.ReinstatementPenaltyAmount,
+                ReinstatementDays = dto.ReinstatementDays
             };
 
             await _planRepository.AddAsync(plan);
@@ -153,6 +158,8 @@ namespace Application.Services
             plan.LoanInterestRate = dto.LoanInterestRate;
             plan.BonusRate = dto.BonusRate;
             plan.TerminalBonusRate = dto.TerminalBonusRate;
+            plan.ReinstatementPenaltyAmount = dto.ReinstatementPenaltyAmount;
+            plan.ReinstatementDays = dto.ReinstatementDays;
 
             _planRepository.Update(plan);
             await _planRepository.SaveChangesAsync();
@@ -202,7 +209,9 @@ namespace Application.Services
             MaxLoanPercentage = plan.MaxLoanPercentage,
             LoanInterestRate = plan.LoanInterestRate,
             BonusRate = plan.BonusRate,
-            TerminalBonusRate = plan.TerminalBonusRate
+            TerminalBonusRate = plan.TerminalBonusRate,
+            ReinstatementPenaltyAmount = plan.ReinstatementPenaltyAmount,
+            ReinstatementDays = plan.ReinstatementDays
         };
         public async Task<IEnumerable<PlanResponseDto>> GetFilteredPlansAsync(
             PlanFilterDto filter, string role)
@@ -215,6 +224,42 @@ namespace Application.Services
 
             var result = plans.Select(MapToDto).ToList();
             return result;
+        }
+
+        public async Task<PlanComparisonResponseDto> ComparePlansAsync(ComparePlansDto dto)
+        {
+            var plans = await _planRepository.GetByIdsAsync(dto.PlanIds);
+            if (!plans.Any()) throw new BadRequestException("No plans found for comparison");
+
+            var planDetails = string.Join("\n\n", plans.Select(p => $@"
+Plan: {p.PlanName}
+Type: {p.PlanType}
+Age Range: {p.MinAge} to {p.MaxAge} years
+Coverage: ₹{p.MinCoverageAmount:N0} to ₹{p.MaxCoverageAmount:N0}
+Maturity Benefit: {(new[] { "Endowment", "Savings", "WholeLife" }.Contains(p.PlanType.ToString()) ? "Yes" : "No")}
+Loan Facility: {(p.HasLoanFacility ? "Yes" : "No")}
+Bonus: {(p.HasBonus ? "Yes" : "No")}
+Whole Life Cover: {(p.IsCoverageUntilAge ? "Yes" : "No")}
+Description: {p.Description}"));
+
+            string systemPrompt = "You are a helpful insurance advisor. Be concise and friendly.";
+            string userPrompt = $@"Compare these insurance plans for a customer. 
+Write a clear, friendly summary that:
+1. Explains what makes each plan unique in 2 sentences
+2. States who each plan is best suited for
+3. Gives a final recommendation based on common needs
+Keep it simple — no jargon. Use plain English.
+
+PLANS:
+{planDetails}";
+
+            string summary = await _aiService.GetAiResponseAsync(systemPrompt, userPrompt, null);
+
+            return new PlanComparisonResponseDto
+            {
+                Summary = summary,
+                Plans = plans.Select(MapToDto)
+            };
         }
     }
 }

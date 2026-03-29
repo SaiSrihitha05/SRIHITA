@@ -1,4 +1,5 @@
-﻿using System;
+using Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,8 @@ namespace Domain.Entities
 
         // Categorization (e.g., IdentityProof, IncomeProof, DeathCertificate)
         public string DocumentCategory { get; set; } = string.Empty;
+
+        public DocumentStatus Status { get; set; } = DocumentStatus.Pending;
 
         // Audit timestamp
         public DateTime UploadedAt { get; set; }

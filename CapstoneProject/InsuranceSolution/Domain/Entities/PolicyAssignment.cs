@@ -49,6 +49,11 @@ namespace Domain.Entities
         // Timestamp for when an agent was assigned to this policy
         public DateTime? AssignedDate { get; set; }
         public string? Remarks { get; set; }
+        public string Address { get; set; } = string.Empty;
+
+        // ✅ REINSTATEMENT FIELDS
+        public DateTime? LapsedDate { get; set; }
+        public DateTime? ReinstatedDate { get; set; }
 
         // Navigation properties for easy data access
         public User? Customer { get; set; }

@@ -1,0 +1,60 @@
+/* Tooltip Container */
+.tooltip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tooltip Text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 140px; 
+  background-color: #1f2937;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 6px 10px;
+  position: absolute;
+  z-index: 9999; 
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.2s, bottom 0.2s;
+  font-size: 11px;
+  line-height: normal;
+  pointer-events: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  white-space: normal;
+  word-wrap: break-word; 
+}
+
+/* Tooltip Arrow */
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1f2937 transparent transparent transparent;
+}
+
+/* Show Tooltip on Hover */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+  bottom: 125%;
+}
+
+/* Animations for icons */
+.cursor-help:hover svg {
+  color: #75013f;
+  transform: scale(1.2);
+}
+
+.dark .cursor-help:hover svg {
+  color: #f9a8d4;
+}

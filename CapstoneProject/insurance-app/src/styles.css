@@ -8,7 +8,23 @@
 }
 
 .form-input-custom {
-  @apply w-full border border-gray-200 p-3 rounded-xl outline-none focus:border-[#75013f] focus:ring-1 focus:ring-[#75013f]/20 transition-all text-sm font-medium text-gray-700;
+  @apply w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl outline-none focus:border-[#75013f] dark:focus:border-pink-500 focus:ring-1 focus:ring-[#75013f]/20 transition-all text-sm font-medium text-gray-700 dark:text-gray-200 dark:bg-gray-900;
+}
+
+.field-label {
+  @apply block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1.5;
+}
+
+.field-label-sm {
+  @apply block text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase mb-1;
+}
+
+.err-msg {
+  @apply text-red-500 text-[10px] mt-1;
+}
+
+.toggle-label {
+  @apply flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 cursor-pointer select-none;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

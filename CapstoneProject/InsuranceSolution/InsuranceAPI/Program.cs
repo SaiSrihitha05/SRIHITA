@@ -2,17 +2,20 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
 using InsuranceAPI.BackgroundServices;
 using InsuranceAPI.Middleware;
+using Infrastructure.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using QuestPDF.Infrastructure;
+using Microsoft.SemanticKernel;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -181,10 +184,33 @@ namespace InsuranceAPI
             
             // Register KYC Services
             builder.Services.AddScoped<IPolicyMemberRepository, PolicyMemberRepository>();
-            builder.Services.AddScoped<IOcrService, TesseractOcrService>();
+            builder.Services.AddScoped<IVertexAiService, VertexAiService>();
             builder.Services.AddScoped<IKycService, KycService>();
+
+            // Register AI and Chat Services
+            builder.Services.Configure<AiSettings>(
+                builder.Configuration.GetSection("AiSettings"));
+
+            builder.Services.AddTransient<Kernel>(sp =>
+            {
+                var settings = builder.Configuration.GetSection("AiSettings").Get<AiSettings>();
+                var kernelBuilder = Kernel.CreateBuilder();
+                kernelBuilder.AddOpenAIChatCompletion(
+                    modelId: settings.Model,
+                    apiKey: settings.ApiKey,
+                    endpoint: new Uri(settings.Endpoint)
+                );
+                return kernelBuilder.Build();
+            });
+
+            builder.Services.AddScoped<IAiService, GroqAiService>();
+            builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+            builder.Services.AddScoped<IChatService, ChatService>();
+            builder.Services.AddScoped<IClaimsOfficerAssignmentService, ClaimsOfficerAssignmentService>();
+            builder.Services.AddScoped<IChatNotificationService, ChatNotificationService>();
             
             // Background services
+
             builder.Services.AddHostedService<PremiumReminderService>();
             builder.Services.AddHostedService<MaturityProcessingService>();
             builder.Services.AddHostedService<LapsePolicyService>();
@@ -194,11 +220,13 @@ namespace InsuranceAPI
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://localhost:4200")
+                    policy.SetIsOriginAllowed(origin => true)
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowAnyHeader()
+                          .AllowCredentials();
                 });
             });
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -218,6 +246,7 @@ namespace InsuranceAPI
             app.UseAuthorization();
             app.UseStaticFiles();
             app.MapControllers();
+            app.MapHub<ChatHub>("/chatHub");
 
             app.Run();
         }

@@ -10,14 +10,30 @@
   <!-- Key Metrics Row -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
     <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700">
-      <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Commission Earned</p>
+      <div class="flex justify-between items-start mb-2">
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Commission Earned</p>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Total money you've earned from policy sales.</span>
+        </span>
+      </div>
       <div class="flex items-end gap-2">
         <h3 class="text-3xl font-black text-[#75013f] dark:text-pink-300">₹{{ stats.totalCommissionEarned | number }}</h3>
       </div>
     </div>
 
     <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700">
-      <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Total Policies Sold</p>
+      <div class="flex justify-between items-start mb-2">
+        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Policies Sold</p>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Total number of policies sold by you.</span>
+        </span>
+      </div>
       <div class="flex items-end gap-2">
         <h3 class="text-3xl font-black text-gray-700 dark:text-gray-200">{{ stats.totalAssignedPolicies }}</h3>
         <span class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-tighter">Policies</span>
@@ -25,7 +41,15 @@
     </div>
 
     <div class="bg-gradient-to-br from-[#75013f] to-[#4b0028] p-8 rounded-[3rem] shadow-xl text-white">
-      <p class="text-[10px] font-black text-pink-200/60 uppercase tracking-widest mb-2 text-white">Total Coverage Sold</p>
+      <div class="flex justify-between items-start mb-2 text-white">
+        <p class="text-[10px] font-black text-pink-200/60 uppercase tracking-widest">Total Coverage Sold</p>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-pink-200/40 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl text-xs font-normal">Total sum assured for all policies you've sold.</span>
+        </span>
+      </div>
       <div class="flex items-end gap-2">
         <h3 class="text-3xl font-black italic">{{ formatCurrency(stats.totalCoverageAmountSold) }}</h3>
       </div>
@@ -36,7 +60,15 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <!-- Earnings Trend -->
     <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700">
-      <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest mb-6">Commission Earnings Trend</h3>
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest">Commission Earnings Trend</h3>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">How your earnings have changed over time.</span>
+        </span>
+      </div>
       <div class="h-[300px]">
         <canvas baseChart [data]="earningsTrendData" [options]="earningsTrendOptions" [type]="'line'"></canvas>
       </div>
@@ -44,7 +76,15 @@
 
     <!-- Top Selling Plans -->
     <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700">
-      <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest mb-6">Top Selling Plans</h3>
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest">Top Selling Plans</h3>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Most popular insurance plans in your portfolio.</span>
+        </span>
+      </div>
       <div class="space-y-6">
         <div *ngFor="let plan of stats.policiesByPlanType" class="flex justify-between items-center group">
           <div class="flex items-center gap-4">
@@ -69,14 +109,30 @@
   <!-- Secondary Analytics Row -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700">
-      <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest mb-6">Monthly Sales Volume</h3>
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest">Monthly Sales Volume</h3>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Number of policies sold each month.</span>
+        </span>
+      </div>
       <div class="h-[300px]">
         <canvas baseChart [data]="salesVolumeData" [options]="salesVolumeOptions" [type]="'bar'"></canvas>
       </div>
     </div>
 
     <div class="bg-white dark:bg-gray-800 p-8 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center text-center">
-        <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest mb-6">Plan Mix Contribution</h3>
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-sm font-black text-gray-700 dark:text-gray-200 uppercase tracking-widest">Plan Mix Contribution</h3>
+          <span class="tooltip cursor-help">
+            <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="tooltiptext shadow-xl text-wrap">Percentage of sales from each plan category.</span>
+          </span>
+        </div>
         <div class="h-[250px] w-full flex items-center justify-center">
           <canvas baseChart [data]="planMixData" [options]="{responsive: true, plugins: {legend: {position: 'bottom'}}}"
             [type]="'pie'"></canvas>

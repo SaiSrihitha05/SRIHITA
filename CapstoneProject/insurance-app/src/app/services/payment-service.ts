@@ -25,4 +25,11 @@ export class PaymentService {
   return this.http.get<any[]>(`https://localhost:7027/api/Policies/my-policies`);
 }
 
+  reinstatePolicy(policyAssignmentId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/reinstate/${policyAssignmentId}`, {});
+  }
+
+  renewPolicy(policyId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/renew/${policyId}`, {});
+  }
 }

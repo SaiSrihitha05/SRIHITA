@@ -46,7 +46,17 @@ export class ClaimService {
     return this.http.get<any[]>(`${this.baseUrl}/my-claims`);
   }
 
+  resubmitClaim(claimId: number, formData: FormData): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${claimId}/resubmit`, formData);
+  }
+
   getClaimById(id: number): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${id}`);
+  }
+  
+  downloadClaimDocument(claimId: number, documentId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${claimId}/documents/${documentId}/download`, {
+      responseType: 'blob'
+    });
   }
 }

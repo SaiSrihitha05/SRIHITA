@@ -6,7 +6,8 @@ import { HttpClient } from '@angular/common/http';
   selector: 'app-claims-dashboard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './dashboard.html'
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css'
 })
 export class ClaimsOfficerDashboard implements OnInit {
   private http = inject(HttpClient);

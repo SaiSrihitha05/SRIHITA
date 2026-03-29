@@ -30,7 +30,7 @@ namespace Application.Services
         private readonly IEmailService _emailService;
         private readonly IEmailTemplateService _templateService;
         private readonly IPdfService _pdfService;
-
+        private readonly IChatMessageRepository _chatRepo;
         public PolicyService(
             IPolicyRepository policyRepository,
             IPlanRepository planRepository,
@@ -41,7 +41,8 @@ namespace Application.Services
             IEmailTemplateService templateService,
             IPdfService pdfService,
             IWebHostEnvironment environment,
-            ISystemConfigRepository systemConfigRepository)
+            ISystemConfigRepository systemConfigRepository,
+            IChatMessageRepository chatRepo)
         {
             _policyRepository = policyRepository;
             _planRepository = planRepository;
@@ -53,6 +54,7 @@ namespace Application.Services
             _pdfService = pdfService;
             _environment = environment;
             _systemConfigRepository = systemConfigRepository;
+            _chatRepo = chatRepo;
         }
 
         public async Task<PolicyResponseDto> CreatePolicyAsync(
@@ -203,6 +205,7 @@ namespace Application.Services
                 Status = PolicyStatus.Pending,
                 TotalPremiumAmount = totalPremium,
                 PremiumFrequency = dto.PremiumFrequency,
+                Address = dto.Address,
                 NextDueDate = nextDueDate,
                 CreatedAt = DateTime.UtcNow,
                 PolicyMembers = members.Select(m => new PolicyMember
@@ -237,13 +240,25 @@ namespace Application.Services
             Console.WriteLine($"[PolicyService][CreatePolicy] Active agents found: {submissionAgents.Count}");
             if (submissionAgents.Any())
             {
-                var config = await _systemConfigRepository.GetConfigAsync();
-                int nextIndex = (config.LastAgentAssignmentIndex + 1) % submissionAgents.Count;
-                policy.AgentId = submissionAgents[nextIndex].Id;
-                config.LastAgentAssignmentIndex = nextIndex;
-                _systemConfigRepository.Update(config);
-                await _systemConfigRepository.SaveChangesAsync();
-            Console.WriteLine($"[PolicyService][CreatePolicy] Assigned AgentId={policy.AgentId} (index={nextIndex})");
+                // Assign by Chat Interaction History if available
+                var chatHistory = await _chatRepo.GetBySessionAsync(customerId, null);
+                var lastChatAgentId = chatHistory.LastOrDefault(m => m.AgentId != null)?.AgentId;
+
+                if (lastChatAgentId.HasValue && submissionAgents.Any(a => a.Id == lastChatAgentId.Value))
+                {
+                    policy.AgentId = lastChatAgentId.Value;
+                    Console.WriteLine($"[PolicyService][CreatePolicy] Assigned AgentId={policy.AgentId} BASED ON CHAT HISTORY.");
+                }
+                else
+                {
+                    var config = await _systemConfigRepository.GetConfigAsync();
+                    int nextIndex = (config.LastAgentAssignmentIndex + 1) % submissionAgents.Count;
+                    policy.AgentId = submissionAgents[nextIndex].Id;
+                    config.LastAgentAssignmentIndex = nextIndex;
+                    _systemConfigRepository.Update(config);
+                    await _systemConfigRepository.SaveChangesAsync();
+                    Console.WriteLine($"[PolicyService][CreatePolicy] Assigned AgentId={policy.AgentId} (index={nextIndex}) via Round Robin.");
+                }
             }
             else
             {
@@ -714,6 +729,8 @@ namespace Application.Services
                 TotalPremiumAmount = p.TotalPremiumAmount,
                 PremiumFrequency = p.PremiumFrequency.ToString(),
                 NextDueDate = p.NextDueDate,
+                Address = p.Address,
+                CanRenew = Math.Abs((p.EndDate - DateTime.Today).TotalDays) <= 30 && (p.Status == PolicyStatus.Active || p.Status == PolicyStatus.Expired),
                 CreatedAt = p.CreatedAt,
                 CustomerPhone = p.Customer?.Phone ?? string.Empty,
                 CustomerEmail = p.Customer?.Email ?? string.Empty,
@@ -737,6 +754,8 @@ namespace Application.Services
                 PlanMinNominees = p.Plan?.MinNominees ?? 0,
                 PlanMaxNominees = p.Plan?.MaxNominees ?? 0,
                 PlanMaxMembers = p.Plan?.MaxPolicyMembersAllowed ?? 0,
+                HasPaidPremiums = p.Payments?.Any(pay => pay.Status == PaymentStatus.Completed),
+                PlanGracePeriodDays = p.Plan?.GracePeriodDays,
                 Nominees = p.PolicyNominees?.Select(n => new PolicyNomineeResponseDto
                 {
                     Id = n.Id,
@@ -752,7 +771,8 @@ namespace Application.Services
                     FilePath = d.FilePath,
                     DocumentCategory = d.DocumentCategory,
                     UploadedByName = d.UploadedByUser?.Name ?? "Customer",
-                    UploadedAt = d.UploadedAt
+                    UploadedAt = d.UploadedAt,
+                    Status = d.Status.ToString()
                 }).ToList() ?? new()
             };
 
@@ -1227,6 +1247,89 @@ namespace Application.Services
             // Cap at MaxCoverageAmount
             return Math.Min(currentCoverage, policy.Plan.MaxCoverageAmount);
         }
+
+        public async Task<DocumentResponseDto> ReplaceDocumentAsync(int documentId, int userId, IFormFile file)
+        {
+            var document = await _documentRepository.GetByIdAsync(documentId);
+            if (document == null)
+                throw new NotFoundException("Document", documentId);
+
+            var policy = await _policyRepository.GetByIdAsync(document.PolicyAssignmentId!.Value);
+            if (policy == null)
+                throw new NotFoundException("Policy", document.PolicyAssignmentId.Value);
+
+            if (policy.CustomerId != userId)
+                throw new ForbiddenException("You can only replace your own documents");
+
+            // Validation: Only allow if policy status is Pending or Rejected or NeedsCorrection
+            if (policy.Status != PolicyStatus.Pending && 
+                policy.Status != PolicyStatus.Rejected && 
+                policy.Status != PolicyStatus.NeedsCorrection)
+            {
+                throw new BadRequestException($"Cannot replace document for policy with status: {policy.Status}");
+            }
+
+            // Replace file on disk
+            var oldFullPath = Path.Combine(_environment.WebRootPath, document.FilePath);
+            if (File.Exists(oldFullPath))
+            {
+                File.Delete(oldFullPath);
+            }
+
+            var folderPath = Path.GetDirectoryName(oldFullPath)!;
+            var ext = Path.GetExtension(file.FileName);
+            var uniqueName = $"{document.DocumentCategory}_{policy.Id}_{Guid.NewGuid()}{ext}";
+            var newFilePath = Path.Combine(folderPath, uniqueName);
+
+            using (var stream = new FileStream(newFilePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Update document record
+            document.FileName = uniqueName;
+            var relativePath = Path.Combine(Path.GetDirectoryName(document.FilePath)!, uniqueName).Replace("\\", "/");
+            document.FilePath = relativePath;
+            document.UploadedAt = DateTime.UtcNow;
+            document.Status = DocumentStatus.Pending;
+
+            _documentRepository.Update(document);
+            await _documentRepository.SaveChangesAsync();
+
+            // Reset policy status if it was Rejected or NeedsCorrection
+            if (policy.Status == PolicyStatus.Rejected || policy.Status == PolicyStatus.NeedsCorrection)
+            {
+                policy.Status = PolicyStatus.Pending;
+                policy.Remarks = $"Document {document.DocumentCategory} replaced by customer. Awaiting re-verification.";
+                _policyRepository.Update(policy);
+                await _policyRepository.SaveChangesAsync();
+
+                // Notify Agent
+                if (policy.AgentId.HasValue)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        userId: policy.AgentId.Value,
+                        title: "Policy Document Replaced",
+                        message: $"Customer has replaced {document.DocumentCategory} for policy {policy.PolicyNumber}. Please re-verify.",
+                        type: NotificationType.PolicyStatusUpdate,
+                        policyId: policy.Id,
+                        claimId: null,
+                        paymentId: null);
+                }
+            }
+
+            return new DocumentResponseDto
+            {
+                Id = document.Id,
+                FileName = document.FileName,
+                FilePath = document.FilePath,
+                DocumentCategory = document.DocumentCategory,
+                UploadedByName = "Customer",
+                UploadedAt = document.UploadedAt,
+                Status = document.Status.ToString()
+            };
+        }
+
         public async Task<(byte[] fileBytes, string fileName)> GeneratePolicyApplicationPdfAsync(int policyId, int customerId)
         {
             var policy = await _policyRepository.GetByIdWithDetailsAsync(policyId);
@@ -1378,6 +1481,152 @@ namespace Application.Services
         {
             table.Cell().PaddingVertical(2).Text(label).Bold();
             table.Cell().PaddingVertical(2).Text(value);
+        }
+
+        public async Task<ReinstatementQuoteDto> GetReinstatementQuoteAsync(int policyId)
+        {
+            var policy = await _policyRepository.GetByIdWithPlanAsync(policyId);
+            if (policy == null) throw new KeyNotFoundException($"Policy with ID {policyId} not found");
+
+            if (policy.Status != PolicyStatus.Lapsed)
+                throw new InvalidOperationException("Only lapsed policies can be reinstated.");
+
+            if (!policy.LapsedDate.HasValue)
+                throw new InvalidOperationException("Policy does not have a valid lapsed date.");
+
+            var plan = policy.Plan;
+            if (plan == null) throw new InvalidOperationException("Policy plan not found.");
+
+            var today = DateTime.Today;
+            var daysSinceLapse = (today - policy.LapsedDate.Value).TotalDays;
+
+            if (daysSinceLapse > plan.ReinstatementDays)
+                throw new InvalidOperationException("The reinstatement window for this policy has closed.");
+
+            int missedMonths = (int)Math.Ceiling(daysSinceLapse / 30);
+            if (missedMonths < 1) missedMonths = 1; // Minimum 1 month if lapsed
+
+            decimal monthlyPremium = Math.Round(policy.TotalPremiumAmount / 12, 2);
+            decimal missedPremiumTotal = monthlyPremium * missedMonths;
+            decimal penaltyAmount = plan.ReinstatementPenaltyAmount;
+            decimal totalAmountDue = missedPremiumTotal + penaltyAmount;
+
+            return new ReinstatementQuoteDto
+            {
+                PolicyId = policy.Id,
+                PolicyNumber = policy.PolicyNumber,
+                MissedMonths = missedMonths,
+                MonthlyPremium = monthlyPremium,
+                MissedPremiumTotal = missedPremiumTotal,
+                PenaltyAmount = penaltyAmount,
+                TotalAmountDue = totalAmountDue,
+                QuoteValidUntil = today.AddDays(7),
+                DaysRemainingToReinstate = plan.ReinstatementDays - (int)daysSinceLapse
+            };
+        }
+
+        public async Task<string> ReinstatePolicyAsync(int policyId, string paymentReference)
+        {
+            if (string.IsNullOrWhiteSpace(paymentReference))
+                throw new ArgumentException("Payment reference is required for reinstatement.");
+
+            var policy = await _policyRepository.GetByIdWithPlanAsync(policyId);
+            if (policy == null) throw new KeyNotFoundException($"Policy with ID {policyId} not found");
+
+            if (policy.Status != PolicyStatus.Lapsed)
+                throw new InvalidOperationException("Only lapsed policies can be reinstated.");
+
+            var plan = policy.Plan;
+            if (plan == null) throw new InvalidOperationException("Policy plan not found.");
+
+            var today = DateTime.Today;
+            var daysSinceLapse = (today - (policy.LapsedDate?.Date ?? today)).TotalDays;
+
+            if (daysSinceLapse > plan.ReinstatementDays)
+                throw new InvalidOperationException("The reinstatement window for this policy has closed.");
+
+            // Update Policy status and dates
+            policy.Status = PolicyStatus.Active;
+            policy.ReinstatedDate = today;
+            policy.LapsedDate = null;
+            policy.NextDueDate = today.AddMonths(1);
+            policy.EndDate = today.AddYears(1);
+            policy.Remarks = $"Policy reinstated with payment reference: {paymentReference}";
+
+            _policyRepository.Update(policy);
+            await _policyRepository.SaveChangesAsync();
+
+            // Send notification
+            await _notificationService.CreateNotificationAsync(
+                userId: policy.CustomerId,
+                title: "Policy Reinstated",
+                message: $"Your policy {policy.PolicyNumber} has been successfully reinstated and is now Active.",
+                type: NotificationType.PolicyStatusUpdate,
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: null);
+
+            // Send email
+            try
+            {
+                var customer = policy.Customer;
+                if (customer != null)
+                {
+                    var emailRequest = new EmailRequest
+                    {
+                        ToEmail = customer.Email,
+                        ToName = customer.Name,
+                        Subject = $"Policy Reinstated - {policy.PolicyNumber}",
+                        HtmlContent = _templateService.GetGenericNotificationTemplate("Policy Reinstated", 
+                            $"Your policy {policy.PolicyNumber} has been successfully reinstated using payment reference {paymentReference}. Your next due date is {policy.NextDueDate:dd MMM yyyy}.")
+                    };
+                    await _emailService.SendEmailAsync(emailRequest);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send reinstatement email: {ex.Message}");
+            }
+
+            return policy.PolicyNumber;
+        }
+
+        public async Task SendExpiryReminderAsync(int policyId)
+        {
+            var policy = await _policyRepository.GetByIdWithDetailsAsync(policyId);
+            if (policy == null) throw new NotFoundException("Policy", policyId);
+
+            var customer = await _userRepository.GetByIdAsync(policy.CustomerId);
+            if (customer == null) throw new NotFoundException("Customer", policy.CustomerId);
+
+            // Send in-app notification
+            await _notificationService.CreateNotificationAsync(
+                userId: policy.CustomerId,
+                title: "Policy Expiry Reminder",
+                message: $"Your policy {policy.PolicyNumber} is expiring on {policy.EndDate:dd MMM yyyy}. Please renew within 30 days to avoid coverage gap.",
+                type: NotificationType.PremiumReminder,
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: null);
+
+            // Send email
+            try
+            {
+                var body = _templateService.GetPolicyExpiryReminderTemplate(
+                    customer.Name, policy.PolicyNumber, policy.EndDate);
+
+                await _emailService.SendEmailAsync(new EmailRequest
+                {
+                    ToEmail = customer.Email,
+                    ToName = customer.Name,
+                    Subject = $"Renewal Reminder: Your Policy {policy.PolicyNumber} is expiring soon",
+                    HtmlContent = body
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Expiry Reminder Email Failed: {ex.Message}");
+            }
         }
     }
 }

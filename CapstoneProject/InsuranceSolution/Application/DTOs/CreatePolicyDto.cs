@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
@@ -24,6 +24,9 @@ namespace Application.DTOs
 
         [Required]
         public string Nominees { get; set; } = string.Empty;   // JSON string from form
+
+        [Required]
+        public string Address { get; set; } = string.Empty;
 
         public IFormFile? IdentityProof { get; set; }
         public IFormFile? IncomeProof { get; set; }

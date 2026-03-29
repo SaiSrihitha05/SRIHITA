@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ClaimService } from '../../../services/claim-service';
 import { KycService } from '../../../services/kyc-service';
 import { PolicyService } from '../../../services/policy-service';
@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-file-claim',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './file-claim.html'
 })
 export class FileClaim implements OnInit {
@@ -31,18 +31,21 @@ export class FileClaim implements OnInit {
   deathCertificateVerification: 'Pending' | 'Processing' | 'Verified' | 'Failed' = 'Pending';
   deathCertError: string = '';
   verificationRes: any = null;
+  deathCertFile: File | null = null;
 
   // Nominee Identity Verification (Filer)
   filerNomineeId: number | null = null;
   nomineeVerification: 'Pending' | 'Processing' | 'Verified' | 'Failed' = 'Pending';
   nomineeCertError: string = '';
+  nomineeIdFile: File | null = null;
 
   // Eligibility Feedback
   eligibilityResult: { isEligible: boolean; reason: string } | null = null;
+  policyIneligibilityReason: string | null = null;
 
   // Selection
   selectedPolicyId: number | null = null;
-  
+
   // Preview fields
   selectedMemberObj: any = null;
   currentCoverage: number = 0;
@@ -65,13 +68,13 @@ export class FileClaim implements OnInit {
     return this.allPolicies.filter(p => {
       // Basic check: Policy must be Active
       if (p.status !== 'Active') return false;
-      
+
       // Smart check: Must have at least one member not already claimed
       const memberIdsWithClaims = this.customerClaims
         .filter((c: any) => c.policyAssignmentId === p.id && c.status !== 'Rejected')
         .map((c: any) => c.claimForMemberId);
 
-      const hasUnclaimedMember = p.members?.some((m: any) => 
+      const hasUnclaimedMember = p.members?.some((m: any) =>
         m.status === 'Active' && !memberIdsWithClaims.includes(m.id)
       );
 
@@ -91,7 +94,7 @@ export class FileClaim implements OnInit {
     this.policyService.getMyPolicies().subscribe({
       next: (policies) => {
         this.allPolicies = policies;
-        
+
         this.claimService.getMyClaims().subscribe({
           next: (claims) => {
             this.customerClaims = claims;
@@ -114,9 +117,12 @@ export class FileClaim implements OnInit {
   }
 
   onPolicySelected() {
+    this.policy = null;
+    this.eligibilityResult = null;
+    this.policyIneligibilityReason = null;
+    this.cdr.detectChanges();
+
     if (!this.selectedPolicyId) {
-      this.policy = null;
-      this.eligibilityResult = null;
       return;
     }
 
@@ -124,7 +130,18 @@ export class FileClaim implements OnInit {
       next: (data) => {
         this.policy = data;
         this.claimData.policyAssignmentId = this.selectedPolicyId!;
-        
+
+        // Comprehensive Policy-Level Eligibility Check
+        this.policyIneligibilityReason = this.checkPolicyIneligibility(data);
+
+        if (this.policyIneligibilityReason) {
+          // If policy itself is ineligible, don't auto-select member
+          this.claimData.claimForMemberId = 0;
+          this.cdr.detectChanges();
+          this.cdr.markForCheck();
+          return;
+        }
+
         // Auto-select first eligible member
         const eligibleMember = this.activeMembers.find((m: any) => this.isMemberEligible(m).isEligible);
         if (eligibleMember) {
@@ -135,12 +152,48 @@ export class FileClaim implements OnInit {
           this.eligibilityResult = { isEligible: false, reason: 'No eligible members found in this policy.' };
         }
         this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error loading policy:', err);
+        this.isLoading = false;
         alert('Could not load policy details.');
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  checkPolicyIneligibility(policy: any): string | null {
+    if (!policy) return null;
+
+    // 1. Status Check
+    if (policy.status === 'Lapsed') return 'Claims cannot be filed on a lapsed policy.';
+    if (policy.status === 'Closed') return 'A claim has already been settled for this policy.';
+    if (policy.status === 'Matured') return 'This policy has already matured. Maturity claims are processed automatically.';
+    if (policy.status !== 'Active') return `Claims can only be filed for active policies. Current status: ${policy.status}`;
+
+    // 2. Premium Payment Check (New Backend Field - Nullable safely handled)
+    if (policy.hasPaidPremiums === false) {
+      return 'At least one premium must be paid before filing a claim.';
+    }
+
+    // 3. Grace Period Check
+    if (policy.planGracePeriodDays > 0 && policy.nextDueDate) {
+      const dueDate = new Date(policy.nextDueDate);
+      const gracePeriodEnd = new Date(dueDate);
+      gracePeriodEnd.setDate(gracePeriodEnd.getDate() + policy.planGracePeriodDays);
+
+      if (new Date() > gracePeriodEnd) {
+        return 'Policy has lapsed due to non-payment beyond grace period.';
+      }
+    }
+
+    // 4. End Date Check
+    if (policy.endDate && new Date() > new Date(policy.endDate)) {
+      return 'Cannot file a claim after the policy end date.';
+    }
+
+    return null;
   }
 
   isMemberEligible(member: any): { isEligible: boolean; reason: string } {
@@ -148,16 +201,16 @@ export class FileClaim implements OnInit {
     if (member.status !== 'Active') return { isEligible: false, reason: 'Member status is not Active.' };
 
     // Check if a claim already exists for this member
-    const existingClaim = this.customerClaims.find(c => 
-      c.policyAssignmentId === this.policy.id && 
+    const existingClaim = this.customerClaims.find(c =>
+      c.policyAssignmentId === this.policy.id &&
       c.claimForMemberId === member.id &&
       c.status !== 'Rejected'
     );
 
     if (existingClaim) {
-      return { 
-        isEligible: false, 
-        reason: `A claim is already ${existingClaim.status.toLowerCase()} for this member.` 
+      return {
+        isEligible: false,
+        reason: `A claim is already ${existingClaim.status.toLowerCase()} for this member.`
       };
     }
 
@@ -179,6 +232,8 @@ export class FileClaim implements OnInit {
       // Total = coverage + bonus
       this.totalClaimAmount = this.currentCoverage + (this.bonusDetails?.totalBonus ?? 0);
     }
+    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   getMemberPayout(nomineeShare: number): number {
@@ -187,22 +242,34 @@ export class FileClaim implements OnInit {
 
   onFileSelect(event: any) {
     this.selectedFiles = Array.from(event.target.files);
-    
-    // Auto-trigger OCR if it's a death claim and certificate number is present
-    if (this.claimData.claimType === 'Death' && this.claimData.deathCertificateNumber && this.selectedFiles.length > 0) {
-      this.performDeathCertOcr();
-    }
+  }
+
+  onDeathCertFileSelect(event: any) {
+    this.deathCertFile = event.target.files[0];
+    this.deathCertificateVerification = 'Pending';
+    this.deathCertError = '';
+  }
+
+  onNomineeFileSelect(event: any) {
+    this.nomineeIdFile = event.target.files[0];
+    this.nomineeVerification = 'Pending';
+    this.nomineeCertError = '';
   }
 
   performDeathCertOcr() {
-    if (!this.claimData.deathCertificateNumber || !this.claimData.dateOfDeath || this.selectedFiles.length === 0) return;
+    if (!this.claimData.deathCertificateNumber || !this.claimData.dateOfDeath || !this.deathCertFile) return;
 
     this.deathCertificateVerification = 'Processing';
     this.deathCertError = '';
     this.cdr.detectChanges();
 
-    const file = this.selectedFiles[0]; // Assuming first file is the certificate
-    this.kycService.verifyDeathCertificate(file, this.claimData.deathCertificateNumber, this.claimData.dateOfDeath, this.selectedMemberObj.memberName).subscribe({
+    this.kycService.verifyDeathCertificate(
+      this.deathCertFile,
+      this.claimData.deathCertificateNumber,
+      this.claimData.dateOfDeath,
+      this.selectedMemberObj.memberName,
+      this.claimData.placeOfDeath
+    ).subscribe({
       next: (res: any) => {
         this.deathCertificateVerification = res.isSuccess ? 'Verified' : 'Failed';
         this.verificationRes = res;
@@ -217,9 +284,8 @@ export class FileClaim implements OnInit {
     });
   }
 
-  performNomineeOcr(event: any) {
-    const file = event.target.files[0];
-    if (!file || !this.filerNomineeId) return;
+  performNomineeOcr() {
+    if (!this.nomineeIdFile || !this.filerNomineeId) return;
 
     const nominee = this.policy.nominees.find((n: any) => n.id == this.filerNomineeId);
     if (!nominee) return;
@@ -228,7 +294,7 @@ export class FileClaim implements OnInit {
     this.nomineeCertError = '';
     this.cdr.detectChanges();
 
-    this.kycService.verifyNomineeIdentity(file, nominee.nomineeName).subscribe({
+    this.kycService.verifyNomineeIdentity(this.nomineeIdFile, nominee.nomineeName).subscribe({
       next: (res: any) => {
         this.nomineeVerification = res.isSuccess ? 'Verified' : 'Failed';
         if (!res.isSuccess) {
@@ -246,7 +312,7 @@ export class FileClaim implements OnInit {
 
   resetDeathKyc() {
     if (this.deathCertificateVerification === 'Pending' && !this.verificationRes) return;
-    
+
     this.deathCertificateVerification = 'Pending';
     this.deathCertError = '';
     this.verificationRes = null;
@@ -270,10 +336,10 @@ export class FileClaim implements OnInit {
     if (!this.claimData.claimForMemberId) return false;
 
     if (this.claimData.claimType === 'Death') {
-      return !!this.claimData.deathCertificateNumber && 
-             this.selectedFiles.length > 0 && 
-             this.deathCertificateVerification === 'Verified' &&
-             this.nomineeVerification === 'Verified';
+      return !!this.claimData.deathCertificateNumber &&
+        !!this.deathCertFile &&
+        this.deathCertificateVerification === 'Verified' &&
+        this.nomineeVerification === 'Verified';
     }
 
     return true;
@@ -299,9 +365,19 @@ export class FileClaim implements OnInit {
       formData.append('PlaceOfDeath', this.claimData.placeOfDeath);
     }
 
-    this.selectedFiles.forEach(file =>
-      formData.append('Documents', file)
-    );
+    // Add Primary Documents (OCR Verified)
+    if (this.claimData.claimType === 'Death') {
+      if (this.deathCertFile) formData.append('Documents', this.deathCertFile, `DeathCert_${this.deathCertFile.name}`);
+      if (this.nomineeIdFile) formData.append('Documents', this.nomineeIdFile, `NomineeID_${this.nomineeIdFile.name}`);
+    }
+
+    // Add Additional Supporting Files
+    this.selectedFiles.forEach(file => {
+      // Avoid adding the same file if it was picked for both
+      if (file !== this.deathCertFile && file !== this.nomineeIdFile) {
+        formData.append('Documents', file, file.name);
+      }
+    });
 
     this.claimService.fileClaim(formData).subscribe({
       next: () => {

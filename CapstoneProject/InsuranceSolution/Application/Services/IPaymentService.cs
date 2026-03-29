@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +14,7 @@ namespace Application.Services
         Task<IEnumerable<PaymentResponseDto>> GetPaymentsByPolicyAsync(int policyId);
         Task<IEnumerable<PaymentResponseDto>> GetAllPaymentsAsync();  
         Task<byte[]> GenerateInvoicePdfAsync(int paymentId, int customerId);
+        Task<PaymentResponseDto> ReinstatePolicyAsync(int customerId, int policyAssignmentId);
+        Task<PaymentResponseDto> RenewPolicyAsync(int customerId, int policyId);
     }
 }

@@ -48,6 +48,10 @@ namespace Application.DTOs
         public int PlanMaxMembers { get; set; }
         public decimal PlanBonusRate { get; set; }
         public decimal PlanTerminalBonusRate { get; set; }
+        public string Address { get; set; } = string.Empty;
+        public bool CanRenew { get; set; }
+        public bool? HasPaidPremiums { get; set; }
+        public int? PlanGracePeriodDays { get; set; }
         public BonusCalculationResult BonusDetails { get; set; } = new();
         public List<PolicyMemberResponseDto> Members { get; set; } = new();
         public List<PolicyNomineeResponseDto> Nominees { get; set; } = new();

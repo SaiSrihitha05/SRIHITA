@@ -26,6 +26,8 @@ namespace Infrastructure.Data
         public DbSet<User> Users { get; set; }
         public DbSet<PolicyLoan> PolicyLoans { get; set; }
         public DbSet<SystemConfig> SystemConfigs { get; set; }
+        public DbSet<Domain.Entities.ChatMessage> ChatMessages { get; set; }
+        public DbSet<ChatSession> ChatSessions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -265,6 +267,24 @@ namespace Infrastructure.Data
                 entity.Property(p => p.InterestPaid).HasColumnType("decimal(18,2)");
                 entity.Property(p => p.BalanceAfter).HasColumnType("decimal(18,2)");
             });
+
+            builder.Entity<Domain.Entities.ChatMessage>()
+                .HasOne(c => c.Customer)
+                .WithMany()
+                .HasForeignKey(c => c.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Domain.Entities.ChatMessage>()
+                .HasOne(c => c.Agent)
+                .WithMany()
+                .HasForeignKey(c => c.AgentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Domain.Entities.ChatMessage>()
+                .HasOne(c => c.Session)
+                .WithMany()
+                .HasForeignKey(c => c.SessionInternalId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -26,7 +26,14 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-50 dark:divide-gray-800">
-        <tr *ngFor="let policy of policies" class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-all group">
+        <tr *ngFor="let policy of policies" 
+            [id]="'policy-row-' + policy.id"
+            [class.ring-2]="policy.id === highlightedPolicyId"
+            [class.ring-[#fe3082]]="policy.id === highlightedPolicyId"
+            [class.bg-pink-50]="policy.id === highlightedPolicyId"
+            [class.dark:bg-pink-900/10]="policy.id === highlightedPolicyId"
+            [class.shadow-2xl]="policy.id === highlightedPolicyId"
+            class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-all group">
           <td class="px-8 py-8">
             <div class="flex items-center gap-4">
               <div class="w-12 h-12 rounded-2xl bg-[#75013f]/5 dark:bg-pink-900/10 flex items-center justify-center text-[#75013f] dark:text-pink-400 text-lg">

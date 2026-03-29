@@ -34,6 +34,18 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
                 nameof(GetClaimById), new { id = result.Id }, result);
         }
 
+        [HttpPost("{id}/resubmit")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> ResubmitClaim(
+            int id, [FromForm] ResubmitClaimDto dto)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = await _claimService.ResubmitClaimAsync(id, customerId, dto);
+            return Ok(result);
+        }
+
         [HttpGet("my-claims")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetMyClaims()

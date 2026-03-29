@@ -1,27 +1,60 @@
 <!-- Top Statistics Row: Financial and Operational Summary -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" *ngIf="stats">
+<h1 class="text-2xl font-bold text-[#75013f] dark:text-pink-300 px-4 m-4">Statistics Overview</h1>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4 m-4" *ngIf="stats">
   <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-[#75013f] transition-all">
-    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Total Revenue</p>
+    <div class="flex justify-between items-start">
+      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Total Revenue</p>
+      <span class="tooltip cursor-help">
+        <svg class="h-3 w-3 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Total money collected.</span>
+      </span>
+    </div>
     <p class="text-2xl font-bold text-[#75013f] dark:text-pink-300">₹{{ stats.totalPremiumCollected | number:'1.2-2' }}
     </p>
     <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ stats.totalPaymentsCount }} Payments processed</p>
   </div>
 
   <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-[#fe3082] transition-colors">
-    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Claims Status</p>
+    <div class="flex justify-between items-start">
+      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Claims Status</p>
+      <span class="tooltip cursor-help">
+        <svg class="h-3 w-3 text-gray-400 dark:text-gray-500 hover:text-[#fe3082] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Claims paid vs total filed.</span>
+      </span>
+    </div>
     <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.settledClaims }} / {{ stats.totalClaims }}
     </p>
     <p class="text-xs text-green-600 dark:text-green-400 font-bold">{{ stats.claimApprovalRate }}% Approval Rate</p>
   </div>
 
   <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-blue-500 transition-colors">
-    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Active Policies</p>
+    <div class="flex justify-between items-start">
+      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Active Policies</p>
+      <span class="tooltip cursor-help">
+        <svg class="h-3 w-3 text-gray-400 dark:text-gray-500 hover:text-blue-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Policies currently in use.</span>
+      </span>
+    </div>
     <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.activePolicies }}</p>
     <p class="text-xs text-gray-500 dark:text-gray-400">Out of {{ stats.totalPolicies }} total</p>
   </div>
 
   <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-b-4 border-orange-400 transition-colors">
-    <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Staff Count</p>
+    <div class="flex justify-between items-start">
+      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Staff Count</p>
+      <span class="tooltip cursor-help">
+        <svg class="h-3 w-3 text-gray-400 dark:text-gray-500 hover:text-orange-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Number of agents and officers.</span>
+      </span>
+    </div>
     <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.totalAgents + stats.totalClaimsOfficers }}
     </p>
     <p class="text-xs text-gray-500 dark:text-gray-400">{{ stats.totalAgents }} Agents | {{ stats.totalClaimsOfficers }}
@@ -31,51 +64,68 @@
 <br>
 
 <!-- Visual Analytics: Trends & Efficiency -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6" *ngIf="stats">
-  <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
-    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Monthly Revenue Trend</h3>
-    <div class="relative h-[300px]">
+<div class="grid px-4 m-4" *ngIf="stats">
+  <div class=" bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Monthly Revenue Trend</h3>
+      <span class="tooltip cursor-help">
+        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Money made each month.</span>
+      </span>
+    </div>
+    <div class="">
       <canvas baseChart [data]="revenueTrendData" [options]="revenueTrendOptions" [type]="'line'"></canvas>
     </div>
   </div>
 
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700 flex flex-col">
-    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Claims Overview</h3>
-    <div class="relative flex-grow h-[200px]">
-      <canvas baseChart [data]="claimsEfficiencyData" [options]="claimsEfficiencyOptions" [type]="'doughnut'"></canvas>
-    </div>
-    <div class="mt-4 grid grid-cols-2 gap-2 text-center text-xs">
-      <div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-        <p class="text-[10px] text-gray-500 uppercase font-bold">Settled</p>
-        <p class="text-lg font-bold text-green-600">{{ stats.settledClaims }}</p>
-      </div>
-      <div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-        <p class="text-[10px] text-gray-500 uppercase font-bold">Pending</p>
-        <p class="text-lg font-bold text-orange-500">{{ stats.totalClaims - stats.settledClaims }}</p>
-      </div>
-    </div>
-  </div>
+
 </div>
 <br>
 
 <!-- Visual Analytics: Distribution & Performance -->
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6" *ngIf="stats">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4 m-4" *ngIf="stats">
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
-    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Revenue Mix</h3>
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Revenue Mix</h3>
+      <span class="tooltip cursor-help">
+        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Income from each plan.</span>
+      </span>
+    </div>
     <div class="relative h-[250px] flex items-center justify-center">
       <canvas baseChart [data]="pieChartData" [options]="pieChartOptions" [type]="'pie'"></canvas>
     </div>
   </div>
 
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
-    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Agent Performance</h3>
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Agent Performance</h3>
+      <span class="tooltip cursor-help">
+        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Highest selling agents.</span>
+      </span>
+    </div>
     <div class="relative h-[250px]">
       <canvas baseChart [data]="barChartData" [options]="barChartOptions" [type]="'bar'"></canvas>
     </div>
   </div>
 
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border dark:border-gray-700">
-    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Claim Size Dist</h3>
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Claim Size Dist</h3>
+      <span class="tooltip cursor-help">
+        <svg class="h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="tooltiptext">Range of claim amounts.</span>
+      </span>
+    </div>
     <div class="relative h-[250px]">
       <canvas baseChart [data]="histogramChartData" [options]="histogramChartOptions" [type]="'bar'"></canvas>
     </div>
@@ -84,11 +134,19 @@
 <br>
 
 <!-- Activity Logs Section -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6" *ngIf="stats">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 px-4 m-4" *ngIf="stats">
   <!-- Recent Policies -->
-  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border dark:border-gray-700">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700">
     <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
-      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Policy Applications</h3>
+      <div class="flex items-center gap-2">
+        <h3 class="font-bold text-[#75013f] dark:text-pink-300">Policy Applications</h3>
+        <span class="tooltip cursor-help">
+          <svg class="h-3.5 w-3.5 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext">Latest policy sign-ups.</span>
+        </span>
+      </div>
       <span class="text-[10px] bg-[#75013f]/10 text-[#75013f] px-2 py-1 rounded-lg">Latest {{
         stats.recentPolicies?.length || 0 }}</span>
     </div>
@@ -119,7 +177,15 @@
 
   <!-- Recent Claims -->
   <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 border dark:border-gray-700">
-    <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4 px-1">Claims Activity</h3>
+    <div class="flex justify-between items-center mb-4 px-1">
+      <h3 class="font-bold text-[#75013f] dark:text-pink-300">Claims Activity</h3>
+        <span class="tooltip cursor-help">
+          <svg class="h-4 w-4 text-gray-400 dark:text-gray-500 hover:text-[#75013f] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext">Latest claims filed.</span>
+        </span>
+    </div>
     <div class="space-y-3">
       <div *ngFor="let claim of stats.recentClaims"
         class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">

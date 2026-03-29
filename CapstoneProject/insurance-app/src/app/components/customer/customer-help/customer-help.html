@@ -1,6 +1,7 @@
 <div class="space-y-8 font-lato animate-in fade-in duration-500">
   <!-- Header -->
-  <div class="bg-gradient-to-r from-[#75013f] to-[#4b0028] p-10 rounded-[3rem] shadow-xl text-white relative overflow-hidden">
+  <div
+    class="bg-gradient-to-r from-[#75013f] to-[#4b0028] p-10 rounded-[3rem] shadow-xl text-white relative overflow-hidden">
     <div class="relative z-10">
       <h1 class="text-3xl font-bold mb-2">Help Center</h1>
       <p class="text-pink-100/80">Find answers to your questions and learn how to manage your insurance</p>
@@ -12,13 +13,10 @@
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
     <!-- Navigation Sidebar -->
     <div class="lg:col-span-1 space-y-2">
-      <button 
-        *ngFor="let section of sections"
-        (click)="selectSection(section.id)"
+      <button *ngFor="let section of sections" (click)="selectSection(section.id)"
         [className]="selectedSection === section.id 
           ? 'w-full text-left p-4 rounded-2xl bg-[#75013f] text-white shadow-lg transition-all duration-300 transform scale-105' 
-          : 'w-full text-left p-4 rounded-2xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all border border-gray-100 dark:border-gray-700'"
-      >
+          : 'w-full text-left p-4 rounded-2xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all border border-gray-100 dark:border-gray-700'">
         <div class="flex items-center gap-3">
           <span class="text-xl">{{ section.icon }}</span>
           <span class="font-bold text-sm">{{ section.title }}</span>
@@ -27,7 +25,8 @@
     </div>
 
     <!-- Content Area -->
-    <div class="lg:col-span-3 bg-white dark:bg-gray-800 p-10 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 min-h-[500px]">
+    <div
+      class="lg:col-span-3 bg-white dark:bg-gray-800 p-10 rounded-[3rem] shadow-sm border border-gray-100 dark:border-gray-700 min-h-[500px]">
       <div *ngFor="let section of sections">
         <div *ngIf="selectedSection === section.id" class="animate-in slide-in-from-bottom-4 duration-500">
           <h2 class="text-2xl font-black text-[#75013f] dark:text-pink-300 mb-8 flex items-center gap-4">
@@ -38,24 +37,29 @@
           <!-- Modern Sequential Map Design -->
           <div *ngIf="section.steps" class="space-y-12 relative pt-4">
             <!-- Continuous Pathway Connector -->
-            <div class="absolute left-6 top-10 bottom-10 w-1 bg-gradient-to-b from-[#75013f] to-[#fe3082]/20 rounded-full hidden md:block"></div>
+            <div
+              class="absolute left-6 top-10 bottom-10 w-1 bg-gradient-to-b from-[#75013f] to-[#fe3082]/20 rounded-full hidden md:block">
+            </div>
 
-            <div *ngFor="let step of section.steps; let i = index" 
-                 class="group relative flex flex-col md:flex-row gap-8 animate-in slide-in-from-right duration-500"
-                 [style.animation-delay]="(i * 100) + 'ms'">
-              
+            <div *ngFor="let step of section.steps; let i = index"
+              class="group relative flex flex-col md:flex-row gap-8 animate-in slide-in-from-right duration-500"
+              [style.animation-delay]="(i * 100) + 'ms'">
+
               <!-- Icon/Index Hexagon/Circle -->
               <div class="relative z-10 flex-shrink-0">
-                  <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#75013f] to-[#fe3082] text-white flex items-center justify-center font-black text-xl shadow-xl shadow-[#75013f]/20 group-hover:-translate-y-1 transition-all duration-300">
-                    {{ i + 1 }}
-                  </div>
+                <div
+                  class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#75013f] to-[#fe3082] text-white flex items-center justify-center font-black text-xl shadow-xl shadow-[#75013f]/20 group-hover:-translate-y-1 transition-all duration-300">
+                  {{ i + 1 }}
+                </div>
               </div>
 
               <!-- Content Card: Glassmorphism Style -->
-              <div class="flex-1 bg-gray-50/50 dark:bg-gray-900/40 backdrop-blur-sm p-6 rounded-[2.5rem] border border-gray-100/50 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800 hover:shadow-2xl hover:shadow-[#75013f]/5 transition-all duration-500 group-hover:-translate-y-1">
+              <div
+                class="flex-1 bg-gray-50/50 dark:bg-gray-900/40 backdrop-blur-sm p-6 rounded-[2.5rem] border border-gray-100/50 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800 hover:shadow-2xl hover:shadow-[#75013f]/5 transition-all duration-500 group-hover:-translate-y-1">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                   <div class="flex items-center gap-4">
-                    <span class="text-3xl p-3 bg-white dark:bg-gray-900 rounded-2xl shadow-inner group-hover:scale-110 transition-transform">
+                    <span
+                      class="text-3xl p-3 bg-white dark:bg-gray-900 rounded-2xl shadow-inner group-hover:scale-110 transition-transform">
                       {{ step.icon }}
                     </span>
                     <div>
@@ -67,9 +71,10 @@
                       </h4>
                     </div>
                   </div>
-                  
+
                   <!-- Tip Badge -->
-                  <div *ngIf="step.tip" class="flex-shrink-0 bg-[#75013f]/5 dark:bg-pink-900/10 px-4 py-2 rounded-xl border border-[#75013f]/10 dark:border-pink-900/20">
+                  <div *ngIf="step.tip"
+                    class="flex-shrink-0 bg-[#75013f]/5 dark:bg-pink-900/10 px-4 py-2 rounded-xl border border-[#75013f]/10 dark:border-pink-900/20">
                     <p class="text-[10px] font-bold text-[#75013f] dark:text-pink-400 italic">
                       💡 Pro Tip: {{ step.tip }}
                     </p>
@@ -86,9 +91,34 @@
 
           <!-- Documents Layout -->
           <div *ngIf="section.id === 'documents'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div *ngFor="let doc of section.items" class="p-6 rounded-3xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-[#75013f]/30 transition-colors group">
-              <h3 class="font-black text-gray-800 dark:text-gray-100 mb-2 group-hover:text-[#75013f] transition-colors">{{ doc.name }}</h3>
+            <div *ngFor="let doc of section.items"
+              class="p-6 rounded-3xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:border-[#75013f]/30 transition-colors group">
+              <h3 class="font-black text-gray-800 dark:text-gray-100 mb-2 group-hover:text-[#75013f] transition-colors">
+                {{ doc.name }}</h3>
               <p class="text-xs text-gray-500 dark:text-gray-400">{{ doc.details || doc.description }}</p>
+            </div>
+          </div>
+
+          <!-- Glossary Layout -->
+          <div *ngIf="section.id === 'glossary'" class="space-y-6">
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed italic border-l-4 border-[#75013f] pl-6 mb-12">
+              "Buying insurance is easier when you speak the language. Here's a quick guide to the benefits in our
+              plans."
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div *ngFor="let benefit of section.benefits"
+                class="p-8 rounded-[2.5rem] bg-[#f5f2ef]/50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
+                <div class="flex items-center gap-4 mb-4">
+                  <div
+                    class="w-12 h-12 bg-[#75013f] text-white rounded-2xl flex items-center justify-center text-xl shadow-lg">
+                    🛡️
+                  </div>
+                  <h3 class="text-xl font-black text-[#75013f] dark:text-pink-300">{{ benefit.label }}</h3>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                  {{ benefit.explanation }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -96,27 +126,33 @@
           <div *ngIf="section.id === 'support'" class="space-y-8">
             <p class="text-gray-600 dark:text-gray-300 leading-relaxed">{{ section.content }}</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div *ngFor="let contact of section.contacts" class="p-6 rounded-3xl bg-[#75013f]/5 dark:bg-[#75013f]/20 border border-[#75013f]/10 dark:border-[#75013f]/30">
-                <p class="text-[10px] font-black text-[#75013f] dark:text-pink-300 uppercase tracking-widest mb-1">{{ contact.type }}</p>
+              <div *ngFor="let contact of section.contacts"
+                class="p-6 rounded-3xl bg-[#75013f]/5 dark:bg-[#75013f]/20 border border-[#75013f]/10 dark:border-[#75013f]/30">
+                <p class="text-[10px] font-black text-[#75013f] dark:text-pink-300 uppercase tracking-widest mb-1">{{
+                  contact.type }}</p>
                 <p class="text-lg font-black text-gray-800 dark:text-gray-100">{{ contact.value }}</p>
               </div>
             </div>
           </div>
 
           <!-- Section Call to Action -->
-          <div *ngIf="section.cta" class="mt-16 p-1 bg-gradient-to-r from-[#75013f] to-[#fe3082] rounded-[2.5rem] shadow-xl shadow-[#75013f]/10 group/cta">
-            <div class="bg-white dark:bg-gray-900 px-8 py-10 rounded-[2.3rem] flex flex-col md:flex-row items-center justify-between gap-8">
+          <div *ngIf="section.cta"
+            class="mt-16 p-1 bg-gradient-to-r from-[#75013f] to-[#fe3082] rounded-[2.5rem] shadow-xl shadow-[#75013f]/10 group/cta">
+            <div
+              class="bg-white dark:bg-gray-900 px-8 py-10 rounded-[2.3rem] flex flex-col md:flex-row items-center justify-between gap-8">
               <div class="flex items-center gap-6">
-                <div class="w-16 h-16 bg-[#75013f]/5 dark:bg-pink-900/10 rounded-full flex items-center justify-center text-3xl group-hover/cta:scale-110 transition-transform">
+                <div
+                  class="w-16 h-16 bg-[#75013f]/5 dark:bg-pink-900/10 rounded-full flex items-center justify-center text-3xl group-hover/cta:scale-110 transition-transform">
                   {{ section.cta.icon }}
                 </div>
                 <div>
                   <h3 class="text-xl font-black text-[#75013f] dark:text-pink-300">Ready to take the next step?</h3>
-                  <p class="text-gray-500 dark:text-gray-400 text-sm">Start your journey with us today and secure your future.</p>
+                  <p class="text-gray-500 dark:text-gray-400 text-sm">Start your journey with us today and secure your
+                    future.</p>
                 </div>
               </div>
-              <a [routerLink]="section.cta.link" 
-                      class="px-10 py-5 bg-[#75013f] text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest hover:bg-[#fe3082] hover:shadow-2xl hover:shadow-[#fe3082]/20 transition-all active:scale-95 flex items-center gap-4">
+              <a [routerLink]="section.cta.link"
+                class="px-10 py-5 bg-[#75013f] text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest hover:bg-[#fe3082] hover:shadow-2xl hover:shadow-[#fe3082]/20 transition-all active:scale-95 flex items-center gap-4">
                 {{ section.cta.label }}
                 <span class="text-xl">→</span>
               </a>

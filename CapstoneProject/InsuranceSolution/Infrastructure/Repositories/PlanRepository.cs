@@ -108,5 +108,11 @@ namespace Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
+        public async Task<IEnumerable<Plan>> GetByIdsAsync(List<int> ids)
+        {
+            return await _context.Plans
+                .Where(p => ids.Contains(p.Id))
+                .ToListAsync();
+        }
     }
 }

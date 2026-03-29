@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+#chat-container {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}

@@ -36,5 +36,7 @@ namespace Application.DTOs
         public int LoanEligibleAfterYears { get; set; }
         public decimal MaxLoanPercentage { get; set; }
         public decimal LoanInterestRate { get; set; }
+        public decimal ReinstatementPenaltyAmount { get; set; }
+        public int ReinstatementDays { get; set; }
     }
 }

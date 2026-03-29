@@ -1,0 +1,43 @@
+/* Custom animations handled by Tailwind (animate-in, slide-in, etc) */
+/* but adding some micro-interactions here */
+
+:host {
+    display: block;
+}
+
+/* Custom scrollbar for message area */
+.flex-1::-webkit-scrollbar {
+    width: 4px;
+}
+
+.flex-1::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.flex-1::-webkit-scrollbar-thumb {
+    background: rgba(117, 1, 63, 0.1);
+    border-radius: 10px;
+}
+
+.flex-1:hover::-webkit-scrollbar-thumb {
+    background: rgba(117, 1, 63, 0.2);
+}
+
+/* Glassmorphism for the bubbles if needed */
+.msg-assistant {
+    backdrop-filter: blur(10px);
+}
+
+/* Ensure z-index is high enough to be above everything */
+.fixed {
+    z-index: 1000;
+}
+
+@keyframes pulse-soft {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.05); opacity: 0.6; }
+}
+
+.animate-pulse-soft {
+    animation: pulse-soft 2s infinite ease-in-out;
+}

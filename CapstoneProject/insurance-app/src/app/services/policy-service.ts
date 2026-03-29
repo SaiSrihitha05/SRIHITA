@@ -71,4 +71,22 @@ submitDraft(id: number, fd: FormData): Observable<any> {
     return this.http.get(`${this.baseUrl}/${id}/download-application`,
       { responseType: 'blob' });
   }
+
+  replaceDocument(documentId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrl}/replace-document/${documentId}`, formData);
+  }
+
+  getReinstatementQuote(policyId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/${policyId}/reinstatement-quote`);
+  }
+
+  reinstatePolicy(policyId: number, paymentReference: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${policyId}/reinstate`, { paymentReference });
+  }
+
+  remindExpiry(policyId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/${policyId}/remind-expiry`, {});
+  }
 }

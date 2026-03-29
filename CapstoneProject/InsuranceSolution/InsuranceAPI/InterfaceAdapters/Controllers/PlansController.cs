@@ -21,7 +21,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         //  Public to Admin and Customer 
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Customer,Agent")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPlans()
         {
             // Admin sees all, Customer sees active only
@@ -76,6 +76,13 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
         {
             var role = User.FindFirst(ClaimTypes.Role)?.Value ?? "Customer";
             var result = await _planService.GetFilteredPlansAsync(filter, role);
+            return Ok(result);
+        }
+        [HttpPost("compare")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ComparePlans([FromBody] ComparePlansDto dto)
+        {
+            var result = await _planService.ComparePlansAsync(dto);
             return Ok(result);
         }
     }

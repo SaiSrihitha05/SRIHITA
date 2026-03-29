@@ -1,6 +1,8 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { PlanService } from '../../../services/plan-service';
+import { BenefitGlossaryService } from '../../../services/benefit-glossary.service';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -12,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 })
 export class ExplorePlans implements OnInit {
   private planService = inject(PlanService);
+  public glossary = inject(BenefitGlossaryService);
+  private http = inject(HttpClient);
   public cdr = inject(ChangeDetectorRef);
   private filterTimeout: any;
 
@@ -20,8 +24,9 @@ export class ExplorePlans implements OnInit {
   showDetailsModal = false;
 
   // Comparison state
-  compareList: any[] = [];
-  showCompareModal = false;
+  selectedForCompare: number[] = [];
+  comparisonResult: any = null;
+  isComparingPlans = false;
   filters: any = {
     planType: '',
     age: 0,
@@ -43,7 +48,7 @@ export class ExplorePlans implements OnInit {
   };
 
   sortBy: string = 'default';
-  
+
   // For filter chips display
   get activeFilterChips() {
     const chips = [];
@@ -57,14 +62,14 @@ export class ExplorePlans implements OnInit {
     if (this.filters.maxPolicyMembersAllowed > 0) {
       chips.push({ label: `Max Members: ${this.filters.maxPolicyMembersAllowed}`, field: 'members' });
     }
-    
+
     // Toggles
     if (this.filters.hasMaturityBenefit) chips.push({ label: 'Maturity Benefit', field: 'hasMaturityBenefit' });
     if (this.filters.isReturnOfPremium) chips.push({ label: 'Return Premium', field: 'isReturnOfPremium' });
     if (this.filters.hasBonus) chips.push({ label: 'Bonus & Profits', field: 'hasBonus' });
     if (this.filters.hasLoanFacility) chips.push({ label: 'Loan Facility', field: 'hasLoanFacility' });
     if (this.filters.coverageIncreasing) chips.push({ label: 'Increasing Cover', field: 'coverageIncreasing' });
-    
+
     return chips;
   }
 
@@ -132,10 +137,10 @@ export class ExplorePlans implements OnInit {
 
   applyFilter() {
     if (this.filterTimeout) clearTimeout(this.filterTimeout);
-    
+
     this.filterTimeout = setTimeout(() => {
       // Check if any filter is actually active (non-null, non-empty, and NOT false for booleans)
-      const activeFilters = Object.values(this.filters).filter(val => 
+      const activeFilters = Object.values(this.filters).filter(val =>
         val !== null && val !== '' && val !== false && val !== 0
       );
 
@@ -195,7 +200,7 @@ export class ExplorePlans implements OnInit {
       next: (data) => {
         this.plans = data;
         // 4. Force UI refresh
-        this.cdr.markForCheck(); 
+        this.cdr.markForCheck();
         this.cdr.detectChanges();
       }
     });
@@ -211,20 +216,47 @@ export class ExplorePlans implements OnInit {
     }
     this.applyFilter();
   }
-  toggleCompare(plan: any) {
-    const index = this.compareList.findIndex(p => p.id === plan.id);
-    if (index > -1) {
-      this.compareList.splice(index, 1);
-    } else if (this.compareList.length < 3) {
-      this.compareList.push(plan);
+
+  toggleCompare(planId: number) {
+    if (this.selectedForCompare.includes(planId)) {
+      this.selectedForCompare = this.selectedForCompare
+        .filter(id => id !== planId);
+    } else if (this.selectedForCompare.length < 3) {
+      this.selectedForCompare.push(planId);
     } else {
       alert("Selection limit reached: Compare up to 3 plans only.");
     }
+    this.comparisonResult = null; // Reset summary on change
     this.cdr.detectChanges();
   }
 
-  isComparing(plan: any): boolean {
-    return this.compareList.some(p => p.id === plan.id);
+  comparePlans() {
+    if (this.selectedForCompare.length < 2) return;
+    this.isComparingPlans = true;
+    this.comparisonResult = null;
+
+    this.http.post<any>('https://localhost:7027/api/Plans/compare', {
+      planIds: this.selectedForCompare
+    }).subscribe({
+      next: (result: any) => {
+        this.comparisonResult = result;
+        this.isComparingPlans = false;
+        this.cdr.detectChanges();
+        // Scroll to result
+        setTimeout(() => {
+          document.getElementById('comparison-panel')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      },
+      error: (err: any) => {
+        this.isComparingPlans = false;
+        alert("Failed to compare plans. Please try again later.");
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  isPlanSelected(planId: number): boolean {
+    return this.selectedForCompare.includes(planId);
   }
 
   viewDetails(plan: any) {
@@ -245,9 +277,9 @@ export class ExplorePlans implements OnInit {
       this.applyFilter();
       return;
     }
-    
+
     const newValue = this.filters[field] + change;
-    
+
     if (newValue >= 1 && newValue <= 6) {
       this.filters[field] = newValue;
       this.applyFilter();
@@ -256,12 +288,20 @@ export class ExplorePlans implements OnInit {
 
   getBenefitList(plan: any) {
     const list = [];
-    if (plan.hasMaturityBenefit) list.push({ label: 'Maturity Benefit', desc: 'Lump sum payout at end of term', available: true });
-    if (plan.isReturnOfPremium) list.push({ label: 'Return of Premium', desc: 'All paid premiums returned if no claim', available: true });
-    if (plan.hasDeathBenefit) list.push({ label: 'Death Benefit', desc: 'Financial protection for family', available: true });
-    if (plan.hasBonus) list.push({ label: 'Bonus & Profits', desc: 'Reversionary bonuses added annually', available: true });
+    if (plan.hasMaturityBenefit) list.push({ label: 'Maturity Benefit', desc: 'Guaranteed lump sum at end of term', available: true });
+    if (plan.isReturnOfPremium) list.push({ label: 'Return of Premium', desc: 'Total premium back if no claim', available: true });
+    if (plan.hasDeathBenefit) list.push({ label: 'Death Benefit', desc: 'Secure payout for beneficiaries', available: true });
+    if (plan.hasBonus) list.push({ label: 'Bonus & Profits', desc: 'Annual profit-sharing additions', available: true });
     if (plan.hasLoanFacility) list.push({ label: 'Loan Facility', desc: `Eligible after ${plan.loanEligibleAfterYears} years. Borrow up to ${plan.maxLoanPercentage}% of surrender value at ${plan.loanInterestRate}% interest.`, available: true });
     if (plan.coverageIncreasing) list.push({ label: 'Dynamic Coverage', desc: `Automatic ${plan.coverageIncreaseRate}% annual sum assured growth until retirement.`, available: true });
+
+    if (plan.reinstatementDays > 0) {
+      list.push({ 
+        label: 'Reinstatement', 
+        desc: `Policy can be restored within ${plan.reinstatementDays} days of lapse by paying ₹${plan.reinstatementPenaltyAmount} penalty plus missed premiums.`, 
+        available: true 
+      });
+    }
 
     list.push({ label: 'Nominee Coverage', available: true, desc: `Up to ${plan.maxNominees} nominees can be assigned for legal protection.` });
 

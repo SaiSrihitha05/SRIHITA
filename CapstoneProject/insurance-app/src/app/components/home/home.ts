@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { PlanService } from '../../services/plan-service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -10,9 +12,39 @@ import { AuthService } from '../../services/auth-service';
   imports: [CommonModule, FormsModule],
   templateUrl: './home.html'
 })
-export class Home {
+export class Home implements OnInit {
   private authService = inject(AuthService);
+  private planService = inject(PlanService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
+  featuredPlans: any[] = [];
+  currentPlanIndex: number = 0;
+
+  ngOnInit() {
+    this.planService.getPlans().subscribe({
+      next: (plans) => {
+        this.featuredPlans = plans;
+      },
+      error: (err) => console.error('Error fetching plans:', err)
+    });
+  }
+
+  nextPlan() {
+    if (this.featuredPlans.length === 0) return;
+    this.currentPlanIndex = (this.currentPlanIndex + 1) % this.featuredPlans.length;
+  }
+
+  prevPlan() {
+    if (this.featuredPlans.length === 0) return;
+    this.currentPlanIndex = (this.currentPlanIndex - 1 + this.featuredPlans.length) % this.featuredPlans.length;
+  }
+
+  getPlanImage(index: number): string {
+    const fileIndex = (index % 6) + 1;
+    const extension = fileIndex === 5 ? 'png' : 'jpg';
+    return `plan${fileIndex}.${extension}`;
+  }
 
   // Simple properties instead of signals
   name: string = '';
@@ -48,6 +80,9 @@ export class Home {
 
   onSubmit() {
     this.isSubmitting = true;
+    this.cdr.detectChanges();
+    this.cdr.markForCheck();
+    
     setTimeout(() => {
       this.isSubmitting = false;
       this.isSubmitted = true;
@@ -56,6 +91,8 @@ export class Home {
       this.email = '';
       this.phone = '';
       this.message = '';
+      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, 1500);
   }
 

@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -54,6 +54,30 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
 
             return File(pdfBytes, "application/pdf",
                 $"Invoice_{id}_{DateTime.UtcNow:yyyyMMdd}.pdf");
+        }
+
+        [HttpPost("reinstate/{policyAssignmentId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> ReinstatePolicy(int policyAssignmentId)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = await _paymentService.ReinstatePolicyAsync(
+                customerId, policyAssignmentId);
+            return Ok(result);
+        }
+
+        [HttpPost("renew/{policyId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> RenewPolicy(int policyId)
+        {
+            var customerId = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            var result = await _paymentService.RenewPolicyAsync(
+                customerId, policyId);
+            return Ok(result);
         }
 
         // ── Admin 

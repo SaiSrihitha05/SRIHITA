@@ -14,5 +14,6 @@ namespace Application.DTOs
         public string DocumentCategory { get; set; } = string.Empty;
         public string UploadedByName { get; set; } = string.Empty;
         public DateTime UploadedAt { get; set; }
+        public string Status { get; set; } = string.Empty;
     }
 }

@@ -44,7 +44,7 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
             if (dto.File == null || dto.File.Length == 0)
                 return BadRequest("No file uploaded.");
 
-            var result = await _kycService.VerifyDeathCertificateAsync(dto.File, dto.CertificateNumber, dto.DateOfDeath, dto.DeceasedName);
+            var result = await _kycService.VerifyDeathCertificateAsync(dto.File, dto.CertificateNumber, dto.DateOfDeath, dto.DeceasedName, dto.PlaceOfDeath);
             return Ok(result);
         }
 

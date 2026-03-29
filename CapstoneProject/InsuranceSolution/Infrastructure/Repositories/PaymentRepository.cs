@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
@@ -26,6 +26,7 @@ namespace Infrastructure.Repositories
         public async Task<Payment?> GetByIdAsync(int id) =>
             await _context.Payments
                 .Include(p => p.PolicyAssignment)
+                    .ThenInclude(pa => pa!.Plan)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
         public async Task<IEnumerable<Payment>> GetByPolicyIdAsync(int policyId) =>

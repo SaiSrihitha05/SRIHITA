@@ -29,7 +29,16 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-50 dark:divide-gray-700">
-        <tr *ngFor="let claim of claims" class="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-all">
+        <tr *ngFor="let claim of claims" 
+            [id]="'claim-row-' + claim.id"
+            [class.bg-blue-100]="claim.id === highlightedClaimId"
+            [class.dark:bg-blue-900/40]="claim.id === highlightedClaimId"
+            [class.ring-2]="claim.id === highlightedClaimId"
+            [class.ring-blue-500]="claim.id === highlightedClaimId"
+            [class.z-10]="claim.id === highlightedClaimId"
+            [class.hover:bg-gray-50]="claim.id !== highlightedClaimId"
+            [class.dark:hover:bg-gray-900/40]="claim.id !== highlightedClaimId"
+            class="transition-all relative">
 
           <td class="px-8 py-6 font-bold text-gray-700 dark:text-gray-200 transition-colors">#{{claim.id}}</td>
 
@@ -360,14 +369,14 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <a [href]="apiUrl + '/' + selectedClaim.id + '/documents/' + doc.id + '/download'" target="_blank"
+                <button (click)="downloadDocument(doc)"
                   class="p-3 bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 rounded-xl transition-all shadow-sm active:scale-90"
-                  title="Download">
+                  title="Download Securely">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                   </svg>
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -484,6 +493,14 @@
               <p class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Maximum Allowable:
                 ₹{{selectedClaim.claimAmount | number}}</p>
             </div>
+          </div>
+
+          <div *ngIf="processForm.status === 'Rejected'" class="space-y-4 animate-in slide-in-from-top-4">
+            <label class="text-[10px] font-black text-red-400 uppercase tracking-widest">Public Rejection Reason (Visible to Customer)</label>
+            <textarea [(ngModel)]="processForm.rejectionReason" rows="3"
+              placeholder="Explain why the claim is rejected and what corrections are needed..."
+              class="w-full p-6 bg-red-50 dark:bg-red-900/10 rounded-[2rem] border-none text-sm font-bold text-red-700 dark:text-red-300 outline-none focus:ring-4 focus:ring-red-500/10 transition-all shadow-inner resize-none"></textarea>
+            <p class="text-[9px] font-bold text-gray-400">This note will be shown to the customer so they can fix the issues.</p>
           </div>
 
           <div class="space-y-3">

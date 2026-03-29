@@ -1,15 +1,16 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-[#f5f2ef] dark:bg-gray-800 transition-all duration-300"
   [class.shadow-md]="isScrolled">
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="w-full mx-auto px-4 border-b-2 border-[#75013F] shadow-sm sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
 
       <div class="flex items-center gap-4">
-        <a routerLink="/" class="hover:opacity-80 transition-opacity">
+        <a routerLink="/" class="hover:opacity-80 transition-opacity flex items-center gap-2">
           <!-- Light Mode Logo -->
           <img src="horizontal_logo.png" alt="The Hartford" class="h-8 w-auto dark:hidden" />
           <!-- Dark Mode Logo -->
           <img src="dark-logo.png" alt="The Hartford" class="h-8 w-auto hidden dark:block" />
+          <span class="font-black text-[#75013f] dark:text-pink-300 text-lg tracking-tight">Life Connect</span>
         </a>
         <app-theme-toggle />
       </div>
@@ -35,18 +36,16 @@
       </div>
       }@else {
       <div class="flex items-center gap-4 ml-auto">
-        <!-- User Name: Displayed next to the circle -->
+        <!-- User Name -->
         <div class="hidden sm:flex flex-col items-end mr-2">
           <span class="text-xs font-bold text-[#75013f] dark:text-pink-300">{{ userName }}</span>
-          <span class="text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-wider uppercase">{{ userRole
-            }}</span>
         </div>
 
         <!-- Dashboard Button: Only visible when NOT on a dashboard page -->
         <a *ngIf="!isOnDashboard" [routerLink]="dashboardLink"
           class="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#75013f] text-white font-semibold text-sm hover:bg-[#5a0130] active:scale-95 transition-all shadow-sm"
           title="Go to your Dashboard">
-          <span></span> Go to Dashboard 
+          <span></span> Go to Dashboard
         </a>
 
         <!-- Notifications: Visible to All Registered Users -->
@@ -60,16 +59,21 @@
           </span>
         </button>
 
-        <!-- Profile Initial -->
-        <a 
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[#75013f] to-[#fe3082] text-white font-bold text-lg shadow-md hover:scale-105 active:scale-95 transition-all focus:outline-none"
-          title="My Profile">
-          {{ userInitial }}
-        </a>
+        <!-- Profile & Role (Grouped) -->
+        <div class="flex flex-col items-center">
+          <a [routerLink]="profileLink"
+            class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[#75013f] to-[#fe3082] text-white font-bold text-lg shadow-md hover:scale-105 active:scale-95 transition-all focus:outline-none"
+            title="My Profile">
+            {{ userInitial }}
+          </a>
+          <span class="text-[9px] text-[#75013f] dark:text-pink-400 font-bold uppercase tracking-tighter mt-0.5">
+            {{ userRole }}
+          </span>
+        </div>
 
         <!-- Logout Button -->
         <button (click)="logout()"
-          class="px-4 py-2 bg-[#75013f] text-white rounded-lg font-bold text-sm hover:bg-[#5a0130] transition-all shadow-sm active:scale-95">
+          class="ml-2 px-4 py-2 bg-[#75013f] text-white rounded-lg font-bold text-sm hover:bg-[#5a0130] transition-all shadow-sm active:scale-95">
           Logout
         </button>
       </div>

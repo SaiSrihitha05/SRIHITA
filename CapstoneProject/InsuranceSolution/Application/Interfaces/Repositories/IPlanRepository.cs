@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+using Application.DTOs;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,7 @@ namespace Application.Interfaces.Repositories
         void Update(Plan plan);
         void Delete(Plan plan);
         Task<IEnumerable<Plan>> GetFilteredAsync(PlanFilterDto filter);
+        Task<IEnumerable<Plan>> GetByIdsAsync(List<int> ids);
         Task SaveChangesAsync();
         Task<bool> ExistsByNameAsync(string planName);
     }

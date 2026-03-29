@@ -277,27 +277,59 @@ namespace Application.Services
                     PaymentId = n.PaymentId
                 }).ToList();
 
+            // New Metrics
+            var totalCoverage = activePolicies
+                .SelectMany(p => p.PolicyMembers)
+                .Sum(m => m.CoverageAmount);
+
+            var monthlyCommitment = activePolicies.Sum(p =>
+            {
+                var annualFactor = p.PremiumFrequency switch
+                {
+                    PremiumFrequency.Monthly => 12,
+                    PremiumFrequency.Quarterly => 4,
+                    PremiumFrequency.Yearly => 1,
+                    _ => 1
+                };
+                return (p.TotalPremiumAmount * annualFactor) / 12;
+            });
+
+            var settledClaims = myClaims.Count(c => c.Status == ClaimStatus.Settled);
+            var rejectedClaims = myClaims.Count(c => c.Status == ClaimStatus.Rejected);
+            var successRate = (settledClaims + rejectedClaims) > 0
+                ? Math.Round((double)settledClaims / (settledClaims + rejectedClaims) * 100, 1)
+                : 0;
+
+            var coveredMembers = activePolicies
+                .SelectMany(p => p.PolicyMembers)
+                .Count();
+
             return new CustomerDashboardDto
             {
                 TotalPolicies = myPolicies.Count(),
-                ActivePolicies = myPolicies
-                    .Count(p => p.Status == PolicyStatus.Active),
-                PendingPolicies = myPolicies
-                    .Count(p => p.Status == PolicyStatus.Pending),
+                ActivePolicies = myPolicies.Count(p => p.Status == PolicyStatus.Active),
+                PendingPolicies = myPolicies.Count(p => p.Status == PolicyStatus.Pending),
+                LapsedPolicies = myPolicies.Count(p => p.Status == PolicyStatus.Lapsed),
+                ExpiredPolicies = myPolicies.Count(p => p.Status == PolicyStatus.Expired),
+
                 TotalPremiumPaid = myPayments.Sum(p => p.Amount),
+                TotalCoverageAmount = totalCoverage,
+                MonthlyCommitment = Math.Round(monthlyCommitment, 2),
+
                 NextDueDate = nextDuePolicy?.NextDueDate,
                 NextDueAmount = nextDuePolicy?.TotalPremiumAmount,
                 NextDuePolicyId = nextDuePolicy?.Id,
                 IsPaymentDueSoon = isDueSoon,
+
                 TotalClaims = myClaims.Count(),
-                PendingClaims = myClaims
-                    .Count(c => c.Status == ClaimStatus.Submitted ||
-                                c.Status == ClaimStatus.UnderReview),
-                RecentPayments = recentPayments
-                    .Select(p => MapPaymentToDto(p)).ToList(),
-                MyPolicies = myPolicies
-                    .OrderByDescending(p => p.CreatedAt)
-                    .Select(MapPolicyToDto).ToList(),
+                PendingClaims = myClaims.Count(c => c.Status == ClaimStatus.Submitted || c.Status == ClaimStatus.UnderReview),
+                SettledClaims = settledClaims,
+                ClaimSuccessRate = successRate,
+
+                CoveredMembersCount = coveredMembers,
+
+                RecentPayments = recentPayments.Select(MapPaymentToDto).ToList(),
+                MyPolicies = myPolicies.OrderByDescending(p => p.CreatedAt).Select(MapPolicyToDto).ToList(),
                 HasOverduePayment = hasOverdue,
                 DaysOverdue = daysOverdue,
                 RecentNotifications = recentNotifications,

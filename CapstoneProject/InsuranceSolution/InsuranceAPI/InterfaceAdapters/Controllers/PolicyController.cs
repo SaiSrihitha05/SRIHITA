@@ -125,6 +125,14 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
             return Ok(new { message = "Agent assigned successfully" });
         }
 
+        [HttpPost("{id}/remind-expiry")]
+        [Authorize(Roles = "Admin,Agent")]
+        public async Task<IActionResult> SendExpiryReminder(int id)
+        {
+            await _policyService.SendExpiryReminderAsync(id);
+            return Ok(new { message = "Expiry reminder sent successfully" });
+        }
+
         //  Admin + Agent + Customer 
 
         [HttpGet("{id}")]
@@ -246,6 +254,57 @@ namespace InsuranceAPI.InterfaceAdapters.Controllers
                 User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             await _policyService.DeleteDraftAsync(id, customerId);
             return NoContent();
+        }
+
+        [HttpPost("replace-document/{documentId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> ReplaceDocument(int documentId, IFormFile file)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var result = await _policyService.ReplaceDocumentAsync(documentId, userId, file);
+            return Ok(result);
+        }
+
+        [HttpGet("{policyId}/reinstatement-quote")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetReinstatementQuote(int policyId)
+        {
+            try
+            {
+                var quote = await _policyService.GetReinstatementQuoteAsync(policyId);
+                return Ok(quote);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{policyId}/reinstate")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> ReinstatePolicy(int policyId, [FromBody] ReinstateRequestDto dto)
+        {
+            try
+            {
+                var policyNumber = await _policyService.ReinstatePolicyAsync(policyId, dto.PaymentReference);
+                return Ok(new { message = $"Policy {policyNumber} reinstated successfully", policyNumber });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }

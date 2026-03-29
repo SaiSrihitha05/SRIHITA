@@ -35,6 +35,12 @@ namespace Infrastructure.Repositories
                 .Include(p => p.Loans)      // ✅ ADDED
                 .FirstOrDefaultAsync(p => p.Id == id);
 
+        public async Task<PolicyAssignment?> GetByIdWithPlanAsync(int id) =>
+            await _context.PolicyAssignments
+                .Include(p => p.Plan)
+                .Include(p => p.Customer)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
         public async Task<IEnumerable<PolicyAssignment>> GetAllAsync() =>
             await _context.PolicyAssignments
                 .Include(p => p.Customer)
@@ -43,6 +49,7 @@ namespace Infrastructure.Repositories
                 .Include(p => p.PolicyNominees)
                 .Include(p => p.Documents)
                 .Include(p => p.Plan)
+                .Include(p => p.Payments)
                 .ToListAsync();
 
         public async Task<IEnumerable<PolicyAssignment>> GetByCustomerIdAsync(
@@ -53,6 +60,7 @@ namespace Infrastructure.Repositories
                 .Include(p => p.PolicyMembers)
                 .Include(p => p.PolicyNominees)
                 .Include(p => p.Documents)
+                .Include(p => p.Payments)
                 .Where(p => p.CustomerId == customerId)
                 .ToListAsync();
 
@@ -64,16 +72,16 @@ namespace Infrastructure.Repositories
                 .Include(p => p.PolicyMembers)
                 .Include(p => p.PolicyNominees)
                 .Include(p => p.Documents)
+                .Include(p => p.Payments)
                 .Where(p => p.AgentId == agentId)
                 .ToListAsync();
 
         public async Task<string> GeneratePolicyNumberAsync()
         {
-            var datePart = DateTime.UtcNow.ToString("yyyyMMdd");
-            var randomPart = new Random().Next(1000, 9999);
-            var policyNumber = $"POL-{datePart}-{randomPart}";
+            var year = DateTime.UtcNow.Year;
+            var randomPart = new Random().Next(1, 100000);
+            var policyNumber = $"POL{year}{randomPart:D5}";
 
-            // Double check uniqueness (recursive or just retry logic could be added here if needed)
             var exists = await _context.PolicyAssignments.AnyAsync(p => p.PolicyNumber == policyNumber);
             if (exists) return await GeneratePolicyNumberAsync(); 
 
@@ -85,6 +93,12 @@ namespace Infrastructure.Repositories
 
         public void Update(PolicyAssignment policy) =>
             _context.PolicyAssignments.Update(policy);
+
+        public async Task UpdateAsync(PolicyAssignment policy)
+        {
+            _context.PolicyAssignments.Update(policy);
+            await _context.SaveChangesAsync();
+        }
 
         public async Task SaveChangesAsync() =>
             await _context.SaveChangesAsync();
@@ -130,6 +144,13 @@ namespace Infrastructure.Repositories
                 )
                 .ToListAsync();
         }
+        public async Task<PolicyAssignment?> GetByPolicyNumberAsync(string policyNumber) =>
+            await _context.PolicyAssignments
+                .Include(p => p.Plan)
+                .Include(p => p.Customer) // ✅ Added
+                .Include(p => p.PolicyMembers)
+                .FirstOrDefaultAsync(p => p.PolicyNumber == policyNumber);
+
         public void Delete(PolicyAssignment policy)
     => _context.PolicyAssignments.Remove(policy);
     }

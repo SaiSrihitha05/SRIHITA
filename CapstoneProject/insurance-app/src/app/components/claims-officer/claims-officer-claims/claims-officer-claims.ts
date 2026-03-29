@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ClaimService } from '../../../services/claim-service';
 import { PolicyService } from '../../../services/policy-service';
 
@@ -16,6 +16,9 @@ export class ClaimsOfficerClaims implements OnInit {
   private policyService = inject(PolicyService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  highlightedClaimId: number | null = null;
 
   claims: any[] = [];
   loading = true;
@@ -35,6 +38,7 @@ export class ClaimsOfficerClaims implements OnInit {
   processForm = {
     status: 'Settled',
     remarks: '',
+    rejectionReason: '',
     settlementAmount: null as number | null
   };
 
@@ -42,6 +46,19 @@ export class ClaimsOfficerClaims implements OnInit {
 
   ngOnInit() {
     this.loadMyClaims();
+
+    const highlightId = this.route.snapshot.queryParamMap.get('claimId');
+    if (highlightId) {
+      this.highlightedClaimId = parseInt(highlightId);
+    }
+  }
+
+  scrollToHighlighted() {
+    if (!this.highlightedClaimId) return;
+    const el = document.getElementById(`claim-row-${this.highlightedClaimId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   loadMyClaims() {
@@ -51,6 +68,9 @@ export class ClaimsOfficerClaims implements OnInit {
         this.claims = data;
         this.loading = false;
         this.cdr.detectChanges();
+        if (this.highlightedClaimId) {
+          setTimeout(() => this.scrollToHighlighted(), 500);
+        }
       },
       error: () => {
         this.loading = false;
@@ -74,6 +94,7 @@ export class ClaimsOfficerClaims implements OnInit {
         this.processForm = {
           status: 'Settled',
           remarks: fullClaim.remarks || '',
+          rejectionReason: fullClaim.rejectionReason || '',
           settlementAmount: fullClaim.netSettlementAmount > 0 ? fullClaim.netSettlementAmount : fullClaim.claimAmount
         };
 
@@ -98,6 +119,11 @@ export class ClaimsOfficerClaims implements OnInit {
       return;
     }
 
+    if (this.processForm.status === 'Rejected' && !this.processForm.rejectionReason.trim()) {
+      alert('Rejection reason is required');
+      return;
+    }
+
     // Settlement amount required when Approved or Settled
     const isSettlementNeeded = this.processForm.status === 'Approved' || this.processForm.status === 'Settled';
     if (isSettlementNeeded &&
@@ -111,6 +137,10 @@ export class ClaimsOfficerClaims implements OnInit {
       status: this.processForm.status,
       remarks: this.processForm.remarks
     };
+
+    if (this.processForm.status === 'Rejected') {
+      dto.rejectionReason = this.processForm.rejectionReason;
+    }
 
     if (isSettlementNeeded) {
       dto.settlementAmount = this.processForm.settlementAmount;
@@ -126,16 +156,12 @@ export class ClaimsOfficerClaims implements OnInit {
         // 2. Stop the loading spinner
         this.submitting = false;
 
-        // 3. Navigate conditionally to avoid "Navigation failed"
+        // 3. Navigate/Refresh
         if (this.router.url !== '/claims-officer-dashboard/my-claims') {
-          this.router.navigate(['/claims-officer-dashboard/my-claims']).then(navigated => {
-            if (navigated) {
-              console.log('Navigation successful');
-            }
+          this.router.navigate(['/claims-officer-dashboard/my-claims']).then(() => {
             this.loadMyClaims();
           });
         } else {
-          // Already on the page, just refresh data
           this.loadMyClaims();
         }
 
@@ -143,7 +169,6 @@ export class ClaimsOfficerClaims implements OnInit {
       },
       error: (err) => {
         this.submitting = false;
-        // Show detailed error if available from ProblemDetails (ASP.NET Core standard)
         const errorMsg = err.error?.detail || err.error?.title || 'Error updating claim status';
         alert(`Failed to Process Claim: ${errorMsg}`);
         this.cdr.detectChanges();
@@ -157,13 +182,36 @@ export class ClaimsOfficerClaims implements OnInit {
       case 'UnderReview': return 'bg-amber-500';
       case 'Approved': return 'bg-green-400';
       case 'Settled': return 'bg-green-600';
+      case 'Resubmitted': return 'bg-indigo-500 animate-pulse';
       case 'Rejected': return 'bg-red-500';
+      case 'PermanentlyRejected': return 'bg-red-900';
       default: return 'bg-gray-500';
     }
   }
 
   canProcess(claim: any): boolean {
-    // Disable processing for final states: Settled or Rejected
-    return claim.status !== 'Settled' && claim.status !== 'Rejected';
+    // Disable processing for final states: Settled or Rejected (Permanently)
+    return claim.status !== 'Settled' && claim.status !== 'PermanentlyRejected';
+  }
+  
+  downloadDocument(doc: any) {
+    if (!this.selectedClaim) return;
+    
+    this.claimService.downloadClaimDocument(this.selectedClaim.id, doc.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      },
+      error: (err) => {
+        console.error('Error downloading document:', err);
+        alert('Failed to download document: ' + (err.error?.message || 'Unknown error'));
+      }
+    });
   }
 }

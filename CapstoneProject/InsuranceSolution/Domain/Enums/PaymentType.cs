@@ -9,6 +9,8 @@ namespace Domain.Enums
     public enum PaymentType
     {
         PremiumPayment,
-        LoanRepayment
+        LoanRepayment,
+        ReinstatementPayment,
+        RenewalPayment
     }
 }

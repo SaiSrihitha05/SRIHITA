@@ -13,11 +13,11 @@
             200 Years</span>
         </div>
         <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-[#75013f] dark:text-pink-300 leading-[1.1]">
-          Life Insurance <br />
-          <span class="text-[#fe3082] dark:text-pink-400">Simplified.</span>
+          Hartford <br />
+          <span class="text-[#fe3082] dark:text-pink-400 text-6xl">Life Connect.</span>
         </h1>
-        <p class="text-gray-600 dark:text-gray-400 text-xl leading-relaxed max-w-xl">
-          The Hartford brings you comprehensive life insurance solutions designed to safeguard your family's future and
+        <p class="text-gray-600 dark:text-gray-400 text-xl leading-relaxed max-w-xl font-medium">
+          Hartford Life Connect brings you comprehensive insurance solutions designed to safeguard your family's future and
           provide lasting peace of mind.
         </p>
         <div class="flex flex-wrap gap-4 pt-4">
@@ -25,10 +25,7 @@
             class="px-10 py-4 bg-[#75013f] text-white rounded-2xl font-bold hover:bg-[#fe3082] transition-all shadow-xl shadow-[#75013f]/20">
             Explore
           </a>
-          <button (click)="toggleExpertAlert()"
-            class="px-10 py-4 border-2 border-[#75013f] text-[#75013f] dark:text-pink-300 dark:border-pink-300 rounded-2xl font-bold hover:bg-[#75013f] hover:text-white transition-all">
-            Talk to an Expert
-          </button>
+
         </div>
       </div>
       <div class="flex justify-center relative">
@@ -48,6 +45,88 @@
     </div>
   </div>
 </section>
+
+<!-- Featured Plans Carousel -->
+<section *ngIf="featuredPlans.length > 0" class="py-24 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+      <div class="space-y-4">
+        <div class="inline-block px-4 py-1.5 bg-[#fe3082]/10 rounded-full">
+          <span class="text-[#fe3082] text-[10px] font-black uppercase tracking-widest">Our Legacy Offerings</span>
+        </div>
+        <h2 class="text-4xl md:text-5xl font-black text-[#75013f] dark:text-pink-300">Featured Insurance Plans</h2>
+      </div>
+      <div class="flex gap-4">
+        <button (click)="prevPlan()" 
+          class="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center text-[#75013f] dark:text-pink-300 hover:bg-[#75013f] hover:text-white dark:hover:bg-pink-300 dark:hover:text-gray-900 transition-all shadow-sm">
+          <span class="text-xl">←</span>
+        </button>
+        <button (click)="nextPlan()" 
+          class="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-700 flex items-center justify-center text-[#75013f] dark:text-pink-300 hover:bg-[#75013f] hover:text-white dark:hover:bg-pink-300 dark:hover:text-gray-900 transition-all shadow-sm">
+          <span class="text-xl">→</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="relative overflow-hidden group rounded-[3rem]">
+      <div class="flex transition-transform duration-700 ease-in-out" 
+        [style.transform]="'translateX(-' + (currentPlanIndex * 100) + '%)'">
+        
+        <div *ngFor="let plan of featuredPlans; let i = index" class="w-full flex-shrink-0">
+          <div class="bg-[#f5f2ef] dark:bg-gray-800/80 rounded-[3rem] p-10 md:p-16 flex flex-col md:flex-row gap-12 items-center border border-white/50 dark:border-gray-700">
+            <div class="flex-1 space-y-8">
+              <div class="flex items-center gap-3">
+                <span class="px-4 py-1 bg-white dark:bg-gray-700 rounded-full text-[10px] font-black text-[#fe3082] uppercase tracking-widest shadow-sm">
+                  {{ plan.planType }}
+                </span>
+                <span *ngIf="plan.hasBonus" class="px-4 py-1 bg-[#75013f] text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
+                  Annual Bonus
+                </span>
+              </div>
+              
+              <h3 class="text-4xl md:text-6xl font-black text-[#75013f] dark:text-pink-100 leading-tight">
+                {{ plan.planName }}
+              </h3>
+              
+              <p class="text-gray-600 dark:text-gray-400 text-lg md:text-xl leading-relaxed font-medium max-w-2xl">
+                Secure your family's future with our most trusted {{ plan.planType }} policy. 
+                Features include {{ plan.hasMaturityBenefit ? 'guaranteed maturity returns' : 'comprehensive coverage' }} 
+                and flexible premium options to suit your budget.
+              </p>
+
+              <div class="flex flex-wrap gap-8 pt-4">
+                <div class="space-y-1">
+                  <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Starting Age</p>
+                  <p class="text-xl font-black text-[#75013f] dark:text-pink-100">{{ plan.minAge ?? 18 }} Years</p>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Benefit Period</p>
+                  <p class="text-xl font-black text-[#75013f] dark:text-pink-100">Up to {{ plan.maxPolicyTermYears ?? 30 }} Years</p>
+                </div>
+              </div>
+
+              <button (click)="navigateToExplore()" 
+                class="inline-flex items-center gap-4 px-10 py-5 bg-[#75013f] text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] shadow-2xl shadow-[#75013f]/20 hover:bg-[#fe3082] hover:scale-105 transition-all duration-300">
+                View Plan Details →
+              </button>
+            </div>
+            
+            <div class="w-full md:w-1/3 aspect-square relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-[#75013f] to-[#fe3082] rounded-[3rem] rotate-6 opacity-10"></div>
+              <div class="relative h-full w-full bg-white dark:bg-gray-800 rounded-[3rem] shadow-2xl flex items-center justify-center overflow-hidden border-4 border-white/20">
+                <img [src]="getPlanImage(i)" class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500" [alt]="plan.planName">
+                <!-- Background decoration -->
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-[#fe3082]/10 rounded-full blur-3xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="py-20 px-10 bg-white dark:bg-gray-900 transition-colors duration-300">
   <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
@@ -220,13 +299,13 @@
           <div class="space-y-4">
             <input [(ngModel)]="name" name="name" placeholder="Your Full Name" required
               class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm">
-            <input [(ngModel)]="email" name="email" type="email" placeholder="Email Address" required
+            <input [(ngModel)]="phone" name="phone" type="tel" placeholder="Mobile Number" required
               class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm">
             <textarea [(ngModel)]="message" name="message" rows="4"
               placeholder="How can we help you secure your legacy?" required
               class="w-full px-6 py-4 rounded-2xl border-2 border-white dark:border-gray-700 bg-white dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:border-[#75013f] dark:focus:border-[#fe3082] outline-none transition-all shadow-sm resize-none"></textarea>
           </div>
-          <button type="submit" [disabled]="isSubmitting"
+          <button type="submit" (click)="onSubmit()" [disabled]="isSubmitting"
             class="w-full py-5 bg-[#75013f] dark:bg-pink-700 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-xl shadow-[#75013f]/20 disabled:opacity-50">
             {{ isSubmitting ? 'Submitting...' : 'Request a Callback' }}
           </button>

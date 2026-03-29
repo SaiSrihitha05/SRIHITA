@@ -22,6 +22,119 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Domain.Entities.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AgentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LinkedPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LinkedPlanName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LinkedPlanUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MessageType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("SessionInternalId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("SessionInternalId");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ChatSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AgentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClaimsOfficerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAgentAssigned")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsChatClosed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsClaimsOfficerAssigned")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("LinkedPolicyId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RelatedClaimId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RelatedPolicyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RelatedClaimId");
+
+                    b.HasIndex("RelatedPolicyId");
+
+                    b.ToTable("ChatSessions");
+                });
+
             modelBuilder.Entity("Domain.Entities.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -46,6 +159,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PolicyAssignmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UploadedAt")
@@ -117,8 +233,17 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("ProcessedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Remarks")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ResubmissionCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ResubmissionDeadline")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal?>("SettlementAmount")
                         .HasColumnType("decimal(18,2)");
@@ -355,6 +480,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("PlanType")
                         .HasColumnType("int");
 
+                    b.Property<int>("ReinstatementDays")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ReinstatementPenaltyAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("TerminalBonusRate")
                         .HasColumnType("decimal(18,2)");
 
@@ -370,6 +501,10 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("AgentId")
                         .HasColumnType("int");
@@ -390,6 +525,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("LapsedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("NextDueDate")
                         .HasColumnType("datetime2");
 
@@ -403,6 +541,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("PremiumFrequency")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ReinstatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Remarks")
                         .HasColumnType("nvarchar(max)");
@@ -631,7 +772,7 @@ namespace Infrastructure.Migrations
                             Id = 1,
                             LastAgentAssignmentIndex = -1,
                             LastClaimsOfficerIndex = -1,
-                            UpdatedAt = new DateTime(2026, 3, 19, 13, 9, 11, 985, DateTimeKind.Utc).AddTicks(8860)
+                            UpdatedAt = new DateTime(2026, 3, 29, 1, 54, 50, 469, DateTimeKind.Utc).AddTicks(8869)
                         });
                 });
 
@@ -717,16 +858,55 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 3, 19, 13, 9, 12, 467, DateTimeKind.Utc).AddTicks(6960),
+                            CreatedAt = new DateTime(2026, 3, 29, 1, 54, 50, 835, DateTimeKind.Utc).AddTicks(1393),
                             Email = "admin@insurance.com",
                             IsActive = true,
                             IsKycVerified = false,
                             KycVerificationStatus = "Pending",
                             Name = "System Admin",
-                            PasswordHash = "$2a$11$fzHcByMIcKSsSisZMnsQc.t0QeAjl85c2JPj2xM6hOvWbfE16V3QO",
+                            PasswordHash = "$2a$11$b125uq/Ff6EXA6Z3NEnQ7ufTTugcivy66paKsW23JefESmHCasyYW",
                             Phone = "9999999999",
                             Role = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.ChatMessage", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "Agent")
+                        .WithMany()
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.User", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.Entities.ChatSession", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionInternalId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ChatSession", b =>
+                {
+                    b.HasOne("Domain.Entities.InsuranceClaim", "RelatedClaim")
+                        .WithMany()
+                        .HasForeignKey("RelatedClaimId");
+
+                    b.HasOne("Domain.Entities.PolicyAssignment", "RelatedPolicy")
+                        .WithMany()
+                        .HasForeignKey("RelatedPolicyId");
+
+                    b.Navigation("RelatedClaim");
+
+                    b.Navigation("RelatedPolicy");
                 });
 
             modelBuilder.Entity("Domain.Entities.Document", b =>

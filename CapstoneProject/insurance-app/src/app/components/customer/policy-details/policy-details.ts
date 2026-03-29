@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { PolicyService } from '../../../services/policy-service';
 import { LoanService } from '../../../services/loan.service';
+import { PaymentService } from '../../../services/payment-service';
+import { AuthService } from '../../../services/auth-service';
 
 @Component({
   selector: 'app-policy-details',
@@ -16,10 +18,13 @@ export class PolicyDetails implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
   private loanService = inject(LoanService);
+  private paymentService = inject(PaymentService);
+  private authService = inject(AuthService);
 
   policy: any = null;
   loading = true;
   outstandingLoan = 0;
+  userRole = this.authService.getUserRole();
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -87,6 +92,50 @@ export class PolicyDetails implements OnInit {
           this.fetchOutstandingLoan();
         },
         error: (err) => alert(err.error?.message || 'Loan application failed')
+      });
+    }
+  }
+
+  onReplaceDocument(documentId: number, event: any) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (confirm(`Replace this document with ${file.name}?`)) {
+      this.policyService.replaceDocument(documentId, file).subscribe({
+        next: () => {
+          alert('Document replaced successfully. Policy status updated to Pending for re-verification.');
+          this.ngOnInit(); // Refresh policy details
+        },
+        error: (err) => {
+          alert(err.error?.message || 'Failed to replace document');
+        }
+      });
+    }
+  }
+
+  onRenewPolicy() {
+    if (confirm('Do you want to renew this policy? This will extend your coverage and process the renewal premium.')) {
+      this.paymentService.renewPolicy(this.policy.id).subscribe({
+        next: (res) => {
+          alert('Policy renewed successfully! Your new expiry date and updated coverage are now active.');
+          this.ngOnInit(); // Refresh details
+        },
+        error: (err) => {
+          alert(err.error?.message || 'Failed to renew policy');
+        }
+      });
+    }
+  }
+
+  onRemindExpiry() {
+    if (confirm('Send a renewal reminder email to the customer?')) {
+      this.policyService.remindExpiry(this.policy.id).subscribe({
+        next: (res: any) => {
+          alert(res.message);
+        },
+        error: (err) => {
+          alert(err.error?.message || 'Failed to send reminder');
+        }
       });
     }
   }

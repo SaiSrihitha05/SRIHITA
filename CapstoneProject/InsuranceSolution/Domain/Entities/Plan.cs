@@ -71,5 +71,9 @@ namespace Domain.Entities
 
         public decimal BonusRate { get; set; } = 0;
         public decimal TerminalBonusRate { get; set; } = 0;
+
+        // ✅ REINSTATEMENT FIELDS
+        public decimal ReinstatementPenaltyAmount { get; set; } = 0;
+        public int ReinstatementDays { get; set; } = 0;
     }
 }

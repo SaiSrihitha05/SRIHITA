@@ -94,6 +94,12 @@ namespace Infrastructure.Repositories
         public void Update(InsuranceClaim claim) =>
             _context.Claims.Update(claim);
 
+        public async Task UpdateAsync(InsuranceClaim claim)
+        {
+            _context.Claims.Update(claim);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task SaveChangesAsync() =>
             await _context.SaveChangesAsync();
     }

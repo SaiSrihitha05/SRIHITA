@@ -3,6 +3,10 @@
   class="min-h-screen bg-[#f5f2ef] dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
   <router-outlet />
 </main>
+@if(userRole !== 'Agent' && userRole !== 'ClaimsOfficer' && userRole !== 'Admin') {
+<app-chatbot />
+}
 @if(!isLoggedIn) {
+
 <app-footer />
 }

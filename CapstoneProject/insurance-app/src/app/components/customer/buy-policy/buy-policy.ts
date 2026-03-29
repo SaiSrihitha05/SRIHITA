@@ -38,7 +38,8 @@ export class BuyPolicy implements OnInit {
   policyData = {
     startDate: '',
     premiumFrequency: 'Monthly', // Options: Monthly, Quarterly, Yearly
-    termYears: 0
+    termYears: 0,
+    address: ''
   };
 
   members: any[] = [];
@@ -47,6 +48,9 @@ export class BuyPolicy implements OnInit {
   identityProof: File | null = null;
   incomeProof: File | null = null;
   memberDocuments: File[] = [];
+
+  incomeKycStatus: string = 'Pending';
+  incomeExtractedData: any = null;
 
   get isWholeLifePlan(): boolean {
     return !!this.selectedPlan?.isCoverageUntilAge;
@@ -122,6 +126,7 @@ export class BuyPolicy implements OnInit {
         this.policyData.termYears = draft.termYears || 
           (this.isWholeLifePlan ? 0 : this.selectedPlan?.minTermYears);
         this.policyData.premiumFrequency = draft.premiumFrequency || 'Monthly';
+        this.policyData.address = draft.address || '';
 
         // Restore members
         if (draft.members && draft.members.length > 0) {
@@ -244,8 +249,8 @@ export class BuyPolicy implements OnInit {
       planId: this.planId || null,
       startDate: this.policyData.startDate || null,
       termYears: this.policyData.termYears || 0,
-      // Convert string to enum value
       premiumFrequency: freqMap[this.policyData.premiumFrequency] ?? 0,
+      address: this.policyData.address || '',
 
       // Only send members/nominees if they have at least a Name
       members: this.members.filter(m => m.MemberName).map(m => ({
@@ -402,10 +407,11 @@ export class BuyPolicy implements OnInit {
         return hasBasicInfo && hasValidAge && hasValidCoverage && hasDocument && isRelationshipConsistent && isKycVerified;
       });
 
-      // Income proof is mandatory for the policy holder at Step 2
+      // Income proof is mandatory and must be OCR verified for Step 2
       const hasIncomeProof = !!this.incomeProof;
+      const isIncomeVerified = this.incomeKycStatus === 'Verified';
 
-      return areMembersValid && hasIncomeProof;
+      return areMembersValid && hasIncomeProof && isIncomeVerified;
     }
 
     if (this.step === 3) {
@@ -436,12 +442,13 @@ export class BuyPolicy implements OnInit {
     const file = event.target.files[0];
     if (type === 'id') {
       this.identityProof = file;
-      this.performKycCheck(0); // Primary insured is always index 0
     }
-    if (type === 'income') this.incomeProof = file;
+    if (type === 'income') {
+      this.incomeProof = file;
+      this.resetIncomeKyc();
+    }
     if (type === 'member' && index !== undefined) {
       this.memberDocuments[index] = file;
-      this.performKycCheck(index);
     }
     this.cdr.detectChanges();
   }
@@ -458,7 +465,7 @@ export class BuyPolicy implements OnInit {
     m.KycStatus = 'Processing';
     this.cdr.detectChanges();
 
-    this.kycService.verifyNewMemberKyc(m.IdProofType, m.IdProofNumber, m.MemberName, file).subscribe({
+    this.kycService.verifyNewMemberKyc(m.IdProofType, m.IdProofNumber, m.MemberName, file, m.Gender, m.DateOfBirth).subscribe({
       next: (res) => {
         m.KycStatus = res.isSuccess ? 'Verified' : 'Failed';
         m.ExtractedData = res;
@@ -470,6 +477,32 @@ export class BuyPolicy implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  performIncomeKycCheck() {
+    if (!this.customerProfile || !this.incomeProof) return;
+
+    this.incomeKycStatus = 'Processing';
+    this.cdr.detectChanges();
+
+    this.kycService.verifyNewMemberKyc('Income Certificate', 'INCOME', this.customerProfile.name, this.incomeProof).subscribe({
+      next: (res) => {
+        this.incomeKycStatus = res.isSuccess ? 'Verified' : 'Failed';
+        this.incomeExtractedData = res;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Income KYC Error:', err);
+        this.incomeKycStatus = 'Failed';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  resetIncomeKyc() {
+    this.incomeKycStatus = 'Pending';
+    this.incomeExtractedData = null;
+    this.cdr.detectChanges();
   }
 
   resetKyc(index: number) {
@@ -536,7 +569,8 @@ export class BuyPolicy implements OnInit {
       planId: this.planId,
       startDate: this.policyData.startDate,
       premiumFrequency: this.policyData.premiumFrequency,
-      termYears: this.policyData.termYears
+      termYears: this.policyData.termYears,
+      address: this.policyData.address
     };
 
     fd.append('policy', JSON.stringify(policyJson));

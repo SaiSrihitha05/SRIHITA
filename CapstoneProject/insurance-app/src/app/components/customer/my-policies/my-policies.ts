@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PolicyService } from '../../../services/policy-service';
+import { PaymentService } from '../../../services/payment-service';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -12,6 +13,7 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class MyPolicies implements OnInit {
   private policyService = inject(PolicyService);
+  private paymentService = inject(PaymentService);
   private cdr = inject(ChangeDetectorRef);
   private router = inject(Router);
 
@@ -20,6 +22,16 @@ export class MyPolicies implements OnInit {
   selectedStatus: string = 'All';
   searchTerm: string = '';
   uniqueStatuses: string[] = [];
+  
+  // Reinstatement Modal State
+  selectedPolicyForReinstatement: any = null;
+  showReinstatementModal = false;
+  reinstatementQuote: any = null;
+  reinstatementLoading = false;
+  processing = false;
+  paymentSuccess = false;
+  paymentResult: any = null;
+  errorMessage = '';
 
   ngOnInit() {
     this.loadPolicies();
@@ -111,6 +123,80 @@ export class MyPolicies implements OnInit {
     this.router.navigate(['/customer-dashboard/pay-premium'], {
       queryParams: { policyId: policy.id, amount: policy.totalPremiumAmount }
     });
+  }
+
+  // Reinstatement Flow
+  openReinstatementModal(policy: any) {
+    this.selectedPolicyForReinstatement = policy;
+    this.showReinstatementModal = true;
+    this.reinstatementLoading = true;
+    this.reinstatementQuote = null;
+    this.paymentSuccess = false;
+    this.paymentResult = null;
+    this.processing = false;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+
+    this.policyService.getReinstatementQuote(policy.id).subscribe({
+      next: (quote) => {
+        this.reinstatementQuote = quote;
+        this.reinstatementLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to get reinstatement quote', err);
+        alert(err.error?.message || 'Failed to get reinstatement quote');
+        this.closeReinstatementModal();
+      }
+    });
+  }
+
+  confirmReinstatement() {
+    this.processing = true;
+    this.errorMessage = '';
+    this.cdr.detectChanges();
+
+    // Mock processing delay for realism
+    setTimeout(() => {
+      this.paymentService.reinstatePolicy(this.selectedPolicyForReinstatement.id).subscribe({
+        next: (result) => {
+          this.processing = false;
+          this.paymentSuccess = true;
+          this.paymentResult = result;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.processing = false;
+          this.errorMessage = err.error?.message || 'Reinstatement failed. Please try again.';
+          this.cdr.detectChanges();
+        }
+      });
+    }, 2000);
+  }
+
+  downloadInvoice(): void {
+    if (!this.paymentResult) return;
+    this.paymentService.downloadInvoice(this.paymentResult.id)
+      .subscribe(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `reinstatement-${this.paymentResult.invoiceNumber}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
+  closeAndRefresh() {
+    this.closeReinstatementModal();
+    this.loadPolicies();
+  }
+
+  closeReinstatementModal() {
+    this.showReinstatementModal = false;
+    this.selectedPolicyForReinstatement = null;
+    this.reinstatementQuote = null;
+    this.cdr.detectChanges();
   }
 
   private isNear(date: Date, days: number): boolean {

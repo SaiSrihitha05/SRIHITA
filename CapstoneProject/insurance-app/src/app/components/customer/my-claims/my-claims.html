@@ -40,7 +40,7 @@
                     text-gray-400 dark:text-gray-500 border-b dark:border-gray-700 transition-colors">
         <tr>
           <th class="px-8 py-5">Claim ID</th>
-          <th class="px-8 py-5">Policy & Member</th>
+          <th class="px-8 py-5">Policy</th>
           <th class="px-8 py-5 text-center">Type</th>
           <th class="px-8 py-5">Status & Officer</th>
           <th class="px-8 py-5">Last Update</th>
@@ -57,9 +57,7 @@
 
           <td class="px-8 py-6">
             <p class="font-bold text-gray-700 dark:text-gray-200 text-sm">{{claim.policyNumber}}</p>
-            <p
-              class="text-[10px] text-gray-400 font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">
-              Member: {{claim.policyMemberName}}</p>
+
           </td>
 
           <td class="px-8 py-6 text-center">
@@ -244,24 +242,59 @@
                     <p class="text-[9px] text-gray-400 uppercase">{{doc.fileName}}</p>
                   </div>
                 </div>
-                <a [href]="'https://localhost:7027/' + doc.filePath" target="_blank"
-                  class="text-[9px] font-black text-[#75013f] dark:text-pink-400 uppercase tracking-widest hover:underline px-3 py-1 bg-white dark:bg-gray-900 rounded-lg shadow-sm">View
-                  File</a>
+                <div class="flex items-center gap-2">
+                  <a [href]="'https://localhost:7027/' + doc.filePath" target="_blank"
+                    class="text-[9px] font-black text-[#75013f] dark:text-pink-400 uppercase tracking-widest hover:underline px-3 py-1 bg-white dark:bg-gray-900 rounded-lg shadow-sm">View</a>
+                  
+                  <button *ngIf="selectedClaim.status === 'Rejected' && selectedClaim.resubmissionCount < 3 && !isPastDeadline(selectedClaim)" 
+                          (click)="openResubmitForm(selectedClaim, doc.documentCategory)"
+                          class="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest hover:underline px-3 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-lg shadow-sm">
+                    Replace
+                  </button>
+                </div>
               </div>
               <p *ngIf="selectedClaim.documents?.length === 0" class="text-xs text-gray-400 font-medium italic">No
                 documents uploaded yet.</p>
             </div>
           </div>
 
-          <!-- Officer Feedback Display (Only if available) -->
-          <div *ngIf="selectedClaim.officerRemarks" class="space-y-4">
+          <!-- Officer Feedback & Rejection Details -->
+          <div *ngIf="selectedClaim.officerRemarks || selectedClaim.rejectionReason" class="space-y-4">
             <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b pb-2 dark:border-gray-800">
               Officer Feedback</h3>
-            <div class="p-4 bg-[#75013f]/5 dark:bg-pink-900/10 border border-[#75013f]/10 dark:border-pink-900/20 rounded-2xl animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <p class="text-[9px] text-[#75013f] dark:text-pink-400 font-black uppercase mb-1 tracking-widest">Processing Note</p>
-              <p class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-relaxed italic">
-                "{{selectedClaim.officerRemarks}}"
-              </p>
+            
+            <div *ngIf="selectedClaim.officerRemarks" class="p-4 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl">
+              <p class="text-[9px] text-gray-400 font-black uppercase mb-1">Processing Remarks</p>
+              <p class="text-xs font-bold text-gray-700 dark:text-gray-300 italic">"{{selectedClaim.officerRemarks}}"</p>
+            </div>
+
+            <div *ngIf="selectedClaim.status === 'Rejected'" class="p-4 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-2xl">
+              <p class="text-[9px] text-red-500 font-black uppercase mb-1">Rejection Reason</p>
+              <p class="text-xs font-bold text-red-600 dark:text-red-400">"{{selectedClaim.rejectionReason}}"</p>
+              
+              <!-- Resubmission Info -->
+              <div class="mt-4 pt-4 border-t border-red-100 dark:border-red-900/20">
+                <div *ngIf="selectedClaim.resubmissionCount < 3 && !isPastDeadline(selectedClaim)">
+                   <p class="text-[10px] text-gray-500 font-bold mb-3">
+                     ⚠️ Action Required: You have {{ 3 - selectedClaim.resubmissionCount }} resubmission attempt(s) remaining.
+                     <br>Deadline: {{ selectedClaim.resubmissionDeadline | date:'mediumDate' }}
+                   </p>
+                   <button (click)="openResubmitForm(selectedClaim)"
+                           class="w-full py-2.5 bg-[#75013f] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#3b001f] transition-all shadow-lg shadow-[#75013f]/20">
+                     Edit and Resubmit
+                   </button>
+                </div>
+                <p *ngIf="selectedClaim.resubmissionCount >= 3 || isPastDeadline(selectedClaim)" 
+                   class="text-xs text-red-500 font-black">
+                   🛑 This claim is now permanently closed and cannot be resubmitted.
+                </p>
+              </div>
+            </div>
+
+            <!-- Permanently Rejected Message -->
+            <div *ngIf="selectedClaim.status === 'PermanentlyRejected'" class="p-4 bg-red-600 text-white rounded-2xl">
+              <p class="text-[10px] font-black uppercase mb-1 opacity-80">Permanent Rejection</p>
+              <p class="text-xs font-black">This claim has been permanently rejected after multiple review cycles.</p>
             </div>
           </div>
         </div>
@@ -277,6 +310,72 @@
           class="px-8 py-3 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-300 dark:hover:bg-gray-700 transition-all">
           Close Window
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resubmit Claim Modal -->
+  <div *ngIf="showResubmitModal"
+    class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+    <div
+      class="bg-white dark:bg-gray-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-gray-800 p-8">
+      
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-black text-[#75013f] dark:text-pink-300">Resubmit Claim #{{resubmitClaimId}}</h2>
+        <button (click)="showResubmitModal = false"
+          class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400">
+          ×
+        </button>
+      </div>
+
+      <div class="space-y-6">
+        <!-- Amount -->
+        <div>
+          <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">New Claim Amount (₹)</label>
+          <input type="number" [(ngModel)]="resubmitAmount"
+            class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-[#75013f] transition-all font-bold">
+        </div>
+
+        <!-- Remarks -->
+        <div>
+          <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Your Correction Note</label>
+          <textarea [(ngModel)]="resubmitRemarks" rows="4"
+            placeholder="Explain what corrections you've made..."
+            class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-2xl focus:ring-2 focus:ring-[#75013f] transition-all font-bold text-sm"></textarea>
+        </div>
+
+        <!-- Document Upload -->
+        <div>
+          <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+            {{ resubmitCategory ? 'Replace ' + resubmitCategory : 'Replace Supporting Documents' }}
+          </label>
+          
+          <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+            <input type="file" (change)="handleFileInput($event, resubmitCategory || 'ClaimDocument')"
+              class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-[#75013f]/10 file:text-[#75013f] hover:file:bg-[#75013f]/20 transition-all">
+            
+            <div *ngIf="resubmitFiles['ClaimDocument'] || (resubmitCategory && resubmitFiles[resubmitCategory])" class="mt-3 flex items-center gap-2 text-green-600 dark:text-green-400">
+               <span class="text-lg">✅</span>
+               <p class="text-[10px] font-bold uppercase">Ready to upload: {{ resubmitFiles[resubmitCategory || 'ClaimDocument'].name }}</p>
+            </div>
+            
+            <p *ngIf="!resubmitCategory" class="text-[9px] text-gray-400 mt-2 italic">Select only the file you wish to replace.</p>
+            <p *ngIf="resubmitCategory" class="text-[9px] text-amber-500 mt-2 font-bold uppercase tracking-tighter">
+              ⚠️ Selecting a new file will replace the current {{resubmitCategory}}.
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 flex gap-3">
+          <button (click)="submitResubmission()" [disabled]="isSubmitting"
+            class="flex-1 py-3 bg-[#75013f] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#3b001f] disabled:opacity-50 transition-all shadow-lg shadow-[#75013f]/20">
+            {{ isSubmitting ? 'Resubmitting...' : 'Confirm Resubmission' }}
+          </button>
+          <button (click)="showResubmitModal = false"
+            class="px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   </div>

@@ -14,6 +14,7 @@ namespace Application.DTOs
         public ClaimStatus Status { get; set; }  // Approved or Rejected
 
         public string? Remarks { get; set; }
+        public string? RejectionReason { get; set; }
 
         // Only required if Approved
         public decimal? SettlementAmount { get; set; }

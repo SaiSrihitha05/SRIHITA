@@ -8,7 +8,7 @@ namespace Application.Interfaces
     {
         Task<KycResponseDto> ProcessCustomerKycAsync(ProcessKycDto dto);
         Task<KycResponseDto> ProcessMemberKycAsync(ProcessKycDto dto);
-        Task<KycResponseDto> VerifyDeathCertificateAsync(IFormFile file, string certificateNumber, string? dateOfDeath = null, string? deceasedName = null);
+        Task<KycResponseDto> VerifyDeathCertificateAsync(IFormFile file, string certificateNumber, string? dateOfDeath = null, string? deceasedName = null, string? placeOfDeath = null);
         Task<KycResponseDto> VerifyNomineeIdentityAsync(IFormFile file, string expectedName);
     }
 }

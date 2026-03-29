@@ -48,5 +48,10 @@ namespace Application.Services
 
         Task DeleteDraftAsync(int policyId, int customerId);
         Task<(byte[] fileBytes, string fileName)> GeneratePolicyApplicationPdfAsync(int policyId, int customerId);
+        Task<DocumentResponseDto> ReplaceDocumentAsync(int documentId, int userId, IFormFile file);
+
+        Task<ReinstatementQuoteDto> GetReinstatementQuoteAsync(int policyId);
+        Task<string> ReinstatePolicyAsync(int policyId, string paymentReference);
+        Task SendExpiryReminderAsync(int policyId);
     }
 }

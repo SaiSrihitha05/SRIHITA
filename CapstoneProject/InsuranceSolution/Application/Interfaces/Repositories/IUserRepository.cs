@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Domain.Enums;
 using System;
 using System.Collections.Generic;
@@ -16,6 +16,7 @@ namespace Application.Interfaces.Repositories
         Task AddAsync(User user);
         Task SaveChangesAsync();
         Task<User?> GetByIdAsync(int id);
+        Task<IEnumerable<User>> GetByIdsAsync(IEnumerable<int> ids);
         Task<IEnumerable<User>> GetAllAsync();
         Task<IEnumerable<User>> GetByRoleAsync(UserRole role);
         void Update(User user);

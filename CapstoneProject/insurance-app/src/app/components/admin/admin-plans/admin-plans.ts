@@ -69,6 +69,8 @@ export class AdminPlans implements OnInit {
       coverageIncreaseRate: null as number | null,
       isCoverageUntilAge: false,
       coverageUntilAge: null as number | null,
+      reinstatementPenaltyAmount: 0,
+      reinstatementDays: 0,
     };
   }
 
@@ -136,6 +138,7 @@ export class AdminPlans implements OnInit {
       'minAge', 'maxAge', 'minCoverageAmount', 'maxCoverageAmount',
       'minTermYears', 'maxTermYears', 'gracePeriodDays',
       'maxPolicyMembersAllowed', 'minNominees', 'maxNominees',
+      'reinstatementPenaltyAmount', 'reinstatementDays'
     ];
     const conditional: string[] = [];
     if (this.currentPlan.hasBonus)
@@ -309,6 +312,21 @@ export class AdminPlans implements OnInit {
         return '';
       }
 
+      case 'reinstatementPenaltyAmount': {
+        const num = n(v);
+        if (num === null) return 'Penalty is required';
+        if (num < 0) return 'Cannot be negative';
+        return '';
+      }
+
+      case 'reinstatementDays': {
+        const num = n(v);
+        if (num === null) return 'Reinstatement window is required';
+        if (num < 0) return 'Cannot be negative';
+        if (num > 3650) return 'Cannot exceed 10 years';
+        return '';
+      }
+
       default: return '';
     }
   }
@@ -319,6 +337,7 @@ export class AdminPlans implements OnInit {
       'planName', 'planType', 'description', 'baseRate', 'commissionRate',
       'minAge', 'maxAge', 'minCoverageAmount', 'maxCoverageAmount',
       'gracePeriodDays', 'maxPolicyMembersAllowed', 'minNominees', 'maxNominees',
+      'reinstatementPenaltyAmount', 'reinstatementDays',
     ];
     if (!this.currentPlan.isCoverageUntilAge) {
       always.push('minTermYears', 'maxTermYears');

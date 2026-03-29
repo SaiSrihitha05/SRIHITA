@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { BenefitGlossaryService } from '../../../services/benefit-glossary.service';
 
 @Component({
   selector: 'app-customer-help',
@@ -9,7 +10,15 @@ import { RouterModule } from '@angular/router';
   templateUrl: './customer-help.html'
 })
 export class CustomerHelp {
+  public glossary = inject(BenefitGlossaryService);
   sections = [
+    {
+      id: 'glossary',
+      title: 'Insurance Terms Explained',
+      icon: '📖',
+      content: 'Understand common insurance benefits and terminology used in our protection plans.',
+      benefits: this.glossary.benefits
+    },
     {
       id: 'apply',
       title: 'How to Apply for Policy',

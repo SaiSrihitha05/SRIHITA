@@ -32,6 +32,11 @@ namespace Infrastructure.Repositories
         public async Task<User?> GetByIdAsync(int id) =>
             await _context.Users.FindAsync(id);
 
+        public async Task<IEnumerable<User>> GetByIdsAsync(IEnumerable<int> ids) =>
+            await _context.Users
+                .Where(u => ids.Contains(u.Id))
+                .ToListAsync();
+
         public async Task<IEnumerable<User>> GetAllAsync() =>
             await _context.Users.ToListAsync();
 

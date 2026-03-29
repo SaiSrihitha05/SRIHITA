@@ -6,21 +6,45 @@
       efficiency</p>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-[#75013f] transition-all">
-      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Assigned Claims</p>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-[#75013f] transition-all relative group">
+      <div class="flex justify-between items-start mb-1">
+        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Assigned Claims</p>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Total claims assigned to your account for verification.</span>
+        </span>
+      </div>
       <p class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ stats.totalAssignedClaims }}</p>
       <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Total lifetime assignments</p>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-green-500 transition-all">
-      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Settled</p>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-green-500 transition-all relative group">
+      <div class="flex justify-between items-start mb-1">
+        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Settled</p>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Claims successfully verified and paid out to customers.</span>
+        </span>
+      </div>
       <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.settledClaims }}</p>
       <p class="text-[10px] text-green-600 dark:text-green-400 font-bold mt-1">Completed Payments</p>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-yellow-500 transition-all">
-      <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Pending Review</p>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border-b-4 border-yellow-500 transition-all relative group">
+      <div class="flex justify-between items-start mb-1">
+        <p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase">Pending Review</p>
+        <span class="tooltip cursor-help">
+          <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="tooltiptext shadow-xl">Claims awaiting your verification and decision.</span>
+        </span>
+      </div>
       <p class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{{ stats.pendingReviewClaims }}</p>
       <p class="text-[10px] text-yellow-600 dark:text-yellow-400 font-bold mt-1">Action Required</p>
     </div>
@@ -33,7 +57,15 @@
       class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300">
       <div
         class="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 flex justify-between items-center">
-        <h3 class="font-bold text-[#75013f] dark:text-pink-300">Recently Assigned Claims</h3>
+        <div class="flex items-center gap-2">
+          <h3 class="font-bold text-[#75013f] dark:text-pink-300">Recently Assigned Claims</h3>
+          <span class="tooltip cursor-help">
+            <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="tooltiptext shadow-xl">Latest claims assigned to you that need verification.</span>
+          </span>
+        </div>
         <span *ngIf="stats.urgentClaims > 0"
           class="px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-[10px] font-bold rounded-full animate-pulse transition-all">
           {{ stats.urgentClaims }} URGENT
@@ -80,7 +112,15 @@
     <div class="space-y-6">
       <div
         class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-all">
-        <h3 class="font-bold text-[#75013f] dark:text-pink-300 mb-4">Monthly Processing</h3>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-[#75013f] dark:text-pink-300">Monthly Processing</h3>
+          <span class="tooltip cursor-help">
+            <svg class="w-4 h-4 text-gray-400 dark:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="tooltiptext shadow-xl">Breakdown of claims you have processed this month.</span>
+          </span>
+        </div>
         <div *ngFor="let item of stats.monthlyProcessed" class="space-y-4">
           <div
             class="p-4 bg-[#f5f2ef] dark:bg-gray-900/50 rounded-2xl border border-[#75013f]/5 dark:border-pink-900/10 transition-colors">

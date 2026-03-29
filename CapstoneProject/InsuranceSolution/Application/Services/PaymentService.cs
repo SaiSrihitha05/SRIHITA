@@ -13,7 +13,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static QuestPDF.Helpers.Colors;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Application.Services
 {
@@ -130,7 +129,9 @@ namespace Application.Services
             // Send email confirmation
             try
             {
-                // Fire and forget the email so the UI isn't blocked by network lag
+                // Generate Invoice PDF for attachment
+                var pdfBytes = GeneratePdfBytes(payment);
+
                 _ = Task.Run(async () =>
                 {
                     try
@@ -143,23 +144,287 @@ namespace Application.Services
                             ToEmail = customer!.Email,
                             ToName = customer.Name,
                             Subject = $"Payment Confirmation - {payment.InvoiceNumber}",
-                            HtmlContent = body
+                            HtmlContent = body,
+                            Attachments = new List<EmailAttachment>
+                            {
+                                new EmailAttachment
+                                {
+                                    Name = $"Invoice_{payment.InvoiceNumber}.pdf",
+                                    Content = pdfBytes,
+                                    ContentType = "application/pdf"
+                                }
+                            }
                         });
                     }
                     catch (Exception ex)
                     {
-                        // Log background failure without crashing the main thread
                         Console.WriteLine($"Background Email Failed: {ex.Message}");
                     }
                 });
             }
             catch (Exception ex)
             {
-                // Main thread catch-all for local logging
                 Console.WriteLine($"SMTP Connection Error: {ex.Message}");
             }
 
             // Ensure the DTO returns immediately regardless of email status
+            return MapToDto(payment, policy.PolicyNumber, policy.NextDueDate);
+        }
+
+        public async Task<PaymentResponseDto> ReinstatePolicyAsync(int customerId, int policyAssignmentId)
+        {
+            // Validate policy exists and belongs to customer
+            var policy = await _policyRepository.GetByIdWithDetailsAsync(policyAssignmentId);
+
+            if (policy == null)
+                throw new NotFoundException("Policy", policyAssignmentId);
+
+            if (policy.CustomerId != customerId)
+                throw new ForbiddenException("You can only reinstate your own policies.");
+
+            if (policy.Status != PolicyStatus.Lapsed)
+                throw new BadRequestException(
+                    $"Only lapsed policies can be reinstated. Current status: {policy.Status}");
+
+            if (!policy.LapsedDate.HasValue)
+                throw new BadRequestException(
+                    "Lapse date not recorded. Please contact administrator.");
+
+            var daysSinceLapse = (DateTime.Today - policy.LapsedDate.Value).TotalDays;
+
+            if (daysSinceLapse > policy.Plan!.ReinstatementDays)
+                throw new BadRequestException(
+                    $"Reinstatement window of {policy.Plan.ReinstatementDays} days has expired. " +
+                    $"Policy lapsed on {policy.LapsedDate.Value:dd MMM yyyy}.");
+
+            // Calculate reinstatement amount
+            // Ensure at least 1 missed month if lapsed
+            var missedMonths = Math.Max(1, (int)Math.Ceiling(daysSinceLapse / 30.0));
+            var monthlyPremium = policy.TotalPremiumAmount / 12;
+            var missedPremiums = Math.Round(monthlyPremium * missedMonths, 2);
+            
+            // Penalty from plan
+            var penalty = policy.Plan.ReinstatementPenaltyAmount;
+            
+            // If penalty is 0, we can add a small processing fee for demonstration if needed, 
+            // but we'll stick to plan values.
+            var totalAmount = missedPremiums + penalty;
+
+            // Generate reference — same method you already have
+            var transactionRef = GenerateTransactionReference();
+
+            // Create payment record — same shape as your existing payments
+            var payment = new Payment
+            {
+                PolicyAssignmentId = policyAssignmentId,
+                Amount = totalAmount,
+                InstallmentsPaid = missedMonths,
+                PaymentDate = DateTime.UtcNow,
+                PaymentMethod = "Online",          // mock — no gateway
+                TransactionReference = transactionRef,
+                Status = PaymentStatus.Completed,
+                PaymentType = PaymentType.ReinstatementPayment,  // NEW type
+                InvoiceNumber = await _paymentRepository.GenerateInvoiceNumberAsync(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _paymentRepository.AddAsync(payment);
+
+            // Reinstate the policy
+            policy.Status = PolicyStatus.Active;
+            policy.ReinstatedDate = DateTime.Today;
+            policy.LapsedDate = null;
+            policy.NextDueDate = CalculateNextDueDate(
+                                        DateTime.Today,
+                                        policy.PremiumFrequency,
+                                        1);              // reset to 1 month from today (or according to installments)
+            policy.EndDate = DateTime.Today.AddYears(1);
+
+            _policyRepository.Update(policy);
+            await _paymentRepository.SaveChangesAsync();
+
+            // Get customer — same as MakePaymentAsync
+            var customer = await _userRepository.GetByIdAsync(policy.CustomerId);
+
+            // In-app notification — same service, same pattern
+            await _notificationService.CreateNotificationAsync(
+                userId: policy.CustomerId,
+                title: "Policy Reinstated Successfully",
+                message: $"Your policy {policy.PolicyNumber} has been reinstated. " +
+                          $"Reinstatement payment of ₹{totalAmount:N2} received. " +
+                          $"Invoice: {payment.InvoiceNumber}. " +
+                          $"Next due: {policy.NextDueDate:dd MMM yyyy}.",
+                type: NotificationType.PolicyReinstated,
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: payment.Id);
+
+            // Notify agent if assigned — same as MakePaymentAsync
+            if (policy.AgentId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: policy.AgentId.Value,
+                    title: "Policy Reinstated",
+                    message: $"Policy {policy.PolicyNumber} has been reinstated by " +
+                              $"{customer?.Name}. Reinstatement amount: ₹{totalAmount:N2}.",
+                    type: NotificationType.PolicyReinstated,
+                    policyId: policy.Id,
+                    claimId: null,
+                    paymentId: payment.Id);
+            }
+
+            // Email — with Attachment
+            try
+            {
+                var pdfBytes = GeneratePdfBytes(payment);
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var body = _templateService.GetPaymentConfirmationTemplate(
+                            customer!.Name,
+                            policy.PolicyNumber,
+                            payment.InvoiceNumber,
+                            totalAmount);
+
+                        await _emailService.SendEmailAsync(new EmailRequest
+                        {
+                            ToEmail = customer!.Email,
+                            ToName = customer.Name,
+                            Subject = $"Policy Reinstatement Confirmation - {payment.InvoiceNumber}",
+                            HtmlContent = body,
+                            Attachments = new List<EmailAttachment>
+                            {
+                                new EmailAttachment
+                                {
+                                    Name = $"Invoice_{payment.InvoiceNumber}.pdf",
+                                    Content = pdfBytes,
+                                    ContentType = "application/pdf"
+                                }
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Reinstatement Email Failed: {ex.Message}");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email Generation Failed: {ex.Message}");
+            }
+
+            // Return same DTO shape as MakePaymentAsync
+            return MapToDto(payment, policy.PolicyNumber, policy.NextDueDate);
+        }
+
+        public async Task<PaymentResponseDto> RenewPolicyAsync(int customerId, int policyId)
+        {
+            var policy = await _policyRepository.GetByIdWithDetailsAsync(policyId);
+            if (policy == null) throw new NotFoundException("Policy", policyId);
+            if (policy.CustomerId != customerId)
+                throw new ForbiddenException("You can only renew your own policies.");
+
+            if (policy.Status != PolicyStatus.Active && policy.Status != PolicyStatus.Expired)
+                throw new BadRequestException("Only Active or Expired policies can be renewed.");
+
+            var daysToExpiry = (policy.EndDate - DateTime.Today).TotalDays;
+            if (Math.Abs(daysToExpiry) > 30)
+                throw new BadRequestException("Policy can only be renewed within 30 days before or after the expiry date.");
+
+            // 1. Extend EndDate correctly (from current EndDate, not from today)
+            var oldEndDate = policy.EndDate;
+            policy.EndDate = policy.EndDate.AddYears(policy.TermYears);
+            
+            // Re-activate if it was expired
+            if (policy.Status == PolicyStatus.Expired)
+            {
+                policy.Status = PolicyStatus.Active;
+            }
+
+            // 2. Apply Coverage Increase if plan supports it
+            if (policy.Plan!.CoverageIncreasing)
+            {
+                var increaseRate = policy.Plan.CoverageIncreaseRate;
+                foreach (var member in policy.PolicyMembers)
+                {
+                    member.CoverageAmount += Math.Round(member.CoverageAmount * increaseRate / 100, 2);
+                }
+            }
+
+            // 3. Reset NextDueDate for the new term
+            // Since they are paying for renewal now, we advance the due date relative to today's cycle
+            policy.NextDueDate = CalculateNextDueDate(DateTime.Today, policy.PremiumFrequency, 1);
+
+            // 4. Create Payment record
+            var transactionRef = GenerateTransactionReference();
+            var payment = new Payment
+            {
+                PolicyAssignmentId = policyId,
+                Amount = policy.TotalPremiumAmount, // Renewal payment covers the first premium of the new term
+                InstallmentsPaid = 1,
+                PaymentDate = DateTime.UtcNow,
+                PaymentMethod = "Online",
+                TransactionReference = transactionRef,
+                Status = PaymentStatus.Completed,
+                PaymentType = PaymentType.RenewalPayment,
+                InvoiceNumber = await _paymentRepository.GenerateInvoiceNumberAsync(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _paymentRepository.AddAsync(payment);
+            _policyRepository.Update(policy);
+            await _paymentRepository.SaveChangesAsync();
+
+            // 5. Notifications
+            var customer = await _userRepository.GetByIdAsync(policy.CustomerId);
+            await _notificationService.CreateNotificationAsync(
+                userId: policy.CustomerId,
+                title: "Policy Renewed Successfully",
+                message: $"Your policy {policy.PolicyNumber} has been renewed until {policy.EndDate:dd MMM yyyy}.",
+                type: NotificationType.PolicyStatusUpdate,
+                policyId: policy.Id,
+                claimId: null,
+                paymentId: payment.Id);
+
+            // 6. Email with Invoice & Renewal Confirmation
+            try
+            {
+                var pdfBytes = GeneratePdfBytes(payment);
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        var body = _templateService.GetPolicyRenewalSuccessTemplate(
+                            customer!.Name, policy.PolicyNumber, policy.EndDate);
+
+                        await _emailService.SendEmailAsync(new EmailRequest
+                        {
+                            ToEmail = customer!.Email,
+                            ToName = customer.Name,
+                            Subject = $"Policy Renewal Confirmation - {policy.PolicyNumber}",
+                            HtmlContent = body,
+                            Attachments = new List<EmailAttachment>
+                            {
+                                new EmailAttachment
+                                {
+                                    Name = $"Renewal_Receipt_{payment.InvoiceNumber}.pdf",
+                                    Content = pdfBytes,
+                                    ContentType = "application/pdf"
+                                }
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Renewal Email Failed: {ex.Message}");
+                    }
+                });
+            }
+            catch { }
+
             return MapToDto(payment, policy.PolicyNumber, policy.NextDueDate);
         }
         private static DateTime CalculateNextDueDate(

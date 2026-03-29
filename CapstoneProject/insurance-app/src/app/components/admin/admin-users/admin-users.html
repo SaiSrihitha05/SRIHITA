@@ -1,4 +1,4 @@
-<div class="flex justify-between items-end mb-8 transition-colors">
+<div class="flex justify-between items-end mb-8 transition-colors px-4 m-4">
   <div>
     <h1 class="text-2xl font-bold text-[#75013f] dark:text-pink-300">User Management</h1>
     <div class="flex gap-4 mt-4">
@@ -24,7 +24,7 @@
 
 <!-- Users List Data Grid -->
 <div
-  class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
+  class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300 px-4 m-6">
   <table class="w-full text-left" *ngIf="!loading">
     <thead class="bg-gray-50 dark:bg-gray-900/50 border-b dark:border-gray-700 transition-colors">
       <tr class="text-[#75013f] dark:text-pink-300 text-sm font-bold">
@@ -50,11 +50,11 @@
     </tbody>
   </table>
 
-  <div *ngIf="loading" class="p-10 text-center text-[#75013f] font-bold animate-pulse">
+  <div *ngIf="loading" class="p-10 text-center text-[#75013f] dark:text-pink-300 font-bold animate-pulse">
     Loading {{ activeTab }}s...
   </div>
 
-  <div *ngIf="!loading && users.length === 0" class="p-10 text-center text-gray-400 font-bold">
+  <div *ngIf="!loading && users.length === 0" class="p-10 text-center text-gray-400 dark:text-gray-500 font-bold">
     No {{ activeTab }}s registered in the system.
   </div>
 </div>
@@ -72,7 +72,7 @@
 
   <form #userForm="ngForm" (ngSubmit)="onSubmit()" class="space-y-4">      
 <div>
-  <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">
+  <label class="field-label">
     Full Name
   </label>
 
@@ -83,16 +83,16 @@
     required
     minlength="3"
     pattern="^[A-Za-z ]+$"
-    class="w-full border dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 p-3 rounded-xl outline-none">
+    class="form-input-custom">
 
-  <p *ngIf="name.touched && name.invalid" class="text-red-500 text-xs mt-1">
+  <p *ngIf="name.touched && name.invalid" class="err-msg">
     <span *ngIf="name.errors?.['required']">Name is required</span>
     <span *ngIf="name.errors?.['minlength']">Minimum 3 characters required</span>
     <span *ngIf="name.errors?.['pattern']">Only letters allowed</span>
   </p>
 </div>
 <div>
-  <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">
+  <label class="field-label">
     Email Address
   </label>
 
@@ -103,15 +103,15 @@
     #email="ngModel"
     required
     email
-    class="w-full border dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 p-3 rounded-xl outline-none">
+    class="form-input-custom">
 
-  <p *ngIf="email.touched && email.invalid" class="text-red-500 text-xs mt-1">
+  <p *ngIf="email.touched && email.invalid" class="err-msg">
     <span *ngIf="email.errors?.['required']">Email is required</span>
     <span *ngIf="email.errors?.['email']">Enter a valid email</span>
   </p>
 </div>
 <div>
-  <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">
+  <label class="field-label">
     Phone Number
   </label>
 
@@ -121,14 +121,14 @@
     #phone="ngModel"
     required
     pattern="^[0-9]{10}$"
-    class="w-full border dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 p-3 rounded-xl outline-none">
+    class="form-input-custom">
 
-  <p *ngIf="phone.touched && phone.invalid" class="text-red-500 text-xs mt-1">
+  <p *ngIf="phone.touched && phone.invalid" class="err-msg">
     Enter a valid 10 digit phone number
   </p>
 </div>
       <div>
-  <label class="block text-xs font-bold text-[#75013f] dark:text-pink-400 uppercase mb-1">
+  <label class="field-label">
     Temporary Password
   </label>
 
@@ -140,9 +140,9 @@
     required
     minlength="6"
     pattern="^(?=.*[0-9]).{6,}$"
-    class="w-full border dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 p-3 rounded-xl outline-none">
+    class="form-input-custom">
 
-  <p *ngIf="password.touched && password.invalid" class="text-red-500 text-xs mt-1">
+  <p *ngIf="password.touched && password.invalid" class="err-msg">
     <span *ngIf="password.errors?.['required']">Password required</span>
     <span *ngIf="password.errors?.['minlength']">Minimum 6 characters</span>
     <span *ngIf="password.errors?.['pattern']">Must contain at least one number</span>
@@ -152,7 +152,7 @@
 <button
   type="submit"
   [disabled]="userForm.invalid"
-  class="w-full py-4 bg-[#75013f] text-white rounded-xl font-bold disabled:opacity-50">
+  class="w-full py-4 bg-[#75013f] dark:bg-pink-700 text-white rounded-xl font-bold hover:bg-[#fe3082] dark:hover:bg-pink-600 transition-all shadow-md disabled:opacity-50">
   Register New {{ activeTab }}
 </button>
     </form>

@@ -65,6 +65,9 @@ namespace Application.DTOs
         public string Status { get; set; } = string.Empty;
         public string? Remarks { get; set; }
         public string? OfficerRemarks { get; set; }
+        public string? RejectionReason { get; set; }
+        public int ResubmissionCount { get; set; }
+        public DateTime? ResubmissionDeadline { get; set; }
         public decimal? SettlementAmount { get; set; }
         public decimal OutstandingLoanAmount { get; set; }
         public decimal NetSettlementAmount { get; set; }

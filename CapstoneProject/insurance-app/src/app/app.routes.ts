@@ -94,6 +94,10 @@ export const routes: Routes = [
       {
         path: 'commissions',
         loadComponent: () => import('./components/agent/agent-earnings/agent-earnings').then(m => m.AgentEarnings)
+      },
+      {
+        path: 'chat',
+        loadComponent: () => import('./components/agent/agent-chat/agent-chat').then(m => m.AgentChat)
       }
     ]
   },
@@ -109,7 +113,8 @@ export const routes: Routes = [
         path: 'notifications',
         loadComponent: () => import('./components/customer/notification-center/notification-center').then(m => m.NotificationCenter)
       },
-      { path: 'profile', loadComponent: () => import('./components/claims-officer/profile/profile').then(m => m.ClaimsOfficerProfile) }
+      { path: 'profile', loadComponent: () => import('./components/claims-officer/profile/profile').then(m => m.ClaimsOfficerProfile) },
+      { path: 'chat', loadComponent: () => import('./components/officer/officer-chat/officer-chat').then(m => m.OfficerChat) }
     ]
   },
   {

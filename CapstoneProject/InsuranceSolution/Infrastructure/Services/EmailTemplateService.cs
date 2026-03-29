@@ -161,6 +161,28 @@ namespace Infrastructure.Services
                     <p>Thank you for choosing Hartford Insurance.</p>
                 </div>";
         }
+        
+        public string GetPolicyExpiryReminderTemplate(string customerName, string policyNumber, DateTime expiryDate)
+        {
+            return GetBaseTemplate("Policy Expiry Reminder", $@"
+                <p>Dear {customerName},</p>
+                <p>Your policy <strong>{policyNumber}</strong> is scheduled to expire on <strong>{expiryDate:D}</strong>.</p>
+                <p>To ensure continued protection for you and your loved ones, we recommend renewing your policy within the next 30 days.</p>
+                <p>Renewing is simple and can be done directly from your customer dashboard.</p>
+                <p>Thank you for choosing {SystemName}.</p>");
+        }
+
+        public string GetPolicyRenewalSuccessTemplate(string customerName, string policyNumber, DateTime newExpiryDate)
+        {
+            return GetBaseTemplate("Policy Renewed Successfully", $@"
+                <p>Dear {customerName},</p>
+                <p>We are pleased to confirm that your policy <strong>{policyNumber}</strong> has been successfully renewed.</p>
+                <div class='details-box'>
+                    <strong>New Expiry Date:</strong> {newExpiryDate:D}
+                </div>
+                <p>Your updated policy document is being prepared and will be available in your dashboard shortly.</p>
+                <p>Thank you for your continued trust in {SystemName}.</p>");
+        }
 
         public string GetGenericNotificationTemplate(string title, string message)
         {

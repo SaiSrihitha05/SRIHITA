@@ -47,17 +47,22 @@ namespace Application.Tests.Services
             mockConfig.Setup(c => c.GetConfigAsync())
                 .ReturnsAsync(new SystemConfig { Id = 1, LastAgentAssignmentIndex = -1 });
 
+            var mockChatRepo = new Mock<IChatMessageRepository>();
+            mockChatRepo.Setup(r => r.GetBySessionAsync(It.IsAny<int?>(), It.IsAny<int?>()))
+                .ReturnsAsync(new List<ChatMessage>());
+
             var service = new PolicyService(
-                policyRepo,
-                planRepo,
-                userRepo,
-                docRepo,
-                mockNotify.Object,
-                mockEmail.Object,
-                mockTemplate.Object,
-                mockPdf.Object,
-                mockEnv.Object,
-                mockConfig.Object);
+                policyRepository: policyRepo,
+                planRepository: planRepo,
+                userRepository: userRepo,
+                documentRepository: docRepo,
+                notificationService: mockNotify.Object,
+                emailService: mockEmail.Object,
+                templateService: mockTemplate.Object,
+                pdfService: mockPdf.Object,
+                environment: mockEnv.Object,
+                systemConfigRepository: mockConfig.Object,
+                chatRepo: mockChatRepo.Object);
 
             return (dbContext, service, mockNotify, mockEmail, mockEnv, mockConfig);
         }

@@ -23,6 +23,14 @@
         class="px-8 py-3 bg-blue-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 hover:scale-105 transition-all">
         Apply for Loan
       </button>
+      <button *ngIf="policy.canRenew && userRole === 'Customer'" (click)="onRenewPolicy()"
+        class="px-8 py-3 bg-green-600 dark:bg-green-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-green-600/20 hover:scale-105 transition-all">
+        Renew Policy
+      </button>
+      <button *ngIf="(userRole === 'Admin' || userRole === 'Agent') && policy.status === 'Active'" (click)="onRemindExpiry()"
+        class="px-8 py-3 bg-indigo-600 dark:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-600/20 hover:scale-105 transition-all">
+        Remind Expiry
+      </button>
     </div>
   </div>
 
@@ -61,6 +69,10 @@
             <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Next Due Date</p>
             <p class="text-sm font-bold text-orange-600 dark:text-orange-400">{{ policy.nextDueDate | date:'longDate' }}
             </p>
+          </div>
+          <div class="col-span-2 md:col-span-3">
+            <p class="text-[10px] font-black text-gray-300 dark:text-gray-500 uppercase mb-1">Permanent Address</p>
+            <p class="text-sm font-bold text-gray-700 dark:text-gray-200">{{ policy.address }}</p>
           </div>
         </div>
 
@@ -244,22 +256,49 @@
         class="bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 border border-gray-100 dark:border-gray-700 shadow-sm transition-colors duration-300">
         <h3 class="text-lg font-black text-[#75013f] dark:text-pink-300 mb-6">e-Documents</h3>
         <div class="space-y-4" *ngIf="policy.documents?.length > 0; else noDocs">
-          <div *ngFor="let doc of policy.documents" (click)="downloadDocument(doc.id, doc.fileName)"
-            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 group transition-all cursor-pointer border border-transparent hover:border-[#75013f]/10 dark:hover:border-pink-500/10">
-            <div class="flex items-center gap-4">
-              <div
-                class="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm text-lg transition-colors">
-                📄</div>
-              <div>
-                <p class="text-[10px] font-black text-[#75013f] dark:text-pink-300 uppercase tracking-widest">{{
-                  doc.documentCategory }}</p>
-                <p class="text-[9px] text-gray-400 dark:text-gray-500 font-medium">{{ doc.uploadedAt | date:'dd MMM
-                  yyyy' }}</p>
+          <div *ngFor="let doc of policy.documents"
+            class="p-4 bg-gray-50 dark:bg-gray-700 rounded-2xl hover:bg-[#75013f]/5 dark:hover:bg-pink-900/10 group transition-all border border-transparent hover:border-[#75013f]/10 dark:hover:border-pink-500/10">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-4 cursor-pointer" (click)="downloadDocument(doc.id, doc.fileName)">
+                <div
+                  class="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm text-lg transition-colors">
+                  📄</div>
+                <div>
+                  <p class="text-[10px] font-black text-[#75013f] dark:text-pink-300 uppercase tracking-widest">{{
+                    doc.documentCategory }}</p>
+                  <p class="text-[9px] text-gray-400 dark:text-gray-500 font-medium">{{ doc.uploadedAt | date:'dd MMM
+                    yyyy' }}</p>
+                  <!-- Document Status -->
+                  <span *ngIf="doc.status" 
+                    [ngClass]="{
+                      'text-orange-500': doc.status === 'Pending' && policy.status !== 'Active' && policy.status !== 'Approved',
+                      'text-green-500': doc.status === 'Verified' || policy.status === 'Active' || policy.status === 'Approved',
+                      'text-red-500': doc.status === 'Rejected'
+                    }"
+                    class="text-[8px] font-black uppercase tracking-tighter">
+                    ● {{ (policy.status === 'Active' || policy.status === 'Approved') ? 'Verified' : doc.status }}
+                  </span>
+                </div>
               </div>
-            </div>
-            <div
-              class="w-8 h-8 rounded-full flex items-center justify-center text-[#fe3082] group-hover:bg-[#fe3082] group-hover:text-white transition-all">
-              <span class="font-black">↓</span>
+              
+              <div class="flex items-center gap-2">
+                <!-- Replace Button (Only if Pending, Rejected, or NeedsCorrection) -->
+                <div *ngIf="policy.status === 'Pending' || policy.status === 'Rejected' || policy.status === 'NeedsCorrection'"
+                  class="relative overflow-hidden">
+                  <button 
+                    class="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg text-[9px] font-black uppercase hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+                    🔁 Replace
+                  </button>
+                  <input type="file" 
+                    (change)="onReplaceDocument(doc.id, $event)"
+                    class="absolute inset-0 opacity-0 cursor-pointer">
+                </div>
+
+                <div (click)="downloadDocument(doc.id, doc.fileName)"
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-[#fe3082] hover:bg-[#fe3082] hover:text-white cursor-pointer transition-all">
+                  <span class="font-black">↓</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

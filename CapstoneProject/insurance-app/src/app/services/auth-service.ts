@@ -14,7 +14,35 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/login`, credentials);
+    return new Observable(observer => {
+      this.http.post(`${this.baseUrl}/login`, credentials).subscribe({
+        next: (response: any) => {
+          // Perform normal login logic
+          if (response.token) {
+            localStorage.setItem('token', response.token);
+            // ... (rest of storage logic should be here or handled by component)
+            
+            // Link chat session if it exists
+            const sessionId = localStorage.getItem('chat_session_id');
+            if (sessionId) {
+              this.linkChatSession(sessionId, response.token).subscribe();
+            }
+          }
+          observer.next(response);
+          observer.complete();
+        },
+        error: (err) => observer.error(err)
+      });
+    });
+  }
+
+  private linkChatSession(sessionId: string, token: string): Observable<any> {
+    const chatUrl = 'https://localhost:7027/api/Chat/link-session';
+    const headers = { 
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+    return this.http.post(chatUrl, JSON.stringify(sessionId), { headers });
   }
 
   forgotPassword(email: string): Observable<any> {

@@ -13,6 +13,8 @@ namespace Application.Interfaces
         string GetPolicyLapsedTemplate(string customerName, string policyNumber);
         string GetForgotPasswordTemplate(string customerName, string resetLink);
         string GetPaymentConfirmationTemplate(string customerName, string policyNumber, string invoiceNumber, decimal amount);
+        string GetPolicyExpiryReminderTemplate(string customerName, string policyNumber, DateTime expiryDate);
+        string GetPolicyRenewalSuccessTemplate(string customerName, string policyNumber, DateTime newExpiryDate);
         string GetGenericNotificationTemplate(string title, string message);
     }
 }

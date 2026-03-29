@@ -1,12 +1,15 @@
 using Application.DTOs;
 using Application.Exceptions;
+using Application.Interfaces;
 using Application.Services;
 using Domain.Entities;
 using Domain.Enums;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -15,6 +18,8 @@ namespace Application.Tests.Services
 {
     public class PlanServiceTests
     {
+        private Mock<IAiService> _mockAiService = new Mock<IAiService>();
+
         private (InsuranceDbContext db, PlanService service) BuildTestContextAndService()
         {
             var dbOptions = new DbContextOptionsBuilder<InsuranceDbContext>()
@@ -23,9 +28,31 @@ namespace Application.Tests.Services
 
             var dbContext = new InsuranceDbContext(dbOptions);
             var planRepo = new PlanRepository(dbContext);
-            var service = new PlanService(planRepo);
+            var service = new PlanService(planRepo, _mockAiService.Object);
 
             return (dbContext, service);
+        }
+
+        // --- 0. ComparePlansAsync Tests ---
+
+        [Fact]
+        public async Task ComparePlansAsync_ShouldReturnSummary_WhenPlansExist()
+        {
+            var (db, service) = BuildTestContextAndService();
+            var p1 = new Plan { PlanName = "Plan1", IsActive = true };
+            var p2 = new Plan { PlanName = "Plan2", IsActive = true };
+            db.Plans.AddRange(p1, p2);
+            await db.SaveChangesAsync();
+
+            _mockAiService.Setup(x => x.GetAiResponseAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<List<string>>()))
+                .ReturnsAsync("Comparison summary");
+
+            var dto = new ComparePlansDto { PlanIds = new List<int> { p1.Id, p2.Id } };
+            var result = await service.ComparePlansAsync(dto);
+
+            Assert.NotNull(result);
+            Assert.Equal("Comparison summary", result.Summary);
+            Assert.Equal(2, result.Plans.Count());
         }
 
         // --- 1. GetAllPlansAsync (5 Tests) ---

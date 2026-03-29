@@ -78,8 +78,7 @@
             : 'Required fields marked *' }}
           </p>
         </div>
-        <button (click)="showModal = false" class="text-gray-400 hover:text-red-500 text-3xl leading-none transition-all w-9 h-9
-                 flex items-center justify-center rounded-full hover:bg-red-50 dark:hover:bg-red-900/20">
+        <button (click)="showModal = false" class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full">
           &times;
         </button>
       </div>
@@ -108,7 +107,7 @@
                 (ngModelChange)="touch('planName')"
                 [class.!border-red-400]="showErr('planName') && getError('planName')"
                 [class.!border-green-400]="showErr('planName') && !getError('planName')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                class="form-input-custom disabled:opacity-60"
                 placeholder="e.g. Elite Shield Term Life">
               <p *ngIf="showErr('planName') && getError('planName')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('planName') }}
@@ -124,7 +123,7 @@
                 (ngModelChange)="touch('planType')"
                 [class.!border-red-400]="showErr('planType') && getError('planType')"
                 [class.!border-green-400]="showErr('planType') && !getError('planType')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
                 <option value="">-- Select --</option>
                 <option value="TermLife">Term Life</option>
                 <option value="Endowment">Endowment</option>
@@ -135,7 +134,7 @@
                 <option value="Pension">Pension</option>
                 <option value="Others">Others</option>
               </select>
-              <p *ngIf="showErr('planType') && getError('planType')" class="err-msg !text-[10px] !text-red-500">
+              <p *ngIf="showErr('planType') && getError('planType')" class="err-msg">
                 {{ getError('planType') }}
               </p>
             </div>
@@ -149,7 +148,7 @@
                 (ngModelChange)="touch('description')"
                 [class.!border-red-400]="showErr('description') && getError('description')"
                 [class.!border-green-400]="showErr('description') && !getError('description')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                class="form-input-custom disabled:opacity-60"
                 placeholder="Brief plan description (minimum 10 characters)..."></textarea>
               <p *ngIf="showErr('description') && getError('description')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('description') }}
@@ -167,14 +166,14 @@
             Actuarial Rates & Age Limits
           </h3>
           <div class="mb-4">
-            <label class="toggle-label font-bold text-[#75013f] dark:text-pink-400">
+            <label class="field-label">
               <input type="checkbox" name="isCoverageUntilAge" [(ngModel)]="currentPlan.isCoverageUntilAge"
                 [disabled]="isViewOnly" class="accent-[#75013f] dark:accent-pink-600 w-5 h-5">
               <span>Whole Life / Coverage Until Age (100 Yrs)</span>
             </label>
-            <p class="text-[10px] text-gray-400 italic mt-1 ml-7">
+            <label class="field-label-sm">
               If enabled, policy terms (Min/Max years) will be hidden.
-            </p>
+            </label>
 
             <!-- Target Coverage Age Input (Conditional) -->
             <div *ngIf="currentPlan.isCoverageUntilAge" class="mt-4 ml-7 w-full md:w-1/3">
@@ -185,7 +184,7 @@
                 [disabled]="isViewOnly" (ngModelChange)="touch('coverageUntilAge')"
                 [class.!border-red-400]="showErr('coverageUntilAge') && getError('coverageUntilAge')"
                 [class.!border-green-400]="showErr('coverageUntilAge') && !getError('coverageUntilAge')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                class="form-input-custom disabled:opacity-60"
                 placeholder="e.g. 100">
               <p *ngIf="showErr('coverageUntilAge') && getError('coverageUntilAge')"
                 class="err-msg !text-[10px] !text-red-500">
@@ -205,7 +204,7 @@
                 [disabled]="isViewOnly" (ngModelChange)="touch('baseRate')"
                 [class.!border-red-400]="showErr('baseRate') && getError('baseRate')"
                 [class.!border-green-400]="showErr('baseRate') && !getError('baseRate')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                class="form-input-custom disabled:opacity-60"
                 placeholder="0.01">
               <p *ngIf="showErr('baseRate') && getError('baseRate')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('baseRate') }}
@@ -221,7 +220,7 @@
                 [disabled]="isViewOnly" (ngModelChange)="touch('commissionRate')"
                 [class.!border-red-400]="showErr('commissionRate') && getError('commissionRate')"
                 [class.!border-green-400]="showErr('commissionRate') && !getError('commissionRate')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                class="form-input-custom disabled:opacity-60"
                 placeholder="10">
               <p *ngIf="showErr('commissionRate') && getError('commissionRate')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('commissionRate') }}
@@ -237,7 +236,7 @@
                 (ngModelChange)="touchPair('minAge','maxAge')"
                 [class.!border-red-400]="showErr('minAge') && getError('minAge')"
                 [class.!border-green-400]="showErr('minAge') && !getError('minAge')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
               <p *ngIf="showErr('minAge') && getError('minAge')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('minAge') }}
               </p>
@@ -252,7 +251,7 @@
                 (ngModelChange)="touchPair('minAge','maxAge')"
                 [class.!border-red-400]="showErr('maxAge') && getError('maxAge')"
                 [class.!border-green-400]="showErr('maxAge') && !getError('maxAge')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
               <p *ngIf="showErr('maxAge') && getError('maxAge')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('maxAge') }}
               </p>
@@ -277,7 +276,7 @@
                   (ngModelChange)="touchPair('minCoverageAmount','maxCoverageAmount')"
                   [class.!border-red-400]="showErr('minCoverageAmount') && getError('minCoverageAmount')"
                   [class.!border-green-400]="showErr('minCoverageAmount') && !getError('minCoverageAmount')"
-                  class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                  class="form-input-custom disabled:opacity-60"
                   placeholder="Min ₹">
                 <p *ngIf="showErr('minCoverageAmount') && getError('minCoverageAmount')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('minCoverageAmount') }}
@@ -289,7 +288,7 @@
                   (ngModelChange)="touchPair('minCoverageAmount','maxCoverageAmount')"
                   [class.!border-red-400]="showErr('maxCoverageAmount') && getError('maxCoverageAmount')"
                   [class.!border-green-400]="showErr('maxCoverageAmount') && !getError('maxCoverageAmount')"
-                  class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                  class="form-input-custom disabled:opacity-60"
                   placeholder="Max ₹">
                 <p *ngIf="showErr('maxCoverageAmount') && getError('maxCoverageAmount')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('maxCoverageAmount') }}
@@ -311,7 +310,7 @@
                   (ngModelChange)="touchPair('minTermYears','maxTermYears')"
                   [class.!border-red-400]="showErr('minTermYears') && getError('minTermYears')"
                   [class.!border-green-400]="showErr('minTermYears') && !getError('minTermYears')"
-                  class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                  class="form-input-custom disabled:opacity-60"
                   placeholder="Min Yr">
                 <p *ngIf="showErr('minTermYears') && getError('minTermYears')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('minTermYears') }}
@@ -323,7 +322,7 @@
                   (ngModelChange)="touchPair('minTermYears','maxTermYears')"
                   [class.!border-red-400]="showErr('maxTermYears') && getError('maxTermYears')"
                   [class.!border-green-400]="showErr('maxTermYears') && !getError('maxTermYears')"
-                  class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60"
+                  class="form-input-custom disabled:opacity-60"
                   placeholder="Max Yr">
                 <p *ngIf="showErr('maxTermYears') && getError('maxTermYears')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('maxTermYears') }}
@@ -349,7 +348,7 @@
                 (ngModelChange)="touch('gracePeriodDays')"
                 [class.!border-red-400]="showErr('gracePeriodDays') && getError('gracePeriodDays')"
                 [class.!border-green-400]="showErr('gracePeriodDays') && !getError('gracePeriodDays')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
               <p *ngIf="showErr('gracePeriodDays') && getError('gracePeriodDays')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('gracePeriodDays') }}
               </p>
@@ -363,7 +362,7 @@
                 [disabled]="isViewOnly" (ngModelChange)="touch('maxPolicyMembersAllowed')"
                 [class.!border-red-400]="showErr('maxPolicyMembersAllowed') && getError('maxPolicyMembersAllowed')"
                 [class.!border-green-400]="showErr('maxPolicyMembersAllowed') && !getError('maxPolicyMembersAllowed')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
               <p *ngIf="showErr('maxPolicyMembersAllowed') && getError('maxPolicyMembersAllowed')"
                 class="err-msg !text-[10px]">
                 {{ getError('maxPolicyMembersAllowed') }}
@@ -378,7 +377,7 @@
                 (ngModelChange)="touchPair('minNominees','maxNominees')"
                 [class.!border-red-400]="showErr('minNominees') && getError('minNominees')"
                 [class.!border-green-400]="showErr('minNominees') && !getError('minNominees')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
               <p *ngIf="showErr('minNominees') && getError('minNominees')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('minNominees') }}
               </p>
@@ -392,9 +391,40 @@
                 (ngModelChange)="touchPair('minNominees','maxNominees')"
                 [class.!border-red-400]="showErr('maxNominees') && getError('maxNominees')"
                 [class.!border-green-400]="showErr('maxNominees') && !getError('maxNominees')"
-                class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                class="form-input-custom disabled:opacity-60">
               <p *ngIf="showErr('maxNominees') && getError('maxNominees')" class="err-msg !text-[10px] !text-red-500">
                 {{ getError('maxNominees') }}
+              </p>
+            </div>
+
+            <!-- Reinstatement Fields -->
+            <div>
+              <label class="field-label-sm">
+                Reinstatement Penalty (₹) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
+              </label>
+              <input type="number" name="reinstatementPenaltyAmount" [(ngModel)]="currentPlan.reinstatementPenaltyAmount"
+                [disabled]="isViewOnly" (ngModelChange)="touch('reinstatementPenaltyAmount')"
+                [class.!border-red-400]="showErr('reinstatementPenaltyAmount') && getError('reinstatementPenaltyAmount')"
+                [class.!border-green-400]="showErr('reinstatementPenaltyAmount') && !getError('reinstatementPenaltyAmount')"
+                class="form-input-custom disabled:opacity-60">
+              <p *ngIf="showErr('reinstatementPenaltyAmount') && getError('reinstatementPenaltyAmount')"
+                class="err-msg !text-[10px] !text-red-500">
+                {{ getError('reinstatementPenaltyAmount') }}
+              </p>
+            </div>
+
+            <div>
+              <label class="field-label-sm">
+                Reinstatement Window (Days) <span *ngIf="!isViewOnly" class="text-red-500">*</span>
+              </label>
+              <input type="number" name="reinstatementDays" [(ngModel)]="currentPlan.reinstatementDays"
+                [disabled]="isViewOnly" (ngModelChange)="touch('reinstatementDays')"
+                [class.!border-red-400]="showErr('reinstatementDays') && getError('reinstatementDays')"
+                [class.!border-green-400]="showErr('reinstatementDays') && !getError('reinstatementDays')"
+                class="form-input-custom disabled:opacity-60">
+              <p *ngIf="showErr('reinstatementDays') && getError('reinstatementDays')"
+                class="err-msg !text-[10px] !text-red-500">
+                {{ getError('reinstatementDays') }}
               </p>
             </div>
 
@@ -408,7 +438,7 @@
           <div>
             <label class="field-label">Plan Status</label>
             <select name="isActive" [(ngModel)]="currentPlan.isActive" [disabled]="isViewOnly"
-              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+              class="form-input-custom disabled:opacity-60">
               <option [ngValue]="true">Active — Visible to Customers</option>
               <option [ngValue]="false">Inactive — Hidden from Customers</option>
             </select>
@@ -471,7 +501,7 @@
                   [disabled]="isViewOnly" (ngModelChange)="touch('bonusRate')"
                   [class.!border-red-400]="showErr('bonusRate') && getError('bonusRate')"
                   [class.!border-green-400]="showErr('bonusRate') && !getError('bonusRate')"
-                  class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                  class="form-input-custom disabled:opacity-60">
                 <p *ngIf="showErr('bonusRate') && getError('bonusRate')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('bonusRate') }}
                 </p>
@@ -484,7 +514,7 @@
                   [disabled]="isViewOnly" (ngModelChange)="touch('terminalBonusRate')"
                   [class.!border-red-400]="showErr('terminalBonusRate') && getError('terminalBonusRate')"
                   [class.!border-green-400]="showErr('terminalBonusRate') && !getError('terminalBonusRate')"
-                  class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+                  class="form-input-custom disabled:opacity-60">
                 <p *ngIf="showErr('terminalBonusRate') && getError('terminalBonusRate')" class="err-msg !text-[10px] !text-red-500">
                   {{ getError('terminalBonusRate') }}
                 </p>
@@ -508,7 +538,7 @@
               [disabled]="isViewOnly" (ngModelChange)="touch('coverageIncreaseRate')"
               [class.!border-red-400]="showErr('coverageIncreaseRate') && getError('coverageIncreaseRate')"
               [class.!border-green-400]="showErr('coverageIncreaseRate') && !getError('coverageIncreaseRate')"
-              class="form-input-custom dark:bg-gray-900 dark:border-gray-700 dark:text-white disabled:opacity-60">
+              class="form-input-custom disabled:opacity-60">
             <p *ngIf="showErr('coverageIncreaseRate') && getError('coverageIncreaseRate')" class="err-msg !text-[10px] !text-red-500">
               {{ getError('coverageIncreaseRate') }}
             </p>

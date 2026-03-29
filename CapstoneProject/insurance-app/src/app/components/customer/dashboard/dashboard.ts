@@ -9,7 +9,8 @@ import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
   selector: 'app-customer-dashboard',
   standalone: true,
   imports: [CommonModule, BaseChartDirective],
-  templateUrl: './dashboard.html'
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css'
 })
 export class CustomerDashboard implements OnInit {
   private http = inject(HttpClient);

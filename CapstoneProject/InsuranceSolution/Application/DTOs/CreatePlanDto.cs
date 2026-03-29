@@ -65,6 +65,12 @@ namespace Application.DTOs
         public decimal LoanInterestRate { get; set; }
         public decimal BonusRate { get; set; }
         public decimal TerminalBonusRate { get; set; }
+
+        [Range(0, double.MaxValue)]
+        public decimal ReinstatementPenaltyAmount { get; set; }
+
+        [Range(0, 3650)]
+        public int ReinstatementDays { get; set; }
     }
 }
 

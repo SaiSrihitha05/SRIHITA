@@ -8,11 +8,14 @@
 
 	
   <ItemGroup>
+    <PackageReference Include="Google.Cloud.DocumentAI.V1" Version="3.24.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.24" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.24">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.74.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.74.0" />
     <PackageReference Include="QuestPDF" Version="2026.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>

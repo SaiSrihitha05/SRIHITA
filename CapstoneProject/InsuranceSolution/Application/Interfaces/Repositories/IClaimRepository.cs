@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +18,7 @@ namespace Application.Interfaces.Repositories
         Task<IEnumerable<InsuranceClaim>> GetByCustomerIdAsync(int customerId);
         Task<bool> HasActiveclaimAsync(int policyMemberId);
         void Update(InsuranceClaim claim);
+        Task UpdateAsync(InsuranceClaim claim);
         Task SaveChangesAsync();
     }
 }

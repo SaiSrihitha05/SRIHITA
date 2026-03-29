@@ -26,46 +26,53 @@ export class KycService {
     'PANCARD': /^[A-Z]{5}[0-9]{4}[A-Z]$/
   };
 
-  verifyCustomerKyc(targetId: number, idProofType: string, idProofNumber: string, name: string, file: File): Observable<KycResponse> {
+  verifyCustomerKyc(targetId: number, idProofType: string, idProofNumber: string, name: string, file: File, gender?: string, dob?: string): Observable<KycResponse> {
     const formData = new FormData();
     formData.append('TargetId', targetId.toString());
     formData.append('IdProofType', idProofType);
     formData.append('IdProofNumber', idProofNumber);
     formData.append('FullName', name);
+    if (gender) formData.append('Gender', gender);
+    if (dob) formData.append('DateOfBirth', dob);
     formData.append('File', file);
 
     return this.http.post<KycResponse>(`${this.apiUrl}/customer`, formData);
   }
 
-  verifyMemberKyc(targetId: number, idProofType: string, idProofNumber: string, name: string, file: File): Observable<KycResponse> {
+  verifyMemberKyc(targetId: number, idProofType: string, idProofNumber: string, name: string, file: File, gender?: string, dob?: string): Observable<KycResponse> {
     const formData = new FormData();
     formData.append('TargetId', targetId.toString());
     formData.append('IdProofType', idProofType);
     formData.append('IdProofNumber', idProofNumber);
     formData.append('FullName', name);
+    if (gender) formData.append('Gender', gender);
+    if (dob) formData.append('DateOfBirth', dob);
     formData.append('File', file);
 
     return this.http.post<KycResponse>(`${this.apiUrl}/member`, formData); // Simplified path
   }
 
   // Temporary endpoint for new members (not yet in DB)
-  verifyNewMemberKyc(idProofType: string, idProofNumber: string, name: string, file: File): Observable<KycResponse> {
+  verifyNewMemberKyc(idProofType: string, idProofNumber: string, name: string, file: File, gender?: string, dob?: string): Observable<KycResponse> {
     const formData = new FormData();
     formData.append('TargetId', '0'); // 0 indicates a new member/customer for validation-only
     formData.append('IdProofType', idProofType);
     formData.append('IdProofNumber', idProofNumber);
     formData.append('FullName', name);
+    if (gender) formData.append('Gender', gender);
+    if (dob) formData.append('DateOfBirth', dob);
     formData.append('File', file);
 
     return this.http.post<KycResponse>(`${this.apiUrl}/customer`, formData);
   }
 
-  verifyDeathCertificate(file: File, certificateNumber: string, dateOfDeath: string, deceasedName: string): Observable<KycResponse> {
+  verifyDeathCertificate(file: File, certificateNumber: string, dateOfDeath: string, deceasedName: string, placeOfDeath?: string): Observable<KycResponse> {
     const formData = new FormData();
     formData.append('File', file);
     formData.append('CertificateNumber', certificateNumber);
     formData.append('DateOfDeath', dateOfDeath);
     formData.append('DeceasedName', deceasedName);
+    if (placeOfDeath) formData.append('PlaceOfDeath', placeOfDeath);
 
     return this.http.post<KycResponse>(`${this.apiUrl}/verify-death-certificate`, formData);
   }

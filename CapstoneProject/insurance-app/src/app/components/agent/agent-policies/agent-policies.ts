@@ -2,6 +2,7 @@ import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PolicyService } from '../../../services/policy-service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-agent-policies',
@@ -12,6 +13,7 @@ import { PolicyService } from '../../../services/policy-service';
 export class AgentPolicies implements OnInit {
   private policyService = inject(PolicyService);
   private cdr = inject(ChangeDetectorRef);
+  private route = inject(ActivatedRoute);
 
   policies: any[] = [];
   loading = true;
@@ -19,16 +21,37 @@ export class AgentPolicies implements OnInit {
   showDetailsModal = false;
   agentRemarks: string = '';
   processingAction: 'Approve' | 'Reject' | null = null;
+  highlightedPolicyId: number | null = null;
 
   statusOptions = ['Pending', 'Active', 'Expired', 'Cancelled', 'Rejected', 'Matured', 'Closed'];
 
-  ngOnInit() { this.loadMyPolicies(); }
+  ngOnInit() { 
+    this.loadMyPolicies(); 
+    
+    const id = this.route.snapshot.queryParamMap.get('policyId');
+    if (id) {
+        this.highlightedPolicyId = parseInt(id);
+        // Wait for policies to load before scrolling
+    }
+  }
+
+  scrollToHighlighted() {
+    if (!this.highlightedPolicyId) return;
+    const el = document.getElementById(`policy-row-${this.highlightedPolicyId}`);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
 
   loadMyPolicies() {
     this.policyService.getAgentPolicies().subscribe(data => {
       this.policies = data;
       this.loading = false;
       this.cdr.detectChanges();
+
+      if (this.highlightedPolicyId) {
+        setTimeout(() => this.scrollToHighlighted(), 500);
+      }
     });
   }
 

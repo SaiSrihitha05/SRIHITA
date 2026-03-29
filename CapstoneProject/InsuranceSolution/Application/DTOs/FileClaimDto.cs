@@ -30,5 +30,6 @@ namespace Application.DTOs
 
         // Supporting documents (death certificate, medical records)
         public List<IFormFile>? Documents { get; set; }
+        public List<string>? DocumentCategories { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace Application.Services
     public interface IClaimService
     {
         Task<ClaimResponseDto> FileClaimAsync(int customerId, FileClaimDto dto);                    
+        Task<ClaimResponseDto> ResubmitClaimAsync(int claimId, int customerId, ResubmitClaimDto dto);
 
         Task<IEnumerable<ClaimResponseDto>> GetMyClaimsAsync(int customerId);                                      
 

@@ -225,7 +225,7 @@ namespace Application.Services
             // Save claim documents
             if (dto.Documents != null && dto.Documents.Any())
                 await SaveClaimDocumentsAsync(
-                    dto.Documents, claim.Id, customerId);
+                    dto.Documents, dto.DocumentCategories, claim.Id, customerId);
 
             // Notify Admin
             var admins = await _userRepository.GetByRoleAsync(UserRole.Admin);
@@ -283,6 +283,62 @@ namespace Application.Services
 
             var created = await _claimRepository.GetByIdWithDetailsAsync(claim.Id);
             return await MapToDtoAsync(created!);
+        }
+
+        public async Task<ClaimResponseDto> ResubmitClaimAsync(
+            int claimId, int customerId, ResubmitClaimDto dto)
+        {
+            var claim = await _claimRepository.GetByIdWithDetailsAsync(claimId);
+            if (claim == null)
+                throw new NotFoundException("Claim", claimId);
+
+            if (claim.PolicyAssignment?.CustomerId != customerId)
+                throw new ForbiddenException("You can only resubmit your own claims");
+
+            if (claim.Status != ClaimStatus.Rejected)
+                throw new BadRequestException("Only rejected claims can be resubmitted");
+
+            if (claim.ResubmissionCount >= 3)
+                throw new BadRequestException("Maximum resubmission attempts reached (3/3). This claim is permanently closed.");
+
+            if (claim.ResubmissionDeadline.HasValue && DateTime.UtcNow > claim.ResubmissionDeadline)
+                throw new BadRequestException("The resubmission deadline has passed. This claim is closed.");
+
+            // Update allowed fields
+            if (dto.ClaimAmount.HasValue) claim.ClaimAmount = dto.ClaimAmount.Value;
+            if (!string.IsNullOrWhiteSpace(dto.Remarks))
+            {
+                claim.Remarks = (claim.Remarks ?? "") + $"\n[Resubmission #{claim.ResubmissionCount + 1}]: {dto.Remarks}";
+            }
+
+            // Status updates
+            claim.ResubmissionCount++;
+            claim.Status = ClaimStatus.Resubmitted;
+            claim.RejectionReason = null; // Clear old reason
+            claim.FiledDate = DateTime.UtcNow; // Mark as updated
+
+            _claimRepository.Update(claim);
+            await _claimRepository.SaveChangesAsync();
+
+            // Save any new documents
+            if (dto.Documents != null && dto.Documents.Any())
+                await SaveClaimDocumentsAsync(dto.Documents, dto.DocumentCategories, claim.Id, customerId);
+
+            // Notify assigned Claims Officer
+            if (claim.ClaimsOfficerId.HasValue)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: claim.ClaimsOfficerId.Value,
+                    title: "Claim Resubmitted",
+                    message: $"Customer has resubmitted Claim #{claimId} (Policy: {claim.PolicyAssignment?.PolicyNumber}) with updated information.",
+                    type: NotificationType.ClaimsOfficerChatRequest,
+                    policyId: claim.PolicyAssignmentId,
+                    claimId: claim.Id,
+                    paymentId: null);
+            }
+
+            var updated = await _claimRepository.GetByIdWithDetailsAsync(claim.Id);
+            return await MapToDtoAsync(updated!);
         }
 
         // Admin assigns ClaimsOfficer 
@@ -427,9 +483,21 @@ namespace Application.Services
             else if (dto.Status == ClaimStatus.Rejected)
             {
                 claim.SettlementAmount = 0;
+                claim.RejectionReason = dto.RejectionReason;
+                claim.ResubmissionDeadline = DateTime.UtcNow.AddDays(14); // 14 days to resubmit
+
+                if (claim.ResubmissionCount >= 3)
+                {
+                    claim.Status = ClaimStatus.PermanentlyRejected;
+                    claim.RejectionReason = $"Permanently Rejected (Limit Reached: 3/3). {dto.RejectionReason}";
+                }
             }
 
-            claim.Status = dto.Status;
+            if (claim.Status != ClaimStatus.PermanentlyRejected)
+            {
+                claim.Status = dto.Status;
+            }
+            
             claim.OfficerRemarks = dto.Remarks;
             claim.ProcessedDate = DateTime.UtcNow;
 
@@ -659,7 +727,7 @@ namespace Application.Services
         }
 
         private async Task SaveClaimDocumentsAsync(
-            List<IFormFile> files, int claimId, int uploadedByUserId)
+            List<IFormFile> files, List<string>? categories, int claimId, int uploadedByUserId)
         {
             if (files == null || files.Count == 0) return;
 
@@ -671,29 +739,65 @@ namespace Application.Services
                 Directory.CreateDirectory(folderPath);
             }
 
-            foreach (var file in files)
+            // Get existing documents for this claim to determine if we update or add
+            var existingDocs = await _documentRepository.GetByClaimIdAsync(claimId);
+
+            for (int i = 0; i < files.Count; i++)
             {
+                var file = files[i];
                 if (file == null) continue;
+
+                // Match category if provided
+                string category = "ClaimDocument";
+                if (categories != null && i < categories.Count && !string.IsNullOrWhiteSpace(categories[i]))
+                {
+                    category = categories[i];
+                }
+
                 var fileName = file.FileName ?? "unknown.doc";
                 var ext = Path.GetExtension(fileName);
-                var uniqueName = $"ClaimDoc_{claimId}_{Guid.NewGuid()}{ext}";
+                var uniqueName = $"ClaimDoc_{claimId}_{category}_{Guid.NewGuid()}{ext}";
                 var filePath = folderPath + "/" + uniqueName;
 
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
-                var document = new Document
-                {
-                    FileName = uniqueName,
-                    FilePath = $"uploads/claims/{claimId}/{uniqueName}",
-                    DocumentCategory = "ClaimDocument",
-                    UploadedAt = DateTime.UtcNow,
-                    UploadedByUserId = uploadedByUserId,
-                    ClaimId = claimId,
-                    PolicyAssignmentId = null
-                };
+                // Find existing document of same category to replace
+                var existingDoc = existingDocs.FirstOrDefault(d => d.DocumentCategory == category);
 
-                await _documentRepository.AddAsync(document);
+                if (existingDoc != null)
+                {
+                    // Optionally delete old physical file
+                    var oldFilePath = Path.Combine(root, existingDoc.FilePath);
+                    if (File.Exists(oldFilePath))
+                    {
+                        try { File.Delete(oldFilePath); } catch { /* log and ignore */ }
+                    }
+
+                    // Update existing record
+                    existingDoc.FileName = uniqueName;
+                    existingDoc.FilePath = $"uploads/claims/{claimId}/{uniqueName}";
+                    existingDoc.UploadedAt = DateTime.UtcNow;
+                    existingDoc.UploadedByUserId = uploadedByUserId;
+                    
+                    _documentRepository.Update(existingDoc);
+                }
+                else
+                {
+                    // Add new record
+                    var document = new Document
+                    {
+                        FileName = uniqueName,
+                        FilePath = $"uploads/claims/{claimId}/{uniqueName}",
+                        DocumentCategory = category,
+                        UploadedAt = DateTime.UtcNow,
+                        UploadedByUserId = uploadedByUserId,
+                        ClaimId = claimId,
+                        PolicyAssignmentId = null
+                    };
+
+                    await _documentRepository.AddAsync(document);
+                }
             }
 
             await _documentRepository.SaveChangesAsync();
@@ -781,6 +885,9 @@ namespace Application.Services
                 Status = c.Status.ToString(),
                 Remarks = c.Remarks,
                 OfficerRemarks = c.OfficerRemarks,
+                RejectionReason = c.RejectionReason,
+                ResubmissionCount = c.ResubmissionCount,
+                ResubmissionDeadline = c.ResubmissionDeadline,
                 SettlementAmount = c.SettlementAmount,
                 ProcessedDate = c.ProcessedDate,
                 CreatedAt = c.CreatedAt,
