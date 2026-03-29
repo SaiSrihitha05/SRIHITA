@@ -5,6 +5,8 @@ appsettings.json
 appsettings.*.json
 .env
 .env.*
+*service*.json
+*credentials*.json
 
 # Visual Studio
 .vs/
